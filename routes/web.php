@@ -14,6 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
 Route::get('/lg', function () {
     Auth::logout();
     return redirect('/');
@@ -65,3 +68,6 @@ Route::get('/refresh-token', function () {
         ],
     ]);
 });
+
+//司机信息
+Route::resource('drivers', 'DriversController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
