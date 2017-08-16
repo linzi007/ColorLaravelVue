@@ -59,12 +59,20 @@ service.interceptors.response.use(
 //       return response.data;
 //     }
   error => {
-    console.log('err' + error);// for debug
+    let msg = error.message;
+    if (typeof error.response.data === 'object') {
+      this.errors = _.flatten(_.toArray(error.response.data));
+      console.log(this.errors);
+      if (this.errors[0]) {
+        msg = this.errors[0];
+      }
+    }
     Message({
-      message: error.message,
+      message: msg,
       type: 'error',
       duration: 5 * 1000
     });
+    console.log('err' + error);// for debug
     return Promise.reject(error);
   }
 )

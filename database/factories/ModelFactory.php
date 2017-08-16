@@ -28,3 +28,27 @@ $factory->define(App\Models\Driver::class, function (Faker\Generator $faker) {
         // 'name' => $faker->name,
     ];
 });
+
+$factory->define(App\Models\GoodsSetting::class, function (Faker\Generator $faker) {
+    return [
+        // 'name' => $faker->name,
+    ];
+});
+
+$factory->define(App\Models\MainOrderPayment::class, function (Faker\Generator $faker) {
+    return [
+        // 'name' => $faker->name,
+    ];
+});
+
+$factory->define(App\Models\SubOrderPayment::class, function (Faker\Generator $faker) {
+    return [
+        // 'name' => $faker->name,
+    ];
+});
+
+$factory->define(App\Models\OrderGoodsPayment::class, function (Faker\Generator $faker) {
+    return [
+        // 'name' => $faker->name,
+    ];
+});

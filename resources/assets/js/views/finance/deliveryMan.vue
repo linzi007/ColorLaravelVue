@@ -32,6 +32,10 @@
           label="司机名称">
       </el-table-column>
       <el-table-column
+          prop="mobile"
+          label="手机">
+      </el-table-column>
+      <el-table-column
           prop="description"
           label="备注">
       </el-table-column>
@@ -47,24 +51,27 @@
 
     <el-dialog :title="dialogTextMap[dialogStatus]"
     :visible.sync="dialogFormVisible">
-      <el-form class="small-space" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item label="编号">
-          <el-input v-model="temp.code"></el-input>
+      <el-form class="small-space" :model="formData"
+      :rules="validateRules" ref="formData"
+      label-position="left" label-width="70px"
+      style='width: 400px; margin-left:50px;'>
+        <el-form-item label="编号" prop="code" :error="errors.code">
+          <el-input v-model="formData.code"></el-input>
         </el-form-item>
-        <el-form-item label="司机名称">
-          <el-input v-model="temp.name"></el-input>
+        <el-form-item label="司机名称" prop="name" :error="errors.name">
+          <el-input v-model="formData.name"></el-input>
         </el-form-item>
-        <el-form-item label="手机">
-          <el-input v-model="temp.mobile"></el-input>
+        <el-form-item label="手机" prop="mobile" :error="errors.mobile">
+          <el-input v-model="formData.mobile"></el-input>
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="temp.description"></el-input>
+        <el-form-item label="备注" prop="description">
+          <el-input v-model="formData.description"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="create">确 定</el-button>
-        <el-button v-else type="primary" @click="update">确 定</el-button>
+        <el-button @click="cancelForm('formData')">取 消</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('formData')">确 定</el-button>
+        <el-button v-else type="primary" @click="update('formData')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -77,6 +84,7 @@
     data() {
       return {
         listLoading: true,
+        errors: [],
         list: null,
         total: null,
         pagePath: '/drivers',
@@ -90,10 +98,26 @@
         dialogStatus: '',
         dialogTextMap: {
           update: '编辑',
-          create: '创建'
+          create: '新增'
         },
         tableKey: 0,
-        temp: {}
+        formData: {},
+        validateRules: {
+          code: [
+            { required: true, message: '请输入编码', trigger: 'blur' },
+            { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          ],
+          name: [
+            { required: true, message: '请输入司机名称', trigger: 'blur' },
+            { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          ],
+          mobile: [
+            { required: true, message: '请输入手机', trigger: 'blur' }
+          ],
+          description: [
+            { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+          ]
+        }
       }
     },
     created() {
@@ -119,7 +143,7 @@
         this.dialogFormVisible = true;
       },
       handleUpdate(row) {
-        this.temp = Object.assign({}, row);
+        this.formData = Object.assign({}, row);
         this.dialogStatus = 'update';
         this.dialogFormVisible = true;
       },
@@ -132,68 +156,93 @@
             });
             return false;
           }
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success',
+            duration: 2000
+          });
+          const index = this.list.indexOf(row);
+          this.list.splice(index, 1);
         })
-        this.$notify({
-          title: '成功',
-          message: '删除成功',
-          type: 'success',
-          duration: 2000
-        });
-        const index = this.list.indexOf(row);
-        this.list.splice(index, 1);
       },
-      create() {
-        fetchCreate(this.temp, '/drivers').then(response => {
-          if (response.status !== 200) {
-            this.$message({
-              message: response.data.message,
-              type: 'error'
-            });
-            this.dialogFormVisible = false;
+      create(formName) {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
+            fetchCreate(this.formData, '/drivers').then(response => {
+              if (response.status === 422) {
+                this.errors = response.data;
+                this.$message({
+                  message: '表单验证失败',
+                  type: 'error'
+                });
+                return false;
+              } else if (response.status !== 200) {
+                this.$message({
+                  message: response.data.message,
+                  type: 'error'
+                });
+                return false;
+              }
+              this.formData.id = response.data.id;
+              this.formData.code = response.data.code;
+              this.formData.name = response.data.name;
+              this.formData.mobile = response.data.mobile;
+              this.formData.description = response.data.description;
+              this.list.unshift(this.formData);
+              // 返回通知
+              this.dialogFormVisible = false;
+              this.$notify({
+                title: '成功',
+                message: '创建成功',
+                type: 'success',
+                duration: 2000
+              });
+            })
+          } else {
+            console.log('error submit!!');
             return false;
           }
-          this.temp.id = response.data.id;
-          this.temp.code = response.data.code;
-          this.temp.name = response.data.name;
-          this.temp.description = response.data.description;
-          this.list.unshift(this.temp);
-        })
-        this.dialogFormVisible = false;
-        this.$notify({
-          title: '成功',
-          message: '创建成功',
-          type: 'success',
-          duration: 2000
         });
       },
-      update() {
-        fetchUpdate(this.temp, '/drivers/' + this.temp.id).then(response => {
-          if (response.status !== 200) {
-            this.$message({
-              message: response.data.message,
-              type: 'error'
-            });
-            this.dialogFormVisible = false;
+      update(formName) {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
+            fetchUpdate(this.formData, '/drivers/' + this.formData.id).then(response => {
+              if (response.status !== 200) {
+                this.$message({
+                  message: response.data.message,
+                  type: 'error'
+                });
+                return false;
+              }
+              for (const v of this.list) {
+                if (v.id === this.formData.id) {
+                  const index = this.list.indexOf(v);
+                  this.list.splice(index, 1, this.formData);
+                  break;
+                }
+              }
+              this.dialogFormVisible = false;
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              });
+            })
+          } else {
+            console.log('error submit!!');
             return false;
           }
-        })
-        for (const v of this.list) {
-          if (v.id === this.temp.id) {
-            const index = this.list.indexOf(v);
-            this.list.splice(index, 1, this.temp);
-            break;
-          }
-        }
-        this.dialogFormVisible = false;
-        this.$notify({
-          title: '成功',
-          message: '更新成功',
-          type: 'success',
-          duration: 2000
         });
+      },
+      cancelForm(formName) {
+        this.dialogFormVisible = false;
+        this.$refs[formName].resetFields();
       },
       resetTemp() {
-        this.temp = {
+        this.formData = {
           id: undefined,
           code: '',
           name: '',
