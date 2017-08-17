@@ -17,9 +17,31 @@ class MainOrderPayment extends Model
     /**
      * 主订单
      */
-    public function MainOrder()
+    public function mainOrder()
     {
-        $this->belongsTo(\App\Models\MainOrder::class, 'pay_id');
+        $this->belongsTo(\App\Models\MainOrder::class, 'pay_id', 'pay_id');
     }
+
+    /**
+     * 子支付信息
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subOrderPayments()
+    {
+        return $this->hasMany(\App\Models\SubOrderPayment::class, 'pay_id', 'pay_id');
+    }
+
+
+    /**
+     * 配送实际
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function driver()
+    {
+        return $this->belongsTo(\App\Models\Driver::class, 'driver_id');
+    }
+
 
 }

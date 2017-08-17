@@ -15,7 +15,7 @@ class MainOrder extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function SubOrders()
+    public function subOrders()
     {
         return $this->hasMany(\App\Models\Order::class, 'pay_id', 'pay_id');
     }
@@ -25,7 +25,7 @@ class MainOrder extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function OrderGoods()
+    public function orderGoods()
     {
         return $this->hasMany(\App\Models\OrderGoods::class, 'pay_id', 'pay_id');
     }
@@ -34,7 +34,7 @@ class MainOrder extends Model
      * order goods
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function MainOrderPayment()
+    public function mainOrderPayment()
     {
         return $this->hasOne(\App\Models\OrderGoods::class, 'pay_id', 'pay_id');
     }

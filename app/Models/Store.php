@@ -13,7 +13,7 @@ class Store extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function Goods()
+    public function goods()
     {
         return $this->hasMany(\App\Models\Goods::class, 'store_id', 'store_id');
     }
@@ -23,7 +23,7 @@ class Store extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function GoodsSetting()
+    public function goodsSetting()
     {
         return $this->hasMany(\App\Models\GoodsSetting::class, 'store_id', 'store_id');
     }
@@ -33,7 +33,7 @@ class Store extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function SubOrder()
+    public function subOrder()
     {
         return $this->hasMany(\App\Models\Order::class, 'store_id', 'store_id');
     }

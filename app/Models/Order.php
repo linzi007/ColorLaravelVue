@@ -15,7 +15,7 @@ class Order extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function MainOrder()
+    public function mainOrder()
     {
         return $this->belongsTo(\App\Models\MainOrder::class, 'pay_id', 'pay_id');
     }
@@ -25,7 +25,7 @@ class Order extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function Store()
+    public function store()
     {
         return $this->belongsTo(\App\Models\Store::class, 'store_id', 'store_id');
     }
@@ -35,7 +35,7 @@ class Order extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function OrderGoods()
+    public function orderGoods()
     {
         return $this->hasMany(\App\Models\OrderGoods::class, 'order_id', 'order_id');
     }

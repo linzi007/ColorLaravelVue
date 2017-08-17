@@ -15,7 +15,7 @@ class Goods extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function GoodsSetting()
+    public function goodsSetting()
     {
         return $this->hasOne(\App\Models\GoodsSetting::class, 'goods_id', 'goods_id');
     }
@@ -35,7 +35,7 @@ class Goods extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function GoodsCommon()
+    public function goodsCommon()
     {
         return $this->belongsTo(\App\Models\GoodsCommon::class, 'goods_commonid', 'goods_commonid');
     }

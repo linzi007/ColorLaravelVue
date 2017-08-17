@@ -9,8 +9,8 @@ class CreateGoodsSettingsTable extends Migration
 	{
 		Schema::create('goods_settings', function(Blueprint $table) {
             $table->increments('id');
-            $table->integer('goods_id', 11)->comment('sku')->unique();
-            $table->integer('store_id', 11)->comment('档口id')->index();
+            $table->integer('goods_id')->index()->comment('sku');
+            $table->integer('store_id')->index()->comment('档口id');
             $table->boolean('shipping_charging_type')->nullable()->default(0)->comment('配送计费方式');
             $table->float('shipping_rate')->default(0)->comment('单件费用or费率');
             $table->float('unpack_fee')->default(0)->comment('单件拆包费');

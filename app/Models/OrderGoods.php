@@ -13,11 +13,11 @@ class OrderGoods extends Model
     /**
      * goods
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function Goods()
+    public function goods()
     {
-        return $this->belongsTo(\App\Models\Goods::class, 'goods_id', 'goods_id');
+        return $this->hasOne(\App\Models\Goods::class, 'goods_id', 'goods_id');
     }
 
     /**
@@ -25,7 +25,7 @@ class OrderGoods extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function SubOrder()
+    public function subOrder()
     {
         return $this->belongsTo(\App\Models\Order::class, 'order_id', 'order_id');
     }

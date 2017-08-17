@@ -13,7 +13,7 @@ class GoodsCommon extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function Goods()
+    public function goods()
     {
         return $this->hasMany(\App\Models\Goods::class, 'goods_commonid', 'goods_commonid');
     }
@@ -23,7 +23,7 @@ class GoodsCommon extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function Store()
+    public function store()
     {
         return $this->belongsTo(\App\Models\Store::class, 'store_id', 'store_id');
     }

@@ -22,10 +22,19 @@ class SubOrderPayment extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function SubOrder()
+    public function subOrder()
     {
         return $this->belongsTo(\App\Models\Order::class, 'order_id');
     }
 
+    /**
+     * sub order
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function mainPayment()
+    {
+        return $this->belongsTo(\App\Models\Order::class, 'order_id');
+    }
 
 }
