@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 class OrderGoods extends Model
 {
     protected $table = 'order_goods';
@@ -38,5 +36,11 @@ class OrderGoods extends Model
     public function mainOrder()
     {
         return $this->belongsTo(\App\Models\MainOrder::class, 'pay_id', 'pay_id');
+    }
+
+    //记账信息
+    public function payments()
+    {
+        return $this->hasOne(\App\Models\OrderGoodsPayment::class, 'id', 'rec_id');
     }
 }

@@ -2,7 +2,7 @@ import fetch from 'utils/fetch';
 
 export function fetchList(query, url) {
   return fetch({
-    url: url,
+    url,
     method: 'get',
     params: query
   });
@@ -10,7 +10,7 @@ export function fetchList(query, url) {
 
 export function fetchCreate(data, url) {
   return fetch({
-    url: url,
+    url,
     method: 'post',
     data
   });
@@ -18,7 +18,7 @@ export function fetchCreate(data, url) {
 
 export function fetchUpdate(data, url) {
   return fetch({
-    url: url,
+    url,
     method: 'put',
     data
   })
@@ -27,7 +27,7 @@ export function fetchUpdate(data, url) {
 // 删除
 export function fetchDelete(url) {
   return fetch({
-    url: url,
-    method: 'delete',
+    url,
+    method: 'delete'
   })
 }

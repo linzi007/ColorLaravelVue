@@ -64,7 +64,7 @@ export const asyncRouterMap = [
     meta: { role: ['admin', 'finance'] },
     children: [
       { path: 'mainorder', component: _import('finance/mainOrder'), name: '收款登记表' },
-      { path: 'suborder', component: _import('finance/subOrder'), name: '收款登记表' },
+      { path: 'suborder', component: _import('finance/subOrder'), name: '收款登记表-子订单' },
       { path: 'detaillist', component: _import('finance/detailList'), name: '配送费明细' },
       { path: 'exchangereport', component: _import('finance/exchangeReport'), name: '换盖金额汇总表' },
       { path: 'goodsshippingfee', component: _import('finance/goodsShippingFee'), name: '货品配送费设置' },
@@ -75,7 +75,7 @@ export const asyncRouterMap = [
     path: '/predeposit',
     component: Layout,
     redirect: 'noredirect',
-    name: '预存款充值',
+    name: '预存款',
     icon: 'quanxian',
     meta: { role: ['admin', 'finance'] },
     children: [

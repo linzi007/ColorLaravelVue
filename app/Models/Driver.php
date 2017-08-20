@@ -4,7 +4,8 @@ namespace App\Models;
 
 class Driver extends Model
 {
-    protected $fillable = ['name', 'code', 'mobile', 'description'];
+    protected $fillable = ['name', 'code', 'mobile', 'description', 'created_at', 'updated_at'];
+
 
     /**
      * 配送的单据信息
