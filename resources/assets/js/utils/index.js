@@ -1,6 +1,7 @@
 /**
  * Created by jiachenpan on 16/11/18.
  */
+ import { Message } from 'element-ui';
 
  export function parseTime(time, cFormat) {
    if (arguments.length === 0) {
@@ -267,4 +268,16 @@
      }
    }
    return targetObj;
+ }
+
+ export function showMsg(data) {
+   let msgType = 'error'
+   if (data.status) {
+     msgType = 'success'
+   }
+   Message({
+     message: msg,
+     type: msgType,
+     duration: 2 * 1000
+   });
  }

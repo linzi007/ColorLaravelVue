@@ -69,216 +69,7 @@
     </div>
 
     <el-dialog title="收款登记" size="large" :visible.sync="dialogFormVisible">
-      <el-form :model="formData" ref="orderMainForm">
-        <el-row>
-            <span>订单信息</span>
-        </el-row>
-        <el-row>
-            <el-col :span="8">
-              <el-form-item label="支付单号">
-                <span class="form-item">
-                  {{formData.pay_sn}}
-                </span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="订单时间">
-                <span class="form-item">
-                  {{formData.add_time}}
-                </span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item label="门店名称">
-                <span class="form-item">
-                  {{formData.receiver_shop_name}}
-                </span>
-              </el-form-item>
-            </el-col>
-        </el-row>
-        <el-row>
-            <el-col :span="8">
-              <el-form-item label="收货人">
-                <span class="form-item">
-                  {{formData.receiver_name}}
-                </span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="16">
-              <el-form-item label="详细地址">
-                <span class="form-item">
-                  {{formData.receiver_area_info}} {{formData.receiver_address_detail}}
-                </span>
-              </el-form-item>
-            </el-col>
-        </el-row>
-
-        <el-row>
-          <span class="form-line">实发金额{{formData.shifa}}</span><span>（备注实发=货品金额-缺货-拒收）</span>
-        </el-row>
-        <el-row>
-            <el-col :span="8">
-              <el-form-item label="货品金额">
-                <span class="form-item">
-                  {{formData.receiver_name}}
-                </span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="缺货金额">
-                <span class="form-item">
-                  {{formData.quehuo}}
-                </span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="拒收金额">
-                <span class="form-item">
-                  {{formData.jushou}}
-                </span>
-              </el-form-item>
-            </el-col>
-            <el-col :span="4">
-                <el-button @click="toogleDialogGoodsList()">缺货/拒收录入</el-button>
-            </el-col>
-        </el-row>
-        <el-row>
-            <el-table v-show="dialogGoodsListVisible"
-                ref='orderGoods'
-                :data="formData.goods_list"
-                style="width: 100%">
-                <el-table-column width="210px" align="center" label="货品名称">
-                  <template scope="scope">
-                    <span>{{scope.row.goods_name}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="110px" align="center" label="条码">
-                  <template scope="scope">
-                    <span>{{scope.row.goods_serial}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="150px" align="center" label="档口名称">
-                  <template scope="scope">
-                    <span>{{scope.row.store_id}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="150px" align="center" label="单价">
-                  <template scope="scope">
-                    <span>{{scope.row.goods_price}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="110px" align="center" label="数量">
-                  <template scope="scope">
-                    <span>{{scope.row.goods_num}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="110px" align="center" label="缺货数量">
-                  <template scope="scope">
-                    <el-input v-show="scope.row.edit" size="small" v-model="scope.row.payments.quehuo_number"></el-input>
-                    <span v-show="!scope.row.edit">{{ scope.row.payments.quehuo_number }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="110px" fix="right" align="center" label="拒收数量">
-                  <template scope="scope">
-                    <el-input v-show="scope.row.edit" size="small" v-model="scope.row.payments.jushou_number"></el-input>
-                    <span v-show="!scope.row.edit">{{ scope.row.payments.jushou_number }}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column width="110px" fix="right" align="center" label="实发数量">
-                  <template scope="scope">
-                    <span>{{scope.row.goods_num - scope.row.payments.quehuo_number - scope.row.payments.jushou_number}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column align="center" fix="right" label="编辑" width="120">
-                  <template scope="scope">
-                    <el-button v-show='!scope.row.edit' type="primary" @click='scope.row.edit=true' size="small" icon="edit">编辑</el-button>
-                    <el-button v-show='scope.row.edit' type="success" @click='scope.row.edit=false' size="small" icon="check">完成</el-button>
-                  </template>
-                </el-table-column>
-            </el-table>
-        </el-row>
-
-        <el-row>
-          <span class="form-line">应收金额{{formData.yingshou}}</span><span>（备注：应收=实发金额-签单-自提-其他-尾差）</span>
-        </el-row>
-        <el-row>
-            <el-col :span="8">
-
-            </el-col>
-        </el-row>
-
-        <el-row>
-          <span class="form-line">实收金额{{formData.shishou}}</span><span>（备注：实收=预存款+POS+微信+支付宝+现金）</span>
-        </el-row>
-        <el-row>
-
-        </el-row>
-        <el-row>
-          <span class="form-line">配送费{{formData.shishou}}</span>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="货物配送费">
-              <el-input placeholder="货物配送费" v-model="formData.shipping_fee">
-                <el-button slot="append" @click="handleReCalculate()">重算</el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="司机配送费">
-              <el-input placeholder="司机配送费" v-model="formData.shipping_fee">
-                <el-button slot="append" @click="handleReCalculate()">重算</el-button>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-row>
-              <el-col :span="6">
-                  <el-checkbox v-model="formData.sencod_driver_id" :checked="formData.sencod_driver_id">二次配送</el-checkbox>
-              </el-col>
-              <el-col :span="18">
-                <div>
-                  <span>首次配送司机</span>
-                  <el-select
-                    v-model="formData.driver_id"
-                    filterable
-                    placeholder="请选择">
-                    <el-option
-                      v-for="item in driverOptions"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </div>
-              </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="6">
-                <el-checkbox checked>换盖</el-checkbox>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="档口">
-                <el-select size="small"
-                  filterable
-                  placeholder="请选择">
-                  <el-option
-                    v-model="exchangeBottle.store_id"
-                    v-for="item in storeOptions"
-                    :key="item.store_id"
-                    :label="item.store_name"
-                    :value="item.store_id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-input placeholder="换盖金额" v-model="exchangeBottle.amount">
-                <el-button slot="append" @click="handleExchangeBottle()">保存</el-button>
-              </el-input>
-            </el-col>
-          </el-row>
-        </el-row>
-      </el-form>
+      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts"></mainOrderDetail>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
@@ -289,8 +80,10 @@
 
 <script>
   import { fetchList, fetchUpdate } from 'api/restfull';
+  import mainOrderDetail from './_mainOrderDetail.vue'
   export default {
     name: 'mainOrder',
+    components: { mainOrderDetail },
     data() {
       return {
         listLoading: false,
@@ -315,10 +108,7 @@
         dialogGoodsListVisible: false,
         tableKey: 0,
         formData: {},
-        exchangeBottle: {}, // 换盖金额
         validateRules: {},
-        driverOptions: [],
-        storeOptions: [],
         addTimePickerOption: {
           shortcuts: [{
             text: '最近一周',
@@ -423,19 +213,7 @@
           });
           return false;
         })
-      }, // 换瓶盖数据保存
-      handleExchangeBottle() {
-        fetchUpdate(exchangeBottle, '/exchange_bottle').then(response => {
-          let msgType = 'error'
-          if (response.data.status) {
-            msgType = 'success'
-          }
-          this.$message({
-            message: response.data.message,
-            type: msgType
-          });
-        })
-      }, // 保存
+      }, // 数据保存
       handleSave() {
         fetchUpdate(this.formData, this.baseURL + '/' + formData.pay_id).then(response => {
           if (!response.data.status) {
@@ -467,21 +245,6 @@
       handleCurrentChange(val) {
         this.listQuery.current_page = val;
         this.handleSearch();
-      },
-      toogleDialogGoodsList() {
-        this.dialogGoodsListVisible = !this.dialogGoodsListVisible;
-      }, // 编辑订单货品信息
-      saveDialogGoodsList(row) {
-        fetchUpdate(row, '/order_goods_payments').then(response => {
-          let msgType = 'error'
-          if (response.data.status) {
-            msgType = 'success'
-          }
-          this.$message({
-            message: response.data.message,
-            type: msgType
-          });
-        })
       },
       initFormData() {
         this.formData = {
