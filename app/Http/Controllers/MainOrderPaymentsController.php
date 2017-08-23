@@ -99,9 +99,6 @@ class MainOrderPaymentsController extends Controller
             ->where(['main_order.pay_id' => $pay_id])->first(['main_order_payments.*', 'main_order.*']);
         $orderGoods = $this->orderGoods->with('payments')
             ->where('pay_id', $pay_id)->get();
-        if (!empty($orderGoods['payments'])) {
-            //@TODO 处理缺货信息
-        }
         $mainOrder['goods_list'] = $orderGoods;
         return response()->json($mainOrder);
     }

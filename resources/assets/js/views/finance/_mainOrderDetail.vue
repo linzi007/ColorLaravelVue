@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="mainOrder" ref="orderMainForm">
+  <el-form :model="orderPayments" ref="orderMainForm">
     <el-row>
         <h3 class="form-title">订单信息</h3>
     </el-row>
@@ -7,21 +7,21 @@
         <el-col :span="8">
           <el-form-item label="支付单号">
             <span class="form-item">
-              {{mainOrder.pay_sn}}
+              {{orderPayments.pay_sn}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="订单时间">
             <span class="form-item">
-              {{mainOrder.add_time}}
+              {{orderPayments.add_time}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="门店名称">
             <span class="form-item">
-              {{mainOrder.receiver_shop_name}}
+              {{orderPayments.receiver_shop_name}}
             </span>
           </el-form-item>
         </el-col>
@@ -30,40 +30,40 @@
         <el-col :span="8">
           <el-form-item label="收货人">
             <span class="form-item">
-              {{mainOrder.receiver_name}}
+              {{orderPayments.receiver_name}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="16">
           <el-form-item label="详细地址">
             <span class="form-item">
-              {{mainOrder.receiver_area_info}} {{mainOrder.receiver_address_detail}}
+              {{orderPayments.receiver_area_info}} {{orderPayments.receiver_address_detail}}
             </span>
           </el-form-item>
         </el-col>
     </el-row>
     <el-row>
-      <span class="form-line-head">实发金额{{mainOrder.shifa}}</span><span class="form-line-head form-line-head-desc">（备注实发=货品金额-缺货-拒收）</span>
+      <span class="form-line-head">实发金额{{orderPayments.shifa}}</span><span class="form-line-head form-line-head-desc">（备注实发=货品金额-缺货-拒收）</span>
     </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item label="货品金额">
             <span class="form-item">
-              {{mainOrder.receiver_name}}
+              {{orderPayments.receiver_name}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item label="缺货金额">
             <span class="form-item">
-              {{mainOrder.quehuo}}
+              {{orderPayments.quehuo}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item label="拒收金额">
             <span class="form-item">
-              {{mainOrder.jushou}}
+              {{orderPayments.jushou}}
             </span>
           </el-form-item>
         </el-col>
@@ -72,100 +72,100 @@
         </el-col>
     </el-row>
     <el-row>
-      <order-goods-list :goodsList="mainOrder.goods_list" @goods-change="handleGoodsListChange"
+      <order-goods-list :goodsList="orderPayments.goods_list" @goods-change="handleGoodsListChange"
         v-if="goodsListVisible">
       </order-goods-list>
     </el-row>
 
     <el-row>
-      <span class="form-line-head">应收金额{{mainOrder.yingshou}}</span><span class="form-line-head form-line-head-desc">（备注：应收=实发金额-签单-自提-其他-尾差）</span>
+      <span class="form-line-head">应收金额{{yingshouAmount}}</span><span class="form-line-head form-line-head-desc">（备注：应收=实发金额-签单-自提-其他-尾差）</span>
     </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item label="签单金额：">
-            <el-input placeholder="签单金额" v-model="mainOrder.qiandan">
+            <el-input placeholder="签单金额" v-model="orderPayments.qiandan">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="自提金额：">
-            <el-input placeholder="自提金额" v-model="mainOrder.ziti">
+            <el-input placeholder="自提金额" v-model="orderPayments.ziti">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="尾差金额：">
-            <el-input placeholder="尾差金额" v-model="mainOrder.weicha">
+            <el-input placeholder="尾差金额" v-model="orderPayments.weicha">
             </el-input>
           </el-form-item>
         </el-col>
 
         <el-col :span="8">
           <el-form-item label="其他金额：">
-            <el-input placeholder="其他金额" v-model="mainOrder.qita">
+            <el-input placeholder="其他金额" v-model="orderPayments.qita">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="备注：">
             <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 4}"
-              placeholder="扣减说明" v-model="mainOrder.desc_remark">
+              placeholder="扣减说明" v-model="orderPayments.desc_remark">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="代金券：">
             <span class="form-item">
-              {{mainOrder.promotion_amount}}
+              {{orderPayments.promotion_amount}}
             </span>
           </el-form-item>
         </el-col>
     </el-row>
 
     <el-row>
-      <span  class="form-line-head">实收金额{{mainOrder.shishou}}</span><span class="form-line-head form-line-head-desc">（备注：实收=预存款+POS+微信+支付宝+现金）</span>
+      <span  class="form-line-head">实收金额{{shishouAmount}}</span><span class="form-line-head form-line-head-desc">（备注：实收=预存款+POS+微信+支付宝+现金）</span>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="预存款金额：">
           <span class="form-item">
-            {{mainOrder.pd_amount}}
+            {{orderPayments.pd_amount}}
           </span>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="POS金额：">
-          <el-input placeholder="POS金额" v-model="mainOrder.qiandan">
+          <el-input placeholder="POS金额" v-model="orderPayments.pos">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="刷卡单号：">
-          <el-input placeholder="刷卡单号" v-model="mainOrder.out_pay_sn">
+          <el-input placeholder="刷卡单号" v-model="orderPayments.out_pay_sn">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="微信金额：">
-          <el-input placeholder="微信金额" v-model="mainOrder.weixin">
+          <el-input placeholder="微信金额" v-model="orderPayments.weixin">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="支付宝金额：">
-          <el-input placeholder="支付宝金额" v-model="mainOrder.alipay">
+          <el-input placeholder="支付宝金额" v-model="orderPayments.alipay">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="现金：">
-          <el-input placeholder="现金" v-model="mainOrder.cash">
+          <el-input placeholder="现金" v-model="orderPayments.cash">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="翼支付金额：">
-          <el-input placeholder="翼支付金额" v-model="mainOrder.yizhifu">
+          <el-input placeholder="翼支付金额" v-model="orderPayments.yizhifu">
           </el-input>
         </el-form-item>
       </el-col>
@@ -173,7 +173,7 @@
       <el-col :span="8">
         <el-form-item label="收款日期：">
           <el-date-picker
-            v-model="mainOrder.jk_at"
+            v-model="orderPayments.jk_at"
             type="datetime"
             placeholder="选择日期时间"
             align="right"
@@ -184,7 +184,7 @@
       <el-col :span="8">
         <el-form-item label="存款日期：">
           <el-date-picker
-            v-model="mainOrder.ck_at"
+            v-model="orderPayments.ck_at"
             type="datetime"
             placeholder="选择日期时间"
             align="right"
@@ -195,38 +195,38 @@
       <el-col :span="8">
         <el-form-item label="收款备注：">
           <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 4}"
-            v-model="mainOrder.remark">
+            v-model="orderPayments.remark">
           </el-input>
         </el-form-item>
       </el-col>
     </el-row>
     <el-row>
-      <span class="form-line-head">配送费{{mainOrder.shishou}}</span>
+      <span class="form-line-head">配送费</span>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="货物配送费">
-          <el-input placeholder="货物配送费" v-model="mainOrder.shipping_fee">
+          <el-input placeholder="货物配送费" v-model="orderPayments.shipping_fee">
             <el-button slot="append" @click="handleReCalculate()">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="司机配送费">
-          <el-input placeholder="司机配送费" v-model="mainOrder.driver_fee">
+          <el-input placeholder="司机配送费" v-model="orderPayments.driver_fee">
             <el-button slot="append" @click="handleReCalculate()">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
       <el-row>
           <el-col :span="6">
-              <el-checkbox v-model="mainOrder.sencod_driver_id" :checked="mainOrder.sencod_driver_id">二次配送</el-checkbox>
+              <el-checkbox v-model="orderPayments.sencod_driver_id" :checked="orderPayments.sencod_driver_id">二次配送</el-checkbox>
           </el-col>
           <el-col :span="18">
             <div>
               <span>首次配送司机</span>
               <el-select
-                v-model="mainOrder.driver_id"
+                v-model="orderPayments.driver_id"
                 filterable
                 placeholder="请选择">
                 <el-option
@@ -289,8 +289,6 @@ export default {
     return {
       storeList: [{ store_id: 12, store_name: '档口' }],
       driverList: [{ id: 1, name: '司机' }],
-      jushou_amount: '',
-      shishou_amount: '',
       goodsListVisible: true,
       exchangeBottle: {
         is_checked: false,
@@ -321,27 +319,18 @@ export default {
       }
     }
   },
-  created() {
-    this.jushou_amount = this.mainOrder.jushou
-    this.shishou_amount = this.mainOrder.shishou
-  },
   computed: {
-    'mainOrder.shifa'() {
-      console.log('computed:');
-      return this.mainOrder.pay_amount - this.jushou_amount - this.quehuo_amount;
+    orderPayments() {
+      return this.mainOrder;
     },
-    'mainOrder.yingshou'() {
-      return this.mainOrder.shifa - this.mainOrder.qiandan - this.mainOrder.ziti
-       - this.mainOrder.weicha - this.mainOrder.qita;
+    shifaAmount() {
+      return this.getShifaAmount();
     },
-    'mainOrder.shishou'() {
-      return this.mainOrder.pd_amount + this.mainOrder.pos + this.mainOrder.weixin
-       + this.mainOrder.alipay + this.mainOrder.yizhifu + this.mainOrder.yizhifu;
+    yingshouAmount() {
+      return this.getYingshouAmount()
     },
-    'mainOrder.quehuo'() {
-      this.mainOrder.goods_list.forEach(goods => {
-        return goods.goods_price * goods.payments.quehuo_number;
-      }).sum()
+    shishouAmount() {
+      return this.getShishouAmount();
     }
   },
   methods: {
@@ -361,7 +350,7 @@ export default {
       })
     },
     handleReCalculate() {
-      fetchList({}, '/main_order_payments/' + this.mainOrder.pay_id + '/reCaculate').then(response => {
+      fetchList({}, '/main_order_payments/' + this.orderPayments.pay_id + '/reCaculate').then(response => {
         showMsg(response.data)
       })
     },
@@ -369,8 +358,57 @@ export default {
       console.log('toogle:' + this.goodsListVisible);
       this.goodsListVisible = !this.goodsListVisible;
     },
-    handleGoodsListChange(goodsList) {
-      this.mainOrder.goods_list = goodsList;
+    handleGoodsListChange(change) {
+      this.orderPayments.goods_list = change;
+      let sum_jushou = 0.0;
+      let sum_quehuo = 0.0;
+      _.forEach(this.orderPayments.goods_list, (n, key) => {
+        console.log(key);
+        console.log(n.payments);
+        sum_jushou = _.add(n.payments.jushou_number * n.goods_price, sum_jushou)
+        sum_quehuo = _.add(n.payments.quehuo_number * n.goods_price, sum_quehuo)
+      });
+      console.log('watch change:');
+      console.log('jushou sum:');
+      console.log(sum_jushou);
+      console.log('quehuo sum:');
+
+      console.log(sum_quehuo);
+
+      this.orderPayments.jushou = sum_jushou
+      this.orderPayments.quehuo = sum_quehuo
+      this.orderPayments.shifa = this.getShifaAmount()
+    },
+    handleNull() {
+      if (_.isNull(this.orderPayments.pd_amount)) {
+        this.orderPayments.pd_amount = 0;
+      }
+      if (_.isNull(this.orderPayments.pos)) {
+        this.orderPayments.pos = 0;
+      }
+      if (_.isNull(this.orderPayments.weixin)) {
+        this.orderPayments.weixin = 0;
+      }
+      if (_.isNull(this.orderPayments.alipay)) {
+        this.orderPayments.alipay = 0;
+      }
+      if (_.isNull(this.orderPayments.yizhifu)) {
+        this.orderPayments.yizhifu = 0;
+      }
+      if (_.isNull(this.orderPayments.cash)) {
+        this.orderPayments.cash = 0;
+      }
+    },
+    getShishouAmount() {
+      this.handleNull();
+      return _.add(_.add(_.add(_.add(_.add(parseFloat(this.orderPayments.pd_amount), parseFloat(this.orderPayments.pos)), parseFloat(this.orderPayments.weixin)), parseFloat(this.orderPayments.alipay)), parseFloat(this.orderPayments.yizhifu)), parseFloat(this.orderPayments.cash))
+    },
+    getYingshouAmount() {
+      return this.orderPayments.shifa - this.orderPayments.qiandan - this.orderPayments.ziti
+       - this.orderPayments.weicha - this.orderPayments.qita
+    },
+    getShifaAmount() {
+      return this.orderPayments.order_amount - this.orderPayments.jushou - this.orderPayments.quehuo
     }
   }
 }

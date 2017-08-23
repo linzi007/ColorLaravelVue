@@ -1,7 +1,7 @@
 <template>
   <el-table
       ref='orderGoods'
-      :data="goodsList"
+      :data="orderGoodsList"
       style="width: 100%">
       <el-table-column width="210px" align="center" label="货品名称">
         <template scope="scope">
@@ -47,8 +47,8 @@
       </el-table-column>
       <el-table-column align="center" fix="right" label="编辑" width="120">
         <template scope="scope">
-          <el-button v-show='!scope.row.edit' type="primary" @click="handleEdit(scope.row)" size="small" icon="edit">编辑</el-button>
-          <el-button v-show='scope.row.edit' type="success" @click="handleSave(scope.row)" size="small" icon="check">完成</el-button>
+          <el-button v-show='!scope.row.edit' type="primary" @click="handleEdit(scope.$index, orderGoodsList)" size="small" icon="edit">编辑</el-button>
+          <el-button v-show='scope.row.edit' type="success" @click="handleSave(scope.$index, orderGoodsList)" size="small" icon="check">完成</el-button>
         </template>
       </el-table-column>
   </el-table>
@@ -68,11 +68,14 @@ export default {
     return {
     }
   },
+  computed: {
+    orderGoodsList() {
+      return this.goodsList;
+    }
+  },
   watch: {
-    goodsList: {
+    orderGoodsList: {
       handler(list) {
-        console.log('watch:');
-        console.log(list);
         list.map(item => {
           item.payments.shifa_number = item.goods_num - item.payments.quehuo_number - item.payments.jushou_number
           return item;
@@ -83,15 +86,14 @@ export default {
     }
   },
   methods: {
-    handleEdit(row) {
+    handleEdit(index, rows) {
       console.log('handleEdit:');
-      row.edit = true;
-      console.log(row);
+      rows[index].edit = true;
     },
-    handleSave(row) {
+    handleSave(index, rows) {
       console.log('handleSave:');
-      row.edit = false;
-      console.log(row);
+      console.log(rows[index]);
+      rows[index].edit = false;
     }
   }
 }
