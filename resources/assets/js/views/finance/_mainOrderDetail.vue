@@ -1,25 +1,30 @@
 <template>
-  <el-form :model="orderPayments" ref="orderMainForm">
+  <el-form :model="orderPayments" :rules="rules" label-width="100px" ref="orderMainForm">
     <el-row>
         <h3 class="form-title">订单信息</h3>
     </el-row>
+    <el-row>
+      <div class="form-line-head">
+        订单信息
+      </div>
+    </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="支付单号">
+          <el-form-item label="支付单号：">
             <span class="form-item">
               {{orderPayments.pay_sn}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="订单时间">
+          <el-form-item label="订单时间：">
             <span class="form-item">
               {{orderPayments.add_time}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="门店名称">
+          <el-form-item label="门店名称：">
             <span class="form-item">
               {{orderPayments.receiver_shop_name}}
             </span>
@@ -28,14 +33,14 @@
     </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="收货人">
+          <el-form-item label="收货人：">
             <span class="form-item">
               {{orderPayments.receiver_name}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="16">
-          <el-form-item label="详细地址">
+          <el-form-item label="详细地址：">
             <span class="form-item">
               {{orderPayments.receiver_area_info}} {{orderPayments.receiver_address_detail}}
             </span>
@@ -43,42 +48,46 @@
         </el-col>
     </el-row>
     <el-row>
-      <span class="form-line-head">实发金额{{orderPayments.shifa}}</span><span class="form-line-head form-line-head-desc">（备注实发=货品金额-缺货-拒收）</span>
+      <div class="form-line-head" style="background: #D3DCE6">
+        实发金额：<span class="form-head-price">{{shifaAmount | currency}}</span><span class="form-line-head-desc">（备注实发=货品金额-缺货-拒收）</span>
+      </div>
     </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="货品金额">
+          <el-form-item label="货品金额：">
             <span class="form-item">
-              {{orderPayments.receiver_name}}
+              {{orderPayments.goods_amount | currency}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="缺货金额">
+          <el-form-item label="缺货金额：">
             <span class="form-item">
-              {{orderPayments.quehuo}}
+              {{orderPayments.quehuo | currency}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="拒收金额">
+          <el-form-item label="拒收金额：">
             <span class="form-item">
-              {{orderPayments.jushou}}
+              {{orderPayments.jushou | currency}}
             </span>
           </el-form-item>
         </el-col>
         <el-col :span="4">
-            <el-button @click="toogleGoodsList()">缺货/拒收录入</el-button>
+            <el-button size="small" type="success" @click="toogleGoodsList()">缺货/拒收录入</el-button>
         </el-col>
     </el-row>
     <el-row>
       <order-goods-list :goodsList="orderPayments.goods_list" @goods-change="handleGoodsListChange"
-        v-if="goodsListVisible">
+        v-show="goodsListVisible">
       </order-goods-list>
     </el-row>
 
     <el-row>
-      <span class="form-line-head">应收金额{{yingshouAmount}}</span><span class="form-line-head form-line-head-desc">（备注：应收=实发金额-签单-自提-其他-尾差）</span>
+      <div class="form-line-head" style="background: #F9FAFC">
+        应收金额：<span class="form-head-price">{{yingshouAmount | currency}}</span><span class="form-line-head-desc">（备注：应收=实发金额-签单-自提-其他-尾差）</span>
+      </div>
     </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
@@ -99,7 +108,6 @@
             </el-input>
           </el-form-item>
         </el-col>
-
         <el-col :span="8">
           <el-form-item label="其他金额：">
             <el-input placeholder="其他金额" v-model="orderPayments.qita">
@@ -123,7 +131,9 @@
     </el-row>
 
     <el-row>
-      <span  class="form-line-head">实收金额{{shishouAmount}}</span><span class="form-line-head form-line-head-desc">（备注：实收=预存款+POS+微信+支付宝+现金）</span>
+      <div class="form-line-head" style="background: #8492A6">
+        实收金额：<span class="form-head-price">{{shishouAmount | currency}}</span><span class="form-line-head-desc">（备注：实收=预存款+POS+微信+支付宝+现金）</span>
+      </div>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
@@ -169,7 +179,11 @@
           </el-input>
         </el-form-item>
       </el-col>
-
+      <el-col :span="8">
+        <el-form-item label="交款人：">
+          <select-driver :selected="orderPayments.jk_driver_id" @changeSelect="jkrChange"></select-driver>
+        </el-form-item>
+      </el-col>
       <el-col :span="8">
         <el-form-item label="收款日期：">
           <el-date-picker
@@ -201,80 +215,90 @@
       </el-col>
     </el-row>
     <el-row>
-      <span class="form-line-head">配送费</span>
+      <div class="form-line-head">
+        配送费：
+      </div>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="货物配送费">
-          <el-input placeholder="货物配送费" v-model="orderPayments.shipping_fee">
+        <el-form-item label="货物配送费：">
+          <el-input placeholder="货物配送费" v-model="orderPayments.delivery_fee">
             <el-button slot="append" @click="handleReCalculate()">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="司机配送费">
+        <el-form-item label="司机配送费：">
           <el-input placeholder="司机配送费" v-model="orderPayments.driver_fee">
             <el-button slot="append" @click="handleReCalculate()">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
-      <el-row>
-          <el-col :span="6">
-              <el-checkbox v-model="orderPayments.sencod_driver_id" :checked="orderPayments.sencod_driver_id">二次配送</el-checkbox>
-          </el-col>
-          <el-col :span="18">
-            <div>
-              <span>首次配送司机</span>
-              <el-select
-                v-model="orderPayments.driver_id"
-                filterable
-                placeholder="请选择">
-                <el-option
-                  v-for="item in driverList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </div>
-          </el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="6">
-            <el-checkbox checked>换盖</el-checkbox>
+    </el-row>
+    <el-row :gutter="20">
+        <el-col :span="4">
+            <el-checkbox v-model="selectFirstDriver" :checked="selectFirstDriver">二次配送</el-checkbox>
         </el-col>
-        <el-col :span="6">
-          <el-form-item label="档口">
-            <el-select size="small" v-model="exchangeBottle.store_id"
-              filterable
-              placeholder="请选择">
-              <el-option
-                v-for="item in storeList"
-                :key="item.store_id"
-                :label="item.store_name"
-                :value="item.store_id">
-              </el-option>
-            </el-select>
+        <el-col :span="14" v-show="selectFirstDriver">
+          <el-form-item label="首配司机：">
+            <select-driver :selected="orderPayments.driver_id" @changeSelect="firstDriverChange"></select-driver>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="4">
+          <el-checkbox v-model="exchangeBottle.is_checked" :checked="exchangeBottle.is_checked">换盖</el-checkbox>
+      </el-col>
+      <el-col :span="10" v-show="exchangeBottle.is_checked">
+        <el-form-item label="兑换档口：">
+          <select-store :selected="exchangeBottle.store_id" @changeSelect="storeChange"></select-store>
+        </el-form-item>
+      </el-col>
+      <el-col :span="10" v-show="exchangeBottle.is_checked">
+        <el-form-item label="换盖金额：">
           <el-input placeholder="换盖金额" v-model="exchangeBottle.amount">
             <el-button slot="append" @click="handleExchangeBottle()">保存</el-button>
           </el-input>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20" class="form-footer">
+        <el-col :span="6" class="form-footer-text">
+            录入人：{{orderPayments.jlr}}
         </el-col>
-      </el-row>
+        <el-col :span="6" class="form-footer-text">
+            变更人：{{orderPayments.updater}}
+        </el-col>
+        <el-col :span="6" class="form-footer-text">
+            修改日期：{{orderPayments.updated_at}}
+        </el-col>
+        <el-col :span="6" class="form-footer-text">
+            录入状态：{{orderPayments.status | orderPaymentsStatus}}
+        </el-col>
+    </el-row>
+    <el-row :gutter="20" type="flex" class="row-bg" justify="center">
+      <el-col :span="6">
+        <el-button @click="handleCancel">取 消</el-button>
+      </el-col>
+      <el-col :span="6">
+        <el-button type="primary" @click="handleSaveAndCancel">保存并退出</el-button>
+      </el-col>
+      <el-col :span="6">
+        <el-button type="primary" @click="handleSave">保 存</el-button>
+      </el-col>
     </el-row>
   </el-form>
 </template>
 
 <script>
-import { fetchList, fetchUpdate } from 'api/restfull';
+import { fetchList, fetchUpdate, fetchCreate } from 'api/restfull';
 import { showMsg } from 'utils/index';
 import OrderGoodsList from './_orderGoodsList.vue';
-
+import SelectDriver from 'components/Selector/SelectDriver';
+import SelectStore from 'components/Selector/SelectStore';
 export default {
   name: 'MainOrderDetail',
-  components: { OrderGoodsList },
+  components: { OrderGoodsList, SelectDriver, SelectStore },
   props: {
     mainOrder: {
       type: Object,
@@ -287,13 +311,33 @@ export default {
   },
   data() {
     return {
+      selectFirstDriver: false,
       storeList: [{ store_id: 12, store_name: '档口' }],
       driverList: [{ id: 1, name: '司机' }],
-      goodsListVisible: true,
+      goodsListVisible: false,
       exchangeBottle: {
         is_checked: false,
+        driver_id: 0,
         store_id: '',
+        pay_sn: '',
         amount: 0
+      },
+      rules: {
+        jkr_id: [
+          { required: true, message: '请选择交款人', trigger: 'blur' }
+        ],
+        ck_at: [
+          { type: 'date', required: true, message: '请选择存款日期', trigger: 'change' }
+        ],
+        qiandan: [
+          { type: 'float', message: '必须为数值', trigger: 'change' }
+        ],
+        ziti: [
+          { type: 'float', message: '必须为数值', trigger: 'change' }
+        ],
+        weicha: [
+          { type: 'float', message: '必须为数值', trigger: 'change' }
+        ]
       },
       dateOptions: {
         shortcuts: [{
@@ -331,49 +375,85 @@ export default {
     },
     shishouAmount() {
       return this.getShishouAmount();
+    },
+    'exchangeBottle.dirver_id'() {
+      return this.orderPayments.jk_driver_id
     }
   },
   methods: {
-    getStoreList(store_name) {
-      fetchList({ store_name }, '/stores').then(response => {
-        this.storeList = response.data
-      })
-    },
-    getDriverList(name) {
-      fetchList({ name }, '/drivers').then(response => {
-        this.driverList = response.data
-      })
-    },
     handleExchangeBottle() {
-      fetchUpdate(this.exchangeBottle, 'exchange_bottles').then(response => {
+      if (!this.exchangeBottle.driver_id) {
+        this.$message({
+          message: '请先选择交款人',
+          type: 'error'
+        });
+        return false;
+      }
+      if (!this.exchangeBottle.amount) {
+        this.$message({
+          message: '请输入兑换金额',
+          type: 'error'
+        });
+        return false;
+      }
+      this.exchangeBottle.pay_sn = this.orderPayments.pay_sn;
+      fetchUpdate(this.exchangeBottle, '/exchange_bottles').then(response => {
         showMsg(response.data)
       })
     },
     handleReCalculate() {
-      fetchList({}, '/main_order_payments/' + this.orderPayments.pay_id + '/reCaculate').then(response => {
+      if (!this.orderPayments.id) {
+        this.$message({
+          message: '录入之后将自动计算',
+          type: 'error'
+        });
+        return false;
+      }
+      fetchList({ pay_ids: this.orderPayments.pay_id }, '/main_order_payments/re_calculate').then(response => {
         showMsg(response.data)
       })
     },
+    handleSave() {
+      this.$refs.orderMainForm.validate(valid => {
+        if (valid) {
+          fetchCreate(this.orderPayments, '/main_order_payments').then(response => {
+            if (!response.data.status) {
+              this.$message({
+                message: response.data.message,
+                type: 'error'
+              });
+              return false;
+            }
+            this.$notify({
+              title: '更新成功',
+              message: '更新成功',
+              type: 'success',
+              duration: 1000
+            })
+          })
+        } else {
+          return false;
+        }
+      })
+    },
+    handleCancel() {
+      this.$emit('handleCancel');
+    }, // 保存并关闭
+    handleSaveAndCancel() {
+      this.handleSave();
+      this.handleCancel();
+    },
     toogleGoodsList() {
-      console.log('toogle:' + this.goodsListVisible);
       this.goodsListVisible = !this.goodsListVisible;
     },
     handleGoodsListChange(change) {
       this.orderPayments.goods_list = change;
       let sum_jushou = 0.0;
       let sum_quehuo = 0.0;
-      _.forEach(this.orderPayments.goods_list, (n, key) => {
-        console.log(key);
-        console.log(n.payments);
-        sum_jushou = _.add(n.payments.jushou_number * n.goods_price, sum_jushou)
-        sum_quehuo = _.add(n.payments.quehuo_number * n.goods_price, sum_quehuo)
+      _.forEach(this.orderPayments.goods_list, goods => {
+        sum_jushou = _.add(goods.payments.jushou_number * goods.goods_price, sum_jushou)
+        sum_quehuo = _.add(goods.payments.quehuo_number * goods.goods_price, sum_quehuo)
       });
-      console.log('watch change:');
-      console.log('jushou sum:');
-      console.log(sum_jushou);
-      console.log('quehuo sum:');
-
-      console.log(sum_quehuo);
 
       this.orderPayments.jushou = sum_jushou
       this.orderPayments.quehuo = sum_quehuo
@@ -409,6 +489,15 @@ export default {
     },
     getShifaAmount() {
       return this.orderPayments.order_amount - this.orderPayments.jushou - this.orderPayments.quehuo
+    },
+    firstDriverChange(val) {
+      return this.orderPayments.driver_id = val
+    },
+    jkrChange(val) {
+      this.orderPayments.jk_driver_id = val
+    },
+    storeChange(val) {
+      return this.exchangeBottle.store_id = val
     }
   }
 }
@@ -421,19 +510,25 @@ export default {
       margin-bottom: 0;
     }
   }
-  .el-col {
-    margin-bottom: 5px;
-    &:last-child {
-      margin-bottom: 0;
-    }
+.el-col {
+  margin-bottom: 5px;
+  &:last-child {
+    margin-bottom: 0;
   }
-  .form-title {
-    text-align: center;
-  }
-  .form-line-head {
-    background: #e5e9f2;
-  }
-  .form-line-head-desc {
-    float: right;
-  }
+}
+.form-title {
+  text-align: center;
+}
+.form-line-head {
+  background: #e5e9f2;
+}
+.form-line-head-desc {
+  float: right;
+}
+.form-head-price {
+  color: #F7BA2A;
+}
+.el-form-item {
+  margin-bottom: 5px
+}
 </style>

@@ -23,7 +23,6 @@ class DriversController extends Controller
         'name' => '名称',
         'mobile' => '手机',
         'description' => '备注',
-
     ];
     public function __construct(Driver $driver)
     {
@@ -38,6 +37,14 @@ class DriversController extends Controller
             ->orderBy('id', 'asc')->paginate();
         return response($drivers);
 	}
+
+    public function list(Request $request)
+    {
+        $name = $request->get('name');
+        $drivers = $this->driver->select(['id', 'name'])->where('name', 'like', $name . '%')
+            ->orderBy('id', 'desc')->get();
+        return response($drivers);
+    }
 
     public function show(Driver $driver)
     {

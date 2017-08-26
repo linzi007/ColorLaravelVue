@@ -88,15 +88,26 @@ Route::resource('drivers', 'DriversController', ['only' => ['index', 'show', 'cr
 Route::resource('goods_settings', 'GoodsSettingsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
 Route::resource('sub_order_payments', 'SubOrderPaymentsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
 Route::resource('order_goods_payments', 'OrderGoodsPaymentsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
-
-Route::get('/main_order_payments', 'MainOrderPaymentsController@index');
+//换瓶盖
+Route::resource('exchange_bottles', 'ExchangeBottlesController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
+//下拉列表
+Route::get('/stores', 'StoresController@list');
+Route::get('/drivers_list', 'DriversController@list');
+//
+Route::get('/main_order_payments', 'MainOrderPaymentsController@index')->name('main_order_payments.index');
+Route::post('/main_order_payments', 'MainOrderPaymentsController@store');
+Route::get('/main_order_payments/jizhang', 'MainOrderPaymentsController@jizhang')->name('main_order_payments.jizhang');
+Route::get('/main_order_payments/fanjizhang', 'MainOrderPaymentsController@fanjizhang')->name('main_order_payments.fanjizhang');
+Route::get('/main_order_payments/re_calculate', 'MainOrderPaymentsController@reCalculateShippingFee')->name('main_order_payments.re_calculate');
 Route::get('/main_order_payments/{pay_id}', 'MainOrderPaymentsController@show');
 
+//单据导出
 Route::group(['prefix' => 'export'], function () {
     Route::get('driver', 'DriversController@export');
+    Route::get('main_order_payments', 'MainOrderPaymentsController@export');
 });
+
+//导入
 Route::group(['prefix' => 'import'], function () {
     Route::get('driver', 'DriversController@import');
 });
-
-Route::get('/import/driver', 'DriversController@import');

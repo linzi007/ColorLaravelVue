@@ -11,7 +11,7 @@ class MainOrderPayment extends Model
         , 'yingshou', 'pos', 'weixin', 'alipay', 'yizhifu', 'cash', 'shishou'
         //  配送费         司机费用     id    首次司机       第二次司机      状态      记录人  记账人 记账时间
         , 'delivery_fee', 'driver_fee', 'id', 'driver', 'driver_second', 'status', 'jlr', 'jzr', 'jz_at'
-        , 'pay_sn', 'store_id', 'add_time'
+        , 'store_id', 'add_time'
     ];
 
     /**
@@ -32,7 +32,6 @@ class MainOrderPayment extends Model
         return $this->hasMany(\App\Models\SubOrderPayment::class, 'pay_id', 'pay_id');
     }
 
-
     /**
      * 配送实际
      *
@@ -43,5 +42,14 @@ class MainOrderPayment extends Model
         return $this->belongsTo(\App\Models\Driver::class, 'driver_id');
     }
 
+    public function jizhang($payIds)
+    {
+        return $this->where('status', 0)->whereIn('pay_id', $payIds)->update(['status' => 1]);
+    }
+
+    public function fanjizhang($payIds)
+    {
+        return $this->where('status', 1)->whereIn('pay_id', $payIds)->update(['status' => 0]);
+    }
 
 }

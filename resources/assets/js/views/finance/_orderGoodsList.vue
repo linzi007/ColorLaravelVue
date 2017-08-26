@@ -2,6 +2,7 @@
   <el-table
       ref='orderGoods'
       :data="orderGoodsList"
+      max-height="250"
       style="width: 100%">
       <el-table-column width="210px" align="center" label="货品名称">
         <template scope="scope">
@@ -30,25 +31,17 @@
       </el-table-column>
       <el-table-column width="110px" align="center" label="缺货数量">
         <template scope="scope">
-          <el-input v-show="scope.row.edit" size="small" v-model="scope.row.payments.quehuo_number"></el-input>
-          <span v-show="!scope.row.edit">{{ scope.row.payments.quehuo_number }}</span>
+          <el-input size="small" v-model="scope.row.payments.quehuo_number"></el-input>
         </template>
       </el-table-column>
       <el-table-column width="110px" fix="right" align="center" label="拒收数量">
         <template scope="scope">
-          <el-input v-show="scope.row.edit" size="small" v-model="scope.row.payments.jushou_number"></el-input>
-          <span v-show="!scope.row.edit">{{ scope.row.payments.jushou_number }}</span>
+          <el-input size="small" v-model="scope.row.payments.jushou_number"></el-input>
         </template>
       </el-table-column>
       <el-table-column width="110px" fix="right" align="center" label="实发数量">
         <template scope="scope">
           <span>{{scope.row.payments.shifa_number}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" fix="right" label="编辑" width="120">
-        <template scope="scope">
-          <el-button v-show='!scope.row.edit' type="primary" @click="handleEdit(scope.$index, orderGoodsList)" size="small" icon="edit">编辑</el-button>
-          <el-button v-show='scope.row.edit' type="success" @click="handleSave(scope.$index, orderGoodsList)" size="small" icon="check">完成</el-button>
         </template>
       </el-table-column>
   </el-table>
@@ -77,23 +70,17 @@ export default {
     orderGoodsList: {
       handler(list) {
         list.map(item => {
+          // @TODO 初始化 payments
+          if (_.isNull(item.payments)) {
+            item.payments.quehuo_number = 0
+            item.payments.jushou_number = 0
+          }
           item.payments.shifa_number = item.goods_num - item.payments.quehuo_number - item.payments.jushou_number
           return item;
         });
         this.$emit('goods-change', list)
       },
       deep: true
-    }
-  },
-  methods: {
-    handleEdit(index, rows) {
-      console.log('handleEdit:');
-      rows[index].edit = true;
-    },
-    handleSave(index, rows) {
-      console.log('handleSave:');
-      console.log(rows[index]);
-      rows[index].edit = false;
     }
   }
 }

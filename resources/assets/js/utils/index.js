@@ -251,7 +251,6 @@
    };
  }
 
-
  export function deepClone(source) {
    if (!source && typeof source !== 'object') {
      throw new Error('error arguments', 'shallowClone');
@@ -276,8 +275,19 @@
      msgType = 'success'
    }
    Message({
-     message: msg,
+     message: data.msg,
      type: msgType,
      duration: 2 * 1000
    });
+ }
+
+ export function toNumber(value) {
+   if (typeof value !== 'string') {
+     return value
+   } else {
+     const parsed = Number(value)
+     return isNaN(parsed)
+        ? value
+        : parsed
+   }
  }

@@ -1,29 +1,38 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-row>
-          <el-button-group>
-            <el-button class="filter-item" type="text"
-              @click="handleRecord()">收款登记</el-button>
-            <el-button class="filter-item" type="text"
-              @click="handleJizhang()">记账</el-button>
-            <el-button class="filter-item" type="text"
-              @click="handleFanjizhang()">反记账</el-button>
-            <el-button class="filter-item" type="text"
-              @click="handleReCalculate()">重算配送费</el-button>
-            <el-button class="filter-item" type="text"
-              @click="this.dialogSearchVisible=true">高级查询</el-button>
-            <router-link to="/finance/subOrder">切换为子订单模式</router-link>
-            <span>|</span>
-            <el-button class="filter-item" type="text"
-              @click="handleExport()"
-            >导出</el-button>
-            <el-button class="filter-item" type="text"
-              @click="handlePrint()"
-            >打印</el-button>
-          </el-button-group>
+      <el-row :gutter="10">
+        <el-col :span="2">
+          <el-button class="filter-item" type="text"
+            @click="handleRecord()">收款登记</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button class="filter-item" type="text"
+            @click="handleJizhang()">记账</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button class="filter-item" type="text"
+            @click="handleFanjizhang()">反记账</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button class="filter-item" type="text"
+            @click="handleReCalculate()">重算配送费</el-button>
+        </el-col>
+        <el-col :span="6">
+          <router-link to="/finance/subOrder" class="el-button filter-item el-button--text">切换为子订单模式</router-link>
+        </el-col>
+        <el-col :span="2">
+          <el-button class="filter-item" type="text"
+            @click="handleExport()"
+          >导出</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button class="filter-item" type="text"
+            @click="handlePrint()"
+          >打印</el-button>
+        </el-col>
       </el-row>
-      <el-row>
+      <el-row :gutter='10'>
         <span class="demonstration">订单时间</span>
         <el-date-picker
             v-model="listQuery.add_time"
@@ -35,9 +44,26 @@
         <el-input placeholder="支付单号" v-model="listQuery.pay_sn" style="width:100px"></el-input>
         <el-button class="filter-item" type="primary" icon="search"
           @click="handleSearch()">查询</el-button>
+          <el-button class="filter-item" type="text"
+            @click="handleSearchMore()">更多</el-button>
       </el-row>
+      <div :class="{ 'search-more':isSearchMore }">
+        <el-row>
+          <span class="demonstration">记账状态</span>
+          <el-select v-model="listQuery.status">
+              <el-option
+                  v-for="item in statusMap"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+              </el-option>
+          </el-select>
+          <span class="demonstration">交款人</span>
+          <select-driver :selected="listQuery.jkr_jd" @changeSelect="queryChangeJkr"></select-driver>
+        </el-row>
+      </div>
     </div>
-    <el-table
+    <el-table id="print-wrap"
         :data="list" ref="mainOrderTable" v-loading.body="listLoading"
         boder fit highlight-current-row
         @row-dbclick="handleEdit"
@@ -48,14 +74,79 @@
         style="width: 100%">
         <el-table-column align="center" type="index" label="序号" width="65">
         </el-table-column>
-        <el-table-column
+        <el-table-column fixed
           type="selection"
           prop="pay_id"
           width="55">
         </el-table-column>
-        <el-table-column  min-width="100px" label="支付单号">
+        <el-table-column fixed label="支付单号" width="200">
           <template scope="scope">
             <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.pay_sn}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="订单时间" width="150">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.add_time}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="货品金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.goods_amount}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="缺货金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.quehuo}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="拒收金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.jushou}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="实发金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.shifa}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="签单金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.qiandan}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="自提金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.ziti}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="其他金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.qita}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="尾差金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.weicha}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="扣减备注" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.desc_remark}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="代金券" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.promotion_amount}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="应收金额" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.yingshou}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="录入状态" width="100">
+          <template scope="scope">
+            <span class="table-col-text">{{scope.row.desc_remark | orderPaymentsStatus}}</span>
           </template>
         </el-table-column>
     </el-table>
@@ -68,25 +159,26 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="收款登记" size="large" :visible.sync="dialogFormVisible">
-      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts"></mainOrderDetail>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-      </div>
+    <el-dialog title="收款登记" size="large" class="dialog" ref="mainOrderDialog" :visible.sync="dialogFormVisible">
+      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts" @formSave="handleSave" @handleCancel="handleCancel"></mainOrderDetail>
     </el-dialog>
   </div>
 </template>
 
 <script>
-  import { fetchList, fetchUpdate } from 'api/restfull';
+  import { fetchList, fetchCreate } from 'api/restfull';
   import mainOrderDetail from './_mainOrderDetail.vue'
+  import { Loading } from 'element-ui';
+  import { pickerOptions, showMsg } from 'utils/index'
+  import SelectDriver from 'components/Selector/SelectDriver';
+
   export default {
     name: 'mainOrder',
-    components: { mainOrderDetail },
+    components: { mainOrderDetail, SelectDriver },
     data() {
       return {
         listLoading: false,
+        isSearchMore: true,
         list: null,
         total: null,
         sortBy: 'pay_sn',
@@ -102,6 +194,11 @@
           jkr_jd: undefined,
           jzr_id: undefined
         },
+        statusMap: [
+          { label: '未录入', value: 2 },
+          { label: '已录入', value: 0 },
+          { label: '已记账', value: 1 }
+        ],
         dialogFormVisible: false,
         dialogFormStauts: '',
         dialogSearchVisible: false,
@@ -110,31 +207,7 @@
         formData: {},
         validateRules: {},
         addTimePickerOption: {
-          shortcuts: [{
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit('pick', [start, end]);
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit('pick', [start, end]);
-            }
-          }]
+          shortcuts: pickerOptions
         }
       }
     },
@@ -153,19 +226,30 @@
         })
       }, // 详情
       getDetail(pay_id) {
+        const loadingInstance = Loading.service();
         fetchList(this.listQuery, this.baseURL + '/' + pay_id).then(response => {
+          this.dialogFormVisible = true;
+          loadingInstance.close();
           this.formData = response.data;
-          this.formData.goods_list.map(goods => {
-            goods.edit = true;
-            return goods;
-          })
         })
       }, // checked
       getSelected() {
-        return '';
+        let pay_ids = _.map(this.selectedRows, 'pay_id')
+        if (_.isEmpty(pay_ids)) {
+          this.$message({
+            message: '请选择要操作的数据',
+            type: 'error'
+          });
+          return false;
+        }
+        pay_ids = pay_ids.join(',')
+        return { pay_ids };
       }, // 查询
       handleSearch() {
         this.getList();
+      },
+      handleSearchMore() {
+        return this.isSearchMore = !this.isSearchMore
       }, // 排序查询
       sortQuery(sort) {
         this.sortBy = sort.column;
@@ -175,7 +259,21 @@
       handleShow(row) {
         this.getDetail(row.pay_id);
         this.dialogFormStauts = 'view';
-        this.dialogFormVisible = true;
+      },
+      handleRecord() {
+        console.log(this.selectedRows);
+        if (this.selectedRows.length === 0) {
+          this.showError('请选择要登记的数据')
+          return false
+        }
+        this.handleEdit(this.selectedRows[0])
+      },
+      showError(msg) {
+        this.$message({
+          message: msg,
+          type: 'error'
+        });
+        return false;
       },
       handleSelectionChange(val) {
         this.selectedRows = val;
@@ -183,52 +281,64 @@
       handleEdit(row) {
         this.getDetail(row.pay_id);
         this.dialogFormStauts = 'edit';
-        this.dialogFormVisible = true;
       }, // 记账
       handleJizhang() {
-        this.getSelected();
+        const query = this.getSelected();
+        if (!query) {
+          return false;
+        }
+        fetchList(query, this.baseURL + '/jizhang').then(response => {
+          showMsg(response.data)
+        })
       }, // 反记账
       handleFanjizhang() {
-        this.getSelected();
+        const query = this.getSelected();
+        if (!query) {
+          return false;
+        }
+        fetchList(query, this.baseURL + '/fanjizhang').then(response => {
+          showMsg(response.data)
+        })
       },
       handleReCalculate() {
-        console.log('计算中');
-        this.getSelected();
+        const query = this.getSelected();
+        if (!query) {
+          return false;
+        }
+        fetchList(query, this.baseURL + '/re_calculate').then(response => {
+          showMsg(response.data)
+        })
       },
       handlePrint() {
+        const newWindow = window.open('_blank');   // 打开新窗口
+        const codestr = document.getElementById('print-wrap').innerHTML;   // 获取需要生成pdf页面的div代码
+        newWindow.document.write(codestr);   // 向文档写入HTML表达式或者JavaScript代码
+        newWindow.document.close();     // 关闭document的输出流, 显示选定的数据
+        newWindow.print();   // 打印当前窗口
         return true;
       }, // 导出
       handleExport() {
         fetchList(this.listQuery, '/export/main_order_payments').then(response => {
-          if (response.data.status) {
-            this.$message({
-              message: response.data.message,
-              type: 'error'
-            });
-            return false;
-          }
-          this.$message({
-            message: response.data.message,
-            type: 'success'
-          });
-          return false;
+          showMsg(response.data)
         })
       }, // 数据保存
       handleSave() {
-        fetchUpdate(this.formData, this.baseURL + '/' + formData.pay_id).then(response => {
-          if (!response.data.status) {
-            this.$message({
-              message: response.data.message,
-              type: 'error'
-            });
+        this.$refs.orderMainForm.validate(valid => {
+          if (valid) {
+            fetchCreate(this.formData, this.baseURL).then(response => {
+              if (!response.data.status) {
+                this.showError(response.data.msg)
+              }
+              this.$notify({
+                title: '更新成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 1000
+              })
+            })
+          } else {
             return false;
           }
-          this.$notify({
-            title: '更新成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 1000
-          })
         })
       }, // 取消
       handleCancel() {
@@ -245,6 +355,9 @@
       handleCurrentChange(val) {
         this.listQuery.current_page = val;
         this.handleSearch();
+      },
+      queryChangeJkr(val) {
+        this.listQuery.jkr_id = val
       },
       initFormData() {
         this.formData = {
@@ -305,3 +418,11 @@
     }
   }
 </script>
+<style media="scss">
+  .el-dialog__body{
+    font-size: 16px
+  }
+  .search-more{
+    display: none
+  }
+</style>

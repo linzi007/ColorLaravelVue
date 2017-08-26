@@ -52,3 +52,9 @@ $factory->define(App\Models\OrderGoodsPayment::class, function (Faker\Generator 
         // 'name' => $faker->name,
     ];
 });
+
+$factory->define(App\Models\ExchangeBottle::class, function (Faker\Generator $faker) {
+    return [
+        // 'name' => $faker->name,
+    ];
+});

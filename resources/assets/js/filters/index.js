@@ -101,3 +101,38 @@ export function html2Text(val) {
 export function toThousandslsFilter(num) {
   return (+num || 0).toString().replace(/^-?\d+/g, m => m.replace(/(?=(?!\b)(\d{3})+$)/g, ','));
 }
+
+export function currency(value, currency, decimals) {
+  const digitsRE = /(\d{3})(?=\d)/g
+  value = parseFloat(value)
+  if (!isFinite(value) || (!value && value !== 0)) return ''
+  currency = currency != null ? currency : '$'
+  decimals = decimals != null ? decimals : 2
+  const stringified = Math.abs(value).toFixed(decimals)
+  const _int = decimals
+    ? stringified.slice(0, -1 - decimals)
+    : stringified
+  const i = _int.length % 3
+  const head = i > 0
+    ? _int.slice(0, i) + (_int.length > 3 ? ',' : '')
+    : ''
+  const _float = decimals
+    ? stringified.slice(-1 - decimals)
+    : ''
+  const sign = value < 0 ? '-' : ''
+  return sign + currency + head +
+    _int.slice(i).replace(digitsRE, '$1,') +
+    _float
+}
+
+// 收款登记录入状态
+export function orderPaymentsStatus(status) {
+  if (status === '') {
+    return '未录入';
+  }
+  const statusMap = {
+    0: '已录入',
+    1: '已记账'
+  }
+  return statusMap[status];
+}

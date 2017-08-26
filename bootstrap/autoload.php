@@ -11,7 +11,8 @@ define('LARAVEL_START', microtime(true));
 | for our application. We just need to utilize it! We'll require it
 | into the script here so we do not have to manually load any of
 | our application's PHP classes. It just feels great to relax.
-|
+| 加载辅助函数
 */
 
+require __DIR__ . '/helpers.php';
 require __DIR__.'/../vendor/autoload.php';
