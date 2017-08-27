@@ -16,8 +16,8 @@ class Controller extends BaseController
         return response(['status' => 1, 'msg' => $msg, 'data' => $data]);
     }
 
-    public function fail($msg)
+    public function fail($msg, $data = [])
     {
-        return response(['status' => 0, 'msg' => $msg]);
+        return response(['status' => 0, 'msg' => $msg, 'data' => $data]);
     }
 }

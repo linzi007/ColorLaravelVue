@@ -8,8 +8,11 @@ class CreateOrderGoodsPaymentsTable extends Migration
 	public function up()
 	{
 		Schema::create('order_goods_payments', function(Blueprint $table) {
-            $table->increments('id');
-            $table->integer('goods_id')->index();
+            $table->increments('id')->comment('order_goods.rec_id');
+            $table->integer('goods_id')->index()->comment('货品id');
+            $table->integer('order_id')->index()->comment('子单id');
+            $table->integer('store_id')->index()->comment('档口id');
+            $table->string('order_sn', 30)->comment('子单编号');
             $table->integer('quehuo_number')->nullable()->default(0)->comment('缺货数量');
             $table->integer('jushou_number')->nullable()->default(0)->comment('拒收数量');
             $table->integer('shifa_number')->nullable()->default(0)->comment('实发数量');

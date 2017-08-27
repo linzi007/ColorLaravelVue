@@ -4,8 +4,8 @@ namespace App\Models;
 
 class GoodsSetting extends Model
 {
-    const PAY_TYPE_NUMBER = 1;
-    const PAY_TYPE_PERCENT = 2;
+    const PAY_TYPE_NUMBER = 0;
+    const PAY_TYPE_PERCENT = 1;
 
     protected $fillable = [
         'goods_id', 'store_id', 'shipping_charging_type'
@@ -33,12 +33,11 @@ class GoodsSetting extends Model
         return $this->belongsTo(\App\Models\Store::class, 'store_id', 'store_id');
     }
 
-    public function doCalculate($goodsPayment, $goodsSetting)
+    public function doCalculate($goodsPayment, GoodsSetting $goodsSetting)
     {
         if (empty($goodsSetting)) {
             return [];
         }
-
         $shippingFee = $driverFee = 0;
         $unPackFee = $goodsSetting['unpack_fee'] * $goodsPayment['shifa_number'];
         if (self::PAY_TYPE_NUMBER == $goodsSetting['shipping_charging_type']) {
@@ -54,9 +53,17 @@ class GoodsSetting extends Model
         }
 
         $goodsPayment['delivery_fee'] = $unPackFee + $shippingFee;
-        $goodsPayment['delivery_fee'] = $driverFee;
+        $goodsPayment['driver_fee'] = $driverFee;
 
-        return array_merge($goodsPayment, $goodsSetting);
+        //组织goodsPayment信息
+        $goodsPayment['shipping_charging_type'] = $goodsSetting['shipping_charging_type'];
+        $goodsPayment['shipping_rate'] = $goodsSetting['shipping_rate'];
+        $goodsPayment['unpack_fee'] = $goodsSetting['unpack_fee'];
+        $goodsPayment['driver_charging_type'] = $goodsSetting['driver_charging_type'];
+        $goodsPayment['driver_rate'] = $goodsSetting['driver_rate'];
+        $goodsPayment['driver_rate'] = $goodsSetting['driver_rate'];
+
+        return $goodsPayment;
     }
 
     /**
@@ -67,7 +74,7 @@ class GoodsSetting extends Model
      */
     public function calculate($goodsPayment)
     {
-        $goodsSetting = $this->find($goodsPayment['goods_id'])->toArray();
+        $goodsSetting = $this->where('goods_id', $goodsPayment['goods_id'])->first();
         if (empty($goodsSetting)) {
             return $goodsPayment;
         }
@@ -81,14 +88,17 @@ class GoodsSetting extends Model
      */
     public function calculateMulti($goodsPayments)
     {
-        $goodsIds = collect($goodsPayments)->pluck('id');
+        $goodsIds = collect($goodsPayments)->pluck('goods_id');
         $goodsSettings = $this->whereIn('goods_id', $goodsIds)->get();
+        if ($goodsIds->count() > $goodsSettings->count()) {
+            return ['status' => false, '部分货品未设置配送费计算公式'];
+        }
         $goodsSettings = $goodsSettings->keyBy('goods_id');
         foreach ($goodsPayments as $key => $payment) {
             $goodsId = $payment['goods_id'];
-            $goodsPayments[$key] = $this->doCalculate($goodsPayments, $goodsSettings[$goodsId]);
+            $goodsPayments[$key] = $this->doCalculate($payment, $goodsSettings[$goodsId]);
         }
 
-        return $goodsPayments;
+        return ['status' => true, 'data' => $goodsPayments];
     }
 }

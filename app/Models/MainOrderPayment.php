@@ -2,16 +2,41 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Exception;
+
 class MainOrderPayment extends Model
 {
     protected $fillable = [
-        //缺货     拒收     实发金额    签单      自提      其他      尾差      扣减备注
-        'quehuo', 'jusou', 'shifa', 'qiandan', 'ziti', 'qita', 'weicha', 'desc_remark'
-        //应收金额      pos刷卡   微信      支付宝     翼支付   现金    实收金额
-        , 'yingshou', 'pos', 'weixin', 'alipay', 'yizhifu', 'cash', 'shishou'
-        //  配送费         司机费用     id    首次司机       第二次司机      状态      记录人  记账人 记账时间
-        , 'delivery_fee', 'driver_fee', 'id', 'driver', 'driver_second', 'status', 'jlr', 'jzr', 'jz_at'
-        , 'store_id', 'add_time'
+        'pay_id', 'quehuo', 'jushou', 'qiandan', 'ziti', 'qita',
+        'weicha', 'desc_remark', 'pos', 'weixin', 'alipay',
+        'yizhifu', 'out_pay_sn', 'cash', 'delivery_fee',
+        'driver_fee', 'second_driver_id', 'jk_driver_id', 'updater',
+        'shifa', 'yingshou', 'shishou', 'jk_at', 'ck_at'
+    ];
+
+    // 日期字段
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'jk_at',
+        'ck_at',
+        'jz_at',
+        'add_time'
+    ];
+
+    protected $casts = [
+        'quehuo'  => 'float',
+        'jushou'  => 'float',
+        'qiandan' => 'float',
+        'ziti'    => 'float',
+        'qita'    => 'float',
+        'weicha'  => 'float',
+        'pos'     => 'float',
+        'weixin'  => 'float',
+        'alipay'  => 'float',
+        'yizhifu' => 'float',
+        'cash'    => 'float',
     ];
 
     /**
@@ -44,12 +69,36 @@ class MainOrderPayment extends Model
 
     public function jizhang($payIds)
     {
-        return $this->where('status', 0)->whereIn('pay_id', $payIds)->update(['status' => 1]);
+        $data = [
+            'status' => 1,
+            'jz_at' => Carbon::now(),
+            'jzr' => currentUserId(),
+            'updater' => currentUserId(),
+        ];
+        return $this->where('status', 0)->whereIn('pay_id', $payIds)->update($data);
     }
 
     public function fanjizhang($payIds)
     {
-        return $this->where('status', 1)->whereIn('pay_id', $payIds)->update(['status' => 0]);
+        $data = [
+            'status' => 0,
+            'jz_at' => Carbon::now(),
+            'jzr' => currentUserId(),
+            'updater' => currentUserId(),
+        ];
+
+        return $this->where('status', 1)->whereIn('pay_id', $payIds)->update($data);
     }
 
+    public function updateDeliveryFee($payId)
+    {
+        $orderGoodsPayments = app(\App\Models\OrderGoods::class)->with('payments')->where('pay_id', $payId)->get()->pluck('payments');
+        $deliveryFee = $orderGoodsPayments->sum('delivery_fee');
+        $driverFee = $orderGoodsPayments->sum('driver_fee');
+        $result = $this->where('pay_id', $payId)->update(['delivery_fee' => $deliveryFee, 'driver_fee' => $driverFee]);
+        if ($result === false) {
+            throw new Exception('更新主单配送费失败!' . $payId);
+        }
+        return true;
+    }
 }

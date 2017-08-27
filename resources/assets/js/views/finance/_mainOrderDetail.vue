@@ -1,5 +1,13 @@
 <template>
   <el-form :model="orderPayments" :rules="rules" label-width="100px" ref="orderMainForm">
+    <el-row :gutter="30" type="flex" justify="left">
+      <el-col :span="6">
+        <el-button-group>
+          <el-button type="primary" size="small" icon="arrow-left">上一条</el-button>
+          <el-button type="primary" size="small">下一条<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+        </el-button-group>
+      </el-col>
+    </el-row>
     <el-row>
         <h3 class="form-title">订单信息</h3>
     </el-row>
@@ -241,7 +249,7 @@
         </el-col>
         <el-col :span="14" v-show="selectFirstDriver">
           <el-form-item label="首配司机：">
-            <select-driver :selected="orderPayments.driver_id" @changeSelect="firstDriverChange"></select-driver>
+            <select-driver :selected="orderPayments.second_driver_id" @changeSelect="firstDriverChange"></select-driver>
           </el-form-item>
         </el-col>
     </el-row>
@@ -376,7 +384,7 @@ export default {
     shishouAmount() {
       return this.getShishouAmount();
     },
-    'exchangeBottle.dirver_id'() {
+    'exchangeBottle.driver_id'() {
       return this.orderPayments.jk_driver_id
     }
   },
@@ -488,7 +496,7 @@ export default {
        - this.orderPayments.weicha - this.orderPayments.qita
     },
     getShifaAmount() {
-      return this.orderPayments.order_amount - this.orderPayments.jushou - this.orderPayments.quehuo
+      return this.orderPayments.goods_amount - this.orderPayments.jushou - this.orderPayments.quehuo
     },
     firstDriverChange(val) {
       return this.orderPayments.driver_id = val

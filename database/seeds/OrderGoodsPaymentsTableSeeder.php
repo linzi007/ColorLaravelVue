@@ -35,6 +35,11 @@ class OrderGoodsPaymentsTableSeeder extends Seeder
                 $payment['driver_charging_type'] = $goodsSetting['driver_charging_type'];
                 $payment['driver_rate'] = $goodsSetting['driver_rate'];
                 $payment['driver_fee'] = $this->getDriverFee($goodsSetting, $payment);
+
+                $payment['store_id'] = $goods['store_id'];
+                $payment['order_id'] = $goods['order_id'];
+                $orderSn = \App\Models\Order::where('order_id', $goods['order_id'])->first(['order_sn'])->order_sn;
+                $payment['order_sn'] = $orderSn;
         });
 
         OrderGoodsPayment::insert($order_goods_payments->toArray());

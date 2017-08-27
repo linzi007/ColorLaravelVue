@@ -291,3 +291,18 @@
         : parsed
    }
  }
+
+ export function initDateMothRange(){
+   const firstDate = new Date();
+   firstDate.setDate(1); //第一天
+   firstDate.setHours(0);
+   firstDate.setMinutes(0);
+   firstDate.setSeconds(0);
+   const endDate = new Date(firstDate);
+   endDate.setMonth(firstDate.getMonth() + 1);
+   endDate.setDate(0);
+   endDate.setHours(23);
+   endDate.setMinutes(59);
+   endDate.setSeconds(59);
+   return [firstDate, endDate]
+ }

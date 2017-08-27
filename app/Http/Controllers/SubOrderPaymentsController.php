@@ -2,48 +2,87 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\SubOrderPayment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SubOrderPaymentRequest;
 
 class SubOrderPaymentsController extends Controller
 {
-    public function __construct()
+    /**
+     * @var SubOrderPayment
+     */
+    private $subOrderPayment;
+    /**
+     * @var Order
+     */
+    private $order;
+
+    const FIELDS = [
+        'sub_order_payments.*'
+        , 'order.pay_id', 'order.pay_sn', 'order.add_time', 'order.goods_amount'
+        , 'order.promotion_amount', 'order.pd_amount', 'order.order_amount'
+        , 'order.share_union_promotion as union_promotion', 'order.share_site_promotion as site_promotion'
+        , 'main_order_payments.jk_at', 'main_order_payments.out_pay_sn', 'main_order_payments.jk_at'
+        , 'main_order_payments.jk_driver_id', 'main_order_payments.remark', 'main_order_payments.status'
+        , 'main_order_payments.jzr', 'main_order_payments.second_driver_id'
+    ];
+
+    public function __construct(Order $order, SubOrderPayment $subOrderPayment)
     {
         $this->middleware('auth', ['except' => ['index', 'show']]);
+        $this->subOrderPayment = $subOrderPayment;
+        $this->order = $order;
     }
 
 	public function index()
 	{
-		$sub_order_payments = SubOrderPayment::paginate();
-		return view('sub_order_payments.index', compact('sub_order_payments'));
-		return response($sub_order_payments);
+        $where = $this->getWhere();
+        if (request()->has('add_time')) {
+            $timeStart = strtotime(request()->add_time[0]);
+            $timeEnd = strtotime(request()->add_time[1]);
+            $this->order->whereBetween('add_time', [$timeStart, $timeEnd]);
+        } else {
+            //$timeStart = Carbon::now()->firstOfMonth()->timestamp;
+            //$timeEnd = Carbon::now()->lastOfMonth()->timestamp;
+        }
+
+        $subOrderPayments = $this->order->leftJoin('main_order_payments', 'order.pay_id', '=', 'main_order_payments.pay_id')
+            ->leftJoin('sub_order_payments', 'order.pay_id', '=', 'sub_order_payments.pay_id')
+            ->where($where)->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS, 'current_page');
+
+        return response($subOrderPayments);
 	}
 
-    public function show(SubOrderPayment $sub_order_payment)
+    public function getWhere()
     {
-      response(compact('sub_order_payment'))
+        $request = request();
+        $where = [];
+        $this->order->whereIn('main_order_payments.order_state', [30, 40]);
+        if ($paySn = $request->pay_sn) {
+            $data = $this->order->where('pay_sn', $paySn)->first(['pay_id']);
+            if (empty($data)) {
+                return $where = ['order.pay_id' => 0];
+            }
+            $where['order.pay_id'] = $data['pay_id'];
+        }
+        if ($request->add_time) {
+            $timeStart = strtotime($request->add_time[0]);
+            $timeEnd = strtotime($request->add_time[1]);
+            $this->order->whereBetween('add_time', [$timeStart, $timeEnd]);
+        }
+        if ($request->jk_driver_id) {
+            $where['main_order_payments.jk_driver_id'] = $request->jk_driver_id;
+        }
+        if ($request->jzr_id) {
+            $where['main_order_payments.jzr_id'] = $request->jzr;
+        }
+        if (isset($request->status) && in_array($request->status, [0, 1])) {
+            $where['main_order_payments.status'] = $request->status;
+        }
+
+        return $where;
     }
-
-	public function store(SubOrderPaymentRequest $request)
-	{
-		$sub_order_payment = SubOrderPayment::create($request->all());
-	  return response(['id'=>$sub_order_payment->id, 'message'=>'Created successfully.']);
-	}
-
-	public function update(SubOrderPaymentRequest $request, SubOrderPayment $sub_order_payment)
-	{
-		$this->authorize('update', $sub_order_payment);
-		$sub_order_payment->update($request->all());
-	  return response(['id'=>$sub_order_payment->id, 'message'=>'Updated successfully.']);
-	}
-
-	public function destroy(SubOrderPayment $sub_order_payment)
-	{
-		$this->authorize('destroy', $sub_order_payment);
-		$sub_order_payment->delete();
-
-    response(['message' => 'Deleted successfully.']);
-  }
 }

@@ -11,6 +11,7 @@ class CreateMainOrderPaymentsTable extends Migration
             $table->increments('id');
             $table->string('pay_id', 30)->index();
             $table->integer('add_time')->index();
+            $table->string('pay_sn', 30)->comment('支付单号');
             $table->float('quehuo')->default('0.00')->nullable()->comment('缺货金额');
             $table->float('jushou')->default('0.00')->nullable()->comment('拒收金额');
             $table->float('shifa')->default('0.00')->nullable()->comment('实发金额');
@@ -28,17 +29,16 @@ class CreateMainOrderPaymentsTable extends Migration
             $table->float('shishou')->default('0.00')->nullable()->comment('实收金额');
             $table->float('delivery_fee')->default('0.00')->nullable()->comment('配送费：运费+拆包');
             $table->float('driver_fee')->default('0.00')->nullable()->comment('司机费用');
-            $table->unsignedInteger('driver_id')->nullable()->comment('配送司机id');
-            $table->unsignedInteger('second_driver_id')->nullable()->comment('二次配送司机id');
-            $table->unsignedInteger('jk_driver_id')->nullable()->comment('交款司机');
+            $table->unsignedInteger('second_driver_id')->nullable()->comment('有二次配送的话，该id为首次配送司机id');
+            $table->unsignedInteger('jk_driver_id')->nullable()->comment('交款司机:为首次或者第二次送货司机');
             $table->timestamp('jk_at')->nullable()->comment('交款时间');
             $table->timestamp('ck_at')->nullable()->comment('存款时间');
-            $table->boolean('status')->nullable()->default('0')->index()->comment('状态：已录入,已记账');
+            $table->string('remark')->default('')->nullable()->comment('备注');
+            $table->boolean('status')->nullable()->default('0')->index()->comment('状态：0 已录入, 1已记账');
             $table->string('jlr', 20)->nullable()->default('')->comment('记录人');
             $table->string('jzr', 20)->nullable()->default('')->comment('记账人');
             $table->timestamp('jz_at')->nullable()->comment('记账时间');
             $table->string('updater', 20)->nullable()->default('')->comment('变更人');
-
             $table->timestamps();
         });
 	}

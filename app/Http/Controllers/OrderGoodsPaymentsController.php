@@ -2,48 +2,80 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MainOrderPayment;
 use App\Models\OrderGoodsPayment;
+use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderGoodsPaymentRequest;
 
 class OrderGoodsPaymentsController extends Controller
 {
-    public function __construct()
+    /**
+     * @var OrderGoodsPayment
+     */
+    private $orderGoodsPayment;
+    /**
+     * @var MainOrderPayment
+     */
+    private $mainOrderPayment;
+
+    const FIELDS = [
+        'order_goods_payments.*'
+        , 'main_order_payments.jk_at', 'main_order_payments.out_pay_sn', 'main_order_payments.jk_at'
+        , 'main_order_payments.jk_driver_id', 'main_order_payments.remark', 'main_order_payments.status'
+        , 'main_order_payments.jzr'
+    ];
+
+    public function __construct(OrderGoodsPayment $orderGoodsPayment, MainOrderPayment $mainOrderPayment)
     {
         $this->middleware('auth', ['except' => ['index', 'show']]);
+        $this->orderGoodsPayment = $orderGoodsPayment;
+        $this->mainOrderPayment = $mainOrderPayment;
     }
 
 	public function index()
 	{
-		$order_goods_payments = OrderGoodsPayment::paginate();
-		return view('order_goods_payments.index', compact('order_goods_payments'));
-		return response($order_goods_payments);
+        $this->orderGoodsPayment->leftJoin('main_order_payments', 'order_goods_payments.pay_id', '=', 'main_order_payments.pay_id')
+            ->where($where[])->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS, 'current_page');
+
 	}
 
-    public function show(OrderGoodsPayment $order_goods_payment)
+    public function getWhere()
     {
-      response(compact('order_goods_payment'))
+        $request = request()->all();
+        if (request()->has('add_time')) {
+            $timeStart = strtotime(request()->add_time[0]);
+            $timeEnd = strtotime(request()->add_time[1]);
+            $this->orderGoodsPayment->whereBetween('main_order_payments.add_time', [$timeStart, $timeEnd]);
+        }
+
+        if (request()->has('store_id')) {
+
+        }
+
+        if (request()->has('pay_sn')) {
+
+        }
+
+        if (request()->has('order_sn')) {
+
+        }
+
+        if (in_array(request()->get('status'), [0, 1])) {
+
+        }
+
+        if (request()->has('jk_driver_id')) {
+
+        }
+
+        if (request()->has('jzr')) {
+
+        }
+
+        if (request()->has('has_second_driver')) {
+
+        }
     }
-
-	public function store(OrderGoodsPaymentRequest $request)
-	{
-		$order_goods_payment = OrderGoodsPayment::create($request->all());
-	  return response(['id'=>$order_goods_payment->id, 'message'=>'Created successfully.']);
-	}
-
-	public function update(OrderGoodsPaymentRequest $request, OrderGoodsPayment $order_goods_payment)
-	{
-		$this->authorize('update', $order_goods_payment);
-		$order_goods_payment->update($request->all());
-	  return response(['id'=>$order_goods_payment->id, 'message'=>'Updated successfully.']);
-	}
-
-	public function destroy(OrderGoodsPayment $order_goods_payment)
-	{
-		$this->authorize('destroy', $order_goods_payment);
-		$order_goods_payment->delete();
-
-    response(['message' => 'Deleted successfully.']);
-  }
 }

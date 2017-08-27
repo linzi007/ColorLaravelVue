@@ -43,4 +43,9 @@ class OrderGoods extends Model
     {
         return $this->hasOne(\App\Models\OrderGoodsPayment::class, 'id', 'rec_id');
     }
+
+    public function getOnlyPayments()
+    {
+        return $this->with('payments')->get()->pluck('payments');
+    }
 }

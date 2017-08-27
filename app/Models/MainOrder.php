@@ -4,6 +4,7 @@ namespace App\Models;
 
 
 use App\Http\Controllers\Traits\ExcelTrait;
+use Carbon\Carbon;
 
 class MainOrder extends Model
 {
@@ -85,5 +86,15 @@ class MainOrder extends Model
     {
         $data = $this->get((array_keys(self::Export_FIELDS)))->toArray();
         $this->exportExcel($data, array_values(self::Export_FIELDS), '主收款登记表');
+    }
+
+    public function getAddTimeAttribute($value)
+    {
+        return Carbon::createFromTimestamp($value)->toDateTimeString();
+    }
+
+    public function setAddTimeAttribute($value)
+    {
+        return strtotime($value);
     }
 }

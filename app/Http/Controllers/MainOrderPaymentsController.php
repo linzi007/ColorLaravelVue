@@ -49,7 +49,8 @@ class MainOrderPaymentsController extends Controller
     const FIELDS = [
         'main_order_payments.*'
         , 'main_order.pay_id', 'main_order.pay_sn', 'main_order.add_time', 'main_order.pay_amount'
-        , 'main_order.promotion_amount', 'main_order.pd_amount',
+        , 'main_order.promotion_amount', 'main_order.pd_amount', 'main_order.goods_amount', 'main_order.order_amount'
+        , 'main_order.union_promotion', 'main_order.site_promotion',
     ];
     /**
      * @var GoodsSetting
@@ -107,10 +108,10 @@ class MainOrderPaymentsController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            response('执行更新失败！', 400);
-        }
 
-        response('操作成功！');
+            return $this->fail('保存失败：'.$e->getMessage());
+        }
+        return $this->success('保存成功');
     }
 
     public function getWhere(Request $request)
@@ -128,10 +129,10 @@ class MainOrderPaymentsController extends Controller
             $where['main_order.add_time'] = ['<=', strtotime($request->add_time_end)];
         }
         if ($request->pay_driver_id) {
-            $where['main_order_payments.pay_driver_id'] = $request->pay_driver_id;
+            $where['main_order_payments.jk_driver_id'] = $request->jk_driver_id;
         }
-        if ($request->jzr_id) {
-            $where['main_order_payments.jzr_id'] = $request->jzr;
+        if ($request->jzr) {
+            $where['main_order_payments.jzr'] = $request->jzr;
         }
         if (isset($request->status) && in_array($request->status, [0, 1])) {
             $where['status'] = $request->status;
@@ -146,91 +147,117 @@ class MainOrderPaymentsController extends Controller
      * @param bool $isUpdate 识别插入还是更新
      * @return mixed
      */
-    private function calculateOrderGoods($orderGoodsPayments, $isUpdate = true)
+    private function calculateOrderGoods($mainOrder, $isUpdate = true)
     {
+        $newGoodsPayments = [];
+        $orderGoodsPayments = $mainOrder['goods_list'];
+        //取得 store_id 对应的 order_sn
+        $storeOrderMap = $this->getStoreOrderMap($mainOrder['pay_id']);
         foreach ($orderGoodsPayments as $goods) {
             $goodsPayment = $goods['payments'];
             //校验合计金额
             $shifaNumber = $goods['goods_num'] - $goodsPayment['quehuo_number'] - $goodsPayment['jushou_number'];
             $shifaAmount = round($shifaNumber * $goods['goods_price'], 2);
-
             //计算缺货金额
-            $goodsPayment['id'] = $goods['rec_id'];
             $goodsPayment['shifa_number'] = $shifaNumber;
             $goodsPayment['shifa_amount'] = $shifaAmount;
             $goodsPayment = $this->goodsSetting->calculate($goodsPayment);
+            if (!empty($goodsPayment['id'])) {
+                $result = $this->orderGoodsPayment->where('id', $goodsPayment['id'])->update($goodsPayment);
+                if ($result === false) {
+                    throw new Exception('更新明细失败!');
+                }
+            } else {
+                //组织冗余字段,查询导出需要
+                $goodsPayment['order_id'] = $goods['order_id'];
+                $goodsPayment['store_id'] = $goods['store_id'];
+                $goodsPayment['order_sn'] = $storeOrderMap[$goods['store_id']]['order_sn'];
 
-            $this->orderGoodsPayment->updateOrInsert(['id' => $goodsPayment['id']], $goodsPayment);
+                $goodsPayment['id'] = $goods['rec_id'];
+                $insertData[] = $goodsPayment;
+            }
 
             //增加部分后面需要用的数据
             $goodsPayment['quehuo_amount'] = round($goodsPayment['quehuo_number'] * $goods['goods_price'], 2);
             $goodsPayment['jushou_amount'] = round($goodsPayment['jushou_number'] * $goods['goods_price'], 2);
             $goodsPayment['store_id'] = $goods['store_id'];
 
-            $orderGoodsPayments[$goods['rec_id']] = $goodsPayment;
+            $newGoodsPayments[] = $goodsPayment;
         }
 
-        return $orderGoodsPayments;
+        if (!empty($insertData)) {
+            $result = $this->orderGoodsPayment->insert($insertData);
+            if ($result === false) {
+                throw new Exception('新增明细失败!');
+            }
+        }
+        return $newGoodsPayments;
+    }
+
+    private function getStoreOrderMap($payId)
+    {
+        return $this->order->select(['order_sn', 'store_id', 'order_id'])->where('pay_id', $payId)->get()->keyBy('store_id')->toArray();
     }
 
     /**
      * 保存主订单信息
-     * @param array $mainOrder
+     *
+     * @param $mainOrder
      * @param $orderGoodsPayments
-     * @return array
+     * @return \Illuminate\Database\Eloquent\Model | MainOrderPayment
      */
     private function calculateMainOrder($mainOrder, $orderGoodsPayments)
     {
         $payments = [
             'pay_id'           => $mainOrder['pay_id'],
+            'pay_sn'           => $mainOrder['pay_sn'],
+            'add_time'         => $mainOrder['add_time'],
             'quehuo'           => $mainOrder['quehuo'],
             'jushou'           => $mainOrder['jushou'],
-            'shifa'            => $mainOrder['shifa'],
             'qiandan'          => $mainOrder['qiandan'],
             'ziti'             => $mainOrder['ziti'],
             'qita'             => $mainOrder['qita'],
             'weicha'           => $mainOrder['weicha'],
             'desc_remark'      => $mainOrder['desc_remark'],
-            'yingshou'         => $mainOrder['yingshou'],
             'pos'              => $mainOrder['pos'],
             'weixin'           => $mainOrder['weixin'],
             'alipay'           => $mainOrder['alipay'],
             'yizhifu'          => $mainOrder['yizhifu'],
             'out_pay_sn'       => $mainOrder['out_pay_sn'],
             'cash'             => $mainOrder['cash'],
-            'shishou'          => $mainOrder['shishou'],
             'delivery_fee'     => $mainOrder['delivery_fee'],
             'driver_fee'       => $mainOrder['driver_fee'],
-            'driver_id'        => $mainOrder['driver_id'],
-            'second_driver_id' => $mainOrder['second_driver_id'],
+            'second_driver_id' => $mainOrder['driver_id'],
             'jk_driver_id'     => $mainOrder['jk_driver_id'],
-            'status'           => $mainOrder['status'],
-            'jlr'              => $mainOrder['jlr'],
-            'jzr'              => $mainOrder['jzr'],
-            'updater'          => $mainOrder['updater'],
+            'updater'          => currentUserId(),
+            'jlr'              => currentUserId(),
+            'remark'           => $mainOrder['remark'],
         ];
 
-        $quehuo = $jushou = $shifa = 0;
+        $quehuo = $jushou = $shifa = $delivery_fee = $driver_fee = 0;
         foreach ($orderGoodsPayments as $goods) {
             $quehuo += $goods['quehuo_amount'];
             $jushou += $goods['jushou_amount'];
             $shifa += $goods['shifa_amount'];
+            $delivery_fee += $goods['delivery_fee'];
+            $driver_fee += $goods['driver_fee'];
         }
         //缺货,拒收,实发
         $payments['jushou'] = $jushou;
         $payments['shifa'] = $shifa;
-        $payments['quehuo'] = $shifa - $jushou;
-        //$payments['quehuo'] = $quehuo;
-        //应发,实收
-        $payments['yingfa'] = $this->getYingfaAmount($payments);
-        $payments['shishou'] = $this->getShishou($mainOrder);
+        $payments['quehuo'] = $quehuo;
 
-        $result = $this->mainOrder->updateOrInsert(['pay_id' => $payments['pay_id']], $payments);
-        if ($result === false) {
+        $payments['delivery_fee'] = $delivery_fee;
+        $payments['driver_fee'] = $driver_fee;
+        //应收,实收
+        $payments['yingshou'] = $this->getYingshouAmount($payments);
+        $payments['shishou'] = $this->getShishou($mainOrder);
+        $mainOrderPayment = $this->mainOrderPayment->updateOrCreate(['pay_id' => $payments['pay_id']], $payments);
+        if (!$mainOrderPayment) {
             throw new Exception('更新主收款登记簿失败');
         }
 
-        return $payments;
+        return $mainOrderPayment;
     }
 
     /**
@@ -239,7 +266,7 @@ class MainOrderPaymentsController extends Controller
      * @param $mainOrder
      * @return mixed
      */
-    private function getYingfaAmount($mainOrder)
+    private function getYingshouAmount($mainOrder)
     {
         return $mainOrder['shifa'] - $mainOrder['qiandan']
             - $mainOrder['ziti'] - $mainOrder['qita'] - $mainOrder['weicha'];
@@ -258,33 +285,41 @@ class MainOrderPaymentsController extends Controller
     }
 
     // @TODO 计算子单的金额及保存
-    private function calculateSubOrder($mainOrderPayments)
+    private function calculateSubOrder(MainOrderPayment $mainOrderPayments)
     {
         $orderGoods = $this->orderGoods->with('payments')
             ->where('pay_id', $mainOrderPayments['pay_id'])->get();
         $storeGoods = [];
         foreach ($orderGoods as $goods) {
             $storeId = $goods['store_id'];
-            $storeGoods[$storeId] = $goods;
+            $storeGoods[$storeId][] = $goods;
         }
-
         //取得更新的数据
         $orderPayments = [];
         //子单相同的值
-        $orderPayment = [
+        $orderPaymentDefault = [
             'pay_id'       => $mainOrderPayments['pay_id'],
+            'pay_sn'       => $mainOrderPayments['pay_sn'],
+            'add_time'     => $mainOrderPayments['add_time'],
             'desc_remark'  => $mainOrderPayments['desc_remark'],
-            'out_pay_sn'   => $mainOrderPayments['out_pay_sn'],
+            'quehuo' => 0,
+            'jushou' => 0,
+            'shifa' => 0
         ];
         //缺货,拒收,实发,百分比 需要根据实际发货计算
         foreach ($storeGoods as $storeId => $goodsList) {
-            $orderPayment['quehuo'] = collect($goodsList)->sum('payments.quehuo_amount');
-            $orderPayment['jushou'] = collect($goodsList)->sum('payments.jushou_amount');
-            $orderPayment['shifa'] = collect($goodsList)->sum('payments.shifa');
-            $orderPayment['percent'] = round($orderPayment[$storeId]['shifa']/$mainOrderPayments['shifa'], 2) * 100;
+            $orderPayment = $orderPaymentDefault;
+            foreach ($goodsList as $goods) {
+                $goodsPayment = $goods['payments'];
+                $orderPayment['quehuo'] += ($goods['goods_price'] * $goodsPayment['quehuo_number']);
+                $orderPayment['jushou'] += $goods['goods_price'] * $goodsPayment['jushou_number'];
+                $orderPayment['shifa'] += $goodsPayment['shifa_amount'];
+            }
+            $orderPayment['percent'] = round($orderPayment['shifa']/$mainOrderPayments['shifa'], 4) * 100;
 
             $orderPayments[$storeId] = $orderPayment;
         }
+
         //修正百分比
         $orderPayments = fixArrayTotal($orderPayments, ['percent'], 100);
 
@@ -294,31 +329,36 @@ class MainOrderPaymentsController extends Controller
             'ziti'         => $mainOrderPayments['ziti'],
             'qita'         => $mainOrderPayments['qita'],
             'weicha'       => $mainOrderPayments['weicha'],
-            'desc_remark'  => $mainOrderPayments['desc_remark'],
             'yingshou'     => $mainOrderPayments['yingshou'],
             'pos'          => $mainOrderPayments['pos'],
             'weixin'       => $mainOrderPayments['weixin'],
             'alipay'       => $mainOrderPayments['alipay'],
             'yizhifu'      => $mainOrderPayments['yizhifu'],
-            'out_pay_sn'   => $mainOrderPayments['out_pay_sn'],
             'cash'         => $mainOrderPayments['cash'],
             'shishou'      => $mainOrderPayments['shishou'],
             'delivery_fee' => $mainOrderPayments['delivery_fee'],
             'driver_fee'   => $mainOrderPayments['driver_fee'],
         ];
-        $insertOrUpdateData = [];
+
         //金额根据百分比分摊
+        $storeOrderMap = $this->getStoreOrderMap($mainOrderPayments['pay_id']);
         foreach ($orderPayments as $storeId => $subPayments) {
             $percentage = $subPayments['percent'] / 100;
+            $subPayments['store_id'] = $storeId;
             foreach ($subOrderDefault as $key => $value) {
-                $subPayments[$key] = $value * $percentage;
+                $subPayments[$key] = round($value * $percentage, 4);
             }
             $condition = [
                 'pay_id'   => $subPayments['pay_id'],
                 'store_id' => $subPayments['store_id'],
             ];
-            $result = $this->orderGoodsPayment->updateOrInsert($condition, $insertOrUpdateData);
-            if ($result) {
+
+            //冗余数据
+            $subPayments['order_id'] = $storeOrderMap[$storeId]['order_id'];
+            $subPayments['order_sn'] = $storeOrderMap[$storeId]['order_sn'];
+            //数据写入或则更新
+            $result = $this->subOrderPayment->updateOrInsert($condition, $subPayments);
+            if ($result === false) {
                 throw new Exception('子单收款登记表更新失败!');
             }
         }
@@ -341,9 +381,16 @@ class MainOrderPaymentsController extends Controller
                 return $this->fail('已记账，请先执行反记账');
             }
 
-            $orderGoodsPayments = $this->orderGoods->with('payments')->where('pay_id', $payId)->get()->pluck('payments');
-            //查询payments
-            $data[$payId] = $this->goodsSetting->calculateMulti($orderGoodsPayments);
+            DB::beginTransaction();
+            try {
+                $this->orderGoodsPayment->updateDeliveryFee($payId);
+                $this->mainOrderPayment->updateDeliveryFee($payId);
+                $this->subOrderPayment->updateDeliveryFee($payId);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return $this->fail('重算失败：'.$e->getMessage());
+            }
         }
 
         return $this->success('完成重算', $data);
@@ -365,8 +412,9 @@ class MainOrderPaymentsController extends Controller
         if (!$count) {
             return $this->fail('请先录入再执行记账');
         }
-        if ($this->mainOrderPayment->jizhang($payIds)) {
-            $this->success('记账成功');
+        $result = $this->mainOrderPayment->jizhang($payIds);
+        if ($result) {
+            return $this->success('记账成功');
         }
 
         return $this->fail('记账失败');

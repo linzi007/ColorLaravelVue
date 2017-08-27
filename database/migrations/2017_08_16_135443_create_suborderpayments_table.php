@@ -9,11 +9,12 @@ class CreateSubOrderPaymentsTable extends Migration
 	{
 		Schema::create('sub_order_payments', function(Blueprint $table) {
             $table->increments('id');
-            $table->string('pay_id', 30)->index();
-            $table->float('percent')->nullable()->default(0)->comment('金额占比');
+            $table->unsignedInteger('store_id')->index();
             $table->string('order_id', 30)->index();
             $table->string('order_sn', 30)->index();
-            $table->unsignedInteger('store_id')->index();
+            $table->string('pay_id', 30)->index();
+            $table->string('pay_sn', 30)->index();
+            $table->float('percent')->nullable()->default(0)->comment('金额占比');
             $table->integer('add_time')->index();
             $table->float('quehuo')->default('0.00')->nullable()->comment('缺货金额');
             $table->float('jushou')->default('0.00')->nullable()->comment('拒收金额');

@@ -1,36 +1,24 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-row :gutter="10">
-        <el-col :span="2">
-          <el-button class="filter-item" type="text"
+      <el-row :gutter="10" type="flex" justify="left">
+        <el-button-group>
+          <el-button class="top-button-group" type="text"
             @click="handleRecord()">收款登记</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-button class="filter-item" type="text"
+          <el-button class="top-button-group" type="text"
             @click="handleJizhang()">记账</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-button class="filter-item" type="text"
+          <el-button class="top-button-group" type="text"
             @click="handleFanjizhang()">反记账</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-button class="filter-item" type="text"
+          <el-button class="top-button-group" type="text"
             @click="handleReCalculate()">重算配送费</el-button>
-        </el-col>
-        <el-col :span="6">
           <router-link to="/finance/subOrder" class="el-button filter-item el-button--text">切换为子订单模式</router-link>
-        </el-col>
-        <el-col :span="2">
-          <el-button class="filter-item" type="text"
+          <el-button class="top-button-group" type="text"
             @click="handleExport()"
-          >导出</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-button class="filter-item" type="text"
+            >导出</el-button>
+          <el-button class="top-button-group" type="text"
             @click="handlePrint()"
-          >打印</el-button>
-        </el-col>
+            >打印</el-button>
+        </el-button-group>
       </el-row>
       <el-row :gutter='10'>
         <span class="demonstration">订单时间</span>
@@ -63,7 +51,7 @@
         </el-row>
       </div>
     </div>
-    <el-table id="print-wrap"
+    <el-table id="print-wrap" class="myDivToPrint"
         :data="list" ref="mainOrderTable" v-loading.body="listLoading"
         boder fit highlight-current-row
         @row-dbclick="handleEdit"
@@ -71,20 +59,21 @@
         :default-sort = "{prop: 'pay_sn', order: 'descending'}"
         show-summary
         @selection-change="handleSelectionChange"
+        :row-class-name="tableRowClassName"
         style="width: 100%">
         <el-table-column align="center" type="index" label="序号" width="65">
         </el-table-column>
-        <el-table-column fixed
+        <el-table-column
           type="selection"
           prop="pay_id"
           width="55">
         </el-table-column>
-        <el-table-column fixed label="支付单号" width="200">
+        <el-table-column label="支付单号" width="200">
           <template scope="scope">
             <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.pay_sn}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="订单时间" width="150">
+        <el-table-column label="订单时间" width="180">
           <template scope="scope">
             <span class="table-col-text">{{scope.row.add_time}}</span>
           </template>
@@ -144,9 +133,79 @@
             <span class="table-col-text">{{scope.row.yingshou}}</span>
           </template>
         </el-table-column>
+        <el-table-column label="预存款" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.pd_amount}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="POS刷卡" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.pos}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="微信" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.weixin}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="支付宝" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.alipay}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="翼支付" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.yizhifu}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="现金" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.cash}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="实收金额" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.promotion_amount}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="交款日期" width="180">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.jk_at}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="刷卡单号" width="200">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.out_pay_sn}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="交款人" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.jkr}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="配送费" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.delivery_fee}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="收款备注" width="200">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.remark}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="录入状态" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.status | orderPaymentsStatus}}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="记账人" width="100">
+            <template scope="scope">
+                <span class="table-col-text">{{scope.row.jzr}}</span>
+            </template>
+        </el-table-column>
         <el-table-column label="录入状态" width="100">
           <template scope="scope">
-            <span class="table-col-text">{{scope.row.desc_remark | orderPaymentsStatus}}</span>
+            <span class="table-col-text">{{scope.row.status | orderPaymentsStatus}}</span>
           </template>
         </el-table-column>
     </el-table>
@@ -169,12 +228,12 @@
   import { fetchList, fetchCreate } from 'api/restfull';
   import mainOrderDetail from './_mainOrderDetail.vue'
   import { Loading } from 'element-ui';
-  import { pickerOptions, showMsg } from 'utils/index'
+  import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
   import SelectDriver from 'components/Selector/SelectDriver';
 
   export default {
     name: 'mainOrder',
-    components: { mainOrderDetail, SelectDriver },
+    components: {mainOrderDetail, SelectDriver},
     data() {
       return {
         listLoading: false,
@@ -195,9 +254,9 @@
           jzr_id: undefined
         },
         statusMap: [
-          { label: '未录入', value: 2 },
-          { label: '已录入', value: 0 },
-          { label: '已记账', value: 1 }
+          {label: '未录入', value: 2},
+          {label: '已录入', value: 0},
+          {label: '已记账', value: 1}
         ],
         dialogFormVisible: false,
         dialogFormStauts: '',
@@ -213,9 +272,9 @@
     },
     created() {
       this.getList();
+      this.listQuery.add_time = initDateMothRange()
     },
-    computed: {
-    },
+    computed: {},
     methods: {
       getList() { // 列表
         this.listLoading = true;
@@ -243,7 +302,7 @@
           return false;
         }
         pay_ids = pay_ids.join(',')
-        return { pay_ids };
+        return {pay_ids};
       }, // 查询
       handleSearch() {
         this.getList();
@@ -359,6 +418,14 @@
       queryChangeJkr(val) {
         this.listQuery.jkr_id = val
       },
+      tableRowClassName(row, index) {
+        if (row.status === 1) {
+          return 'info-row';
+        }
+        if (row.status === 0) {
+          return 'positive-row';
+        }
+      },
       initFormData() {
         this.formData = {
           id: 0,
@@ -416,7 +483,7 @@
         }
       }
     }
-  }
+  };
 </script>
 <style media="scss">
   .el-dialog__body{
@@ -424,5 +491,28 @@
   }
   .search-more{
     display: none
+  }
+  .el-table .info-row {
+    background: #c9e5f5;
+  }
+  .el-table .positive-row {
+    background: #e2f0e4;
+  }
+  .el-button-group .el-button:not(:last-child){
+    margin-right: 20px
+  }
+  @media print {
+    .myDivToPrint {
+      background-color: white;
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 15px;
+      font-size: 14px;
+      line-height: 18px;
+    }
   }
 </style>
