@@ -99,31 +99,31 @@
     </el-row>
     <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="签单金额：">
+          <el-form-item label="签单金额：" prop="qiandan">
             <el-input placeholder="签单金额" v-model="orderPayments.qiandan">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="自提金额：">
+          <el-form-item label="自提金额：" prop="ziti">
             <el-input placeholder="自提金额" v-model="orderPayments.ziti">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="尾差金额：">
+          <el-form-item label="尾差金额：" prop="weicha">
             <el-input placeholder="尾差金额" v-model="orderPayments.weicha">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="其他金额：">
+          <el-form-item label="其他金额：" prop="qita">
             <el-input placeholder="其他金额" v-model="orderPayments.qita">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="备注：">
+          <el-form-item label="备注：" prop="desc_remark">
             <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 4}"
               placeholder="扣减说明" v-model="orderPayments.desc_remark">
             </el-input>
@@ -152,48 +152,48 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="POS金额：">
+        <el-form-item label="POS金额：" prop="pos">
           <el-input placeholder="POS金额" v-model="orderPayments.pos">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="刷卡单号：">
+        <el-form-item label="刷卡单号：" prop="out_pay_sn">
           <el-input placeholder="刷卡单号" v-model="orderPayments.out_pay_sn">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="微信金额：">
+        <el-form-item label="微信金额：" prop="weixin">
           <el-input placeholder="微信金额" v-model="orderPayments.weixin">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="支付宝金额：">
+        <el-form-item label="支付宝金额：" prop="alipay">
           <el-input placeholder="支付宝金额" v-model="orderPayments.alipay">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="现金：">
+        <el-form-item label="现金：" prop="cash">
           <el-input placeholder="现金" v-model="orderPayments.cash">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="翼支付金额：">
+        <el-form-item label="翼支付金额：" prop="yizhifu">
           <el-input placeholder="翼支付金额" v-model="orderPayments.yizhifu">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="交款人：">
+        <el-form-item label="交款人：" prop="jk_driver_id">
           <select-driver :selected="orderPayments.jk_driver_id" @changeSelect="jkrChange"></select-driver>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收款日期：">
+        <el-form-item label="收款日期：" prop="jk_at">
           <el-date-picker
             v-model="orderPayments.jk_at"
             type="datetime"
@@ -204,7 +204,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="存款日期：">
+        <el-form-item label="存款日期：" prop="ck_at">
           <el-date-picker
             v-model="orderPayments.ck_at"
             type="datetime"
@@ -215,7 +215,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收款备注：">
+        <el-form-item label="收款备注：" prop="remark">
           <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 4}"
             v-model="orderPayments.remark">
           </el-input>
@@ -230,14 +230,14 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="货物配送费：">
-          <el-input placeholder="货物配送费" v-model="orderPayments.delivery_fee">
+          <el-input placeholder="货物配送费" :disabled="true" v-model="orderPayments.delivery_fee">
             <el-button slot="append" @click="handleReCalculate()">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="司机配送费：">
-          <el-input placeholder="司机配送费" v-model="orderPayments.driver_fee">
+          <el-input placeholder="司机配送费" :disabled="true" v-model="orderPayments.driver_fee">
             <el-button slot="append" @click="handleReCalculate()">重算</el-button>
           </el-input>
         </el-form-item>
@@ -263,7 +263,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="10" v-show="exchangeBottle.is_checked">
-        <el-form-item label="换盖金额：">
+        <el-form-item label="换盖金额：" prop="exhange_amount">
           <el-input placeholder="换盖金额" v-model="exchangeBottle.amount">
             <el-button slot="append" @click="handleExchangeBottle()">保存</el-button>
           </el-input>
@@ -330,21 +330,25 @@ export default {
         pay_sn: '',
         amount: 0
       },
+      priceRule: [
+        { type: 'float', message: '必须为数值', trigger: 'blur' }
+      ],
       rules: {
-        jkr_id: [
-          { required: true, message: '请选择交款人', trigger: 'blur' }
+        jk_driver_id: [
+          { required: true, message: '请选择交款人', trigger: 'change' }
         ],
         ck_at: [
           { type: 'date', required: true, message: '请选择存款日期', trigger: 'change' }
         ],
-        qiandan: [
-          { type: 'float', message: '必须为数值', trigger: 'change' }
+        desc_remark: [
+          { type: 'string', message: '必须为数值', trigger: 'blur' },
+          { max: 100, message: '最大长度为 100 个字符', trigger: 'blur' }
         ],
-        ziti: [
-          { type: 'float', message: '必须为数值', trigger: 'change' }
+        out_pay_sn: [
+          { max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
         ],
-        weicha: [
-          { type: 'float', message: '必须为数值', trigger: 'change' }
+        remark: [
+          { max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
         ]
       },
       dateOptions: {
@@ -519,7 +523,7 @@ export default {
     }
   }
 .el-col {
-  margin-bottom: 5px;
+  margin-bottom: 15px;
   &:last-child {
     margin-bottom: 0;
   }

@@ -22,6 +22,7 @@ class CreateMainOrderPaymentsTable extends Migration
             $table->string('desc_remark')->default('')->nullable()->comment('扣减备注');
             $table->float('yingshou')->default('0.00')->nullable()->comment('应收金额');
             $table->float('pos')->default('0.00')->nullable()->comment('pos刷卡');
+			$table->string('out_pay_sn')->default('')->nullable()->comment('扣减备注');
             $table->float('weixin')->default('0.00')->nullable()->comment('微信');
             $table->float('alipay')->default('0.00')->nullable()->comment('支付宝');
             $table->float('yizhifu')->default('0.00')->nullable()->comment('翼支付');

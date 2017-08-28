@@ -80,6 +80,7 @@ export default {
         });
         this.$emit('goods-change', list)
       },
+      immediate: true,
       deep: true
     }
   }
