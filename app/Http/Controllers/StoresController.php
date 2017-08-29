@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Store;
+use Cache;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -24,14 +25,13 @@ class StoresController extends Controller
 
 	public function list(Request $request)
 	{
-	    $storeName = $request->get('name');
-		$stores = $this->stores->select(['store_id', 'store_name'])->whereIn('store_state', [0, 1])
-            ->orderBy('store_state', 'desc');
-		if($storeName){
-            $stores->where('store_name', 'like', '%' . $storeName . '%');
-        }
-
-        $stores = $stores->get();
-        return response($stores);
-	}
+        return Cache::remember('stores', 60*6, function () use ($request) {
+            $stores = app(\App\Models\Store::class)->whereIn('store_state', [0, 1])
+                ->orderBy('store_state', 'desc');
+            if($request->get('name')){
+                $stores->where('store_name', 'like', '%' . $request->get('name') . '%');
+            }
+            return $stores->get();
+        });
+    }
 }

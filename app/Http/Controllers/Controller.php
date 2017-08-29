@@ -20,4 +20,12 @@ class Controller extends BaseController
     {
         return response(['status' => 0, 'msg' => $msg, 'data' => $data]);
     }
+
+    public function getRequestAddTime()
+    {
+        $timeStart = strtotime(request()->add_time[0]);
+        $timeEnd = strtotime(request()->add_time[1]);
+
+        return [$timeStart, $timeEnd];
+    }
 }

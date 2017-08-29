@@ -292,9 +292,9 @@
    }
  }
 
- export function initDateMothRange(){
+ export function initDateMothRange() {
    const firstDate = new Date();
-   firstDate.setDate(1); //第一天
+   firstDate.setDate(1); // 第一天
    firstDate.setHours(0);
    firstDate.setMinutes(0);
    firstDate.setSeconds(0);

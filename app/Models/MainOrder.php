@@ -73,7 +73,7 @@ class MainOrder extends Model
      */
     public function mainOrderPayment()
     {
-        return $this->hasOne(\App\Models\OrderGoods::class, 'pay_id', 'pay_id');
+        return $this->hasOne(\App\Models\MainOrderPayment::class, 'pay_id', 'pay_id');
     }
 
     public function list($where)

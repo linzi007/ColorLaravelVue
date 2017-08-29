@@ -37,7 +37,7 @@ class OrderGoodsPaymentsController extends Controller
 	public function index()
 	{
         $this->orderGoodsPayment->leftJoin('main_order_payments', 'order_goods_payments.pay_id', '=', 'main_order_payments.pay_id')
-            ->where($where[])->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS, 'current_page');
+            ->where($where[])->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS);
 
 	}
 

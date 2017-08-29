@@ -43,7 +43,7 @@
 
     <div v-show="!listLoading" class="pagination-container">
       <el-pagination @size-change="handleSizeChange"
-      @current-change="handleCurrentChange" :current-page.sync="listQuery.current_page"
+      @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.per_page"
         layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
@@ -89,7 +89,7 @@
         total: null,
         pagePath: '/drivers',
         listQuery: {
-          current_page: 1,
+          page: 1,
           per_page: 20,
           mobile: undefined,
           name: undefined
@@ -255,7 +255,7 @@
         this.getList();
       },
       handleCurrentChange(val) {
-        this.listQuery.current_page = val;
+        this.listQuery.page = val;
         this.getList();
       },
       handleDownload() {

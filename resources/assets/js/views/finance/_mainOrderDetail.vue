@@ -188,7 +188,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="交款人：" prop="jk_driver_id">
+        <el-form-item label="交款人：">
           <select-driver :selected="orderPayments.jk_driver_id" @changeSelect="jkrChange"></select-driver>
         </el-form-item>
       </el-col>

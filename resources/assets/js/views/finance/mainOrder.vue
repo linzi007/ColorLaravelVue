@@ -212,7 +212,7 @@
 
     <div v-show="!listLoading" class="pagination-container">
       <el-pagination @size-change="handleSizeChange"
-      @current-change="handleCurrentChange" :current-page.sync="listQuery.current_page"
+      @current-change="handleCurrentChange" :current-page.sync="listQuery.page"
         :page-sizes="[10,20,30, 50]" :page-size="listQuery.per_page"
         layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
@@ -233,7 +233,7 @@
 
   export default {
     name: 'mainOrder',
-    components: {mainOrderDetail, SelectDriver},
+    components: { mainOrderDetail, SelectDriver },
     data() {
       return {
         listLoading: false,
@@ -245,7 +245,7 @@
         baseURL: '/main_order_payments',
         selectedRows: [],
         listQuery: {
-          current_page: 1,
+          page: 1,
           per_page: 20,
           add_time: undefined,
           pay_sn: undefined,
@@ -254,9 +254,9 @@
           jzr_id: undefined
         },
         statusMap: [
-          {label: '未录入', value: 2},
-          {label: '已录入', value: 0},
-          {label: '已记账', value: 1}
+          { label: '未录入', value: '' },
+          { label: '已录入', value: 0 },
+          { label: '已记账', value: 1 }
         ],
         dialogFormVisible: false,
         dialogFormStauts: '',
@@ -302,7 +302,7 @@
           return false;
         }
         pay_ids = pay_ids.join(',')
-        return {pay_ids};
+        return { pay_ids };
       }, // 查询
       handleSearch() {
         this.getList();
@@ -412,13 +412,13 @@
         this.handleSearch();
       },
       handleCurrentChange(val) {
-        this.listQuery.current_page = val;
+        this.listQuery.page = val;
         this.handleSearch();
       },
       queryChangeJkr(val) {
         this.listQuery.jkr_id = val
       },
-      tableRowClassName(row, index) {
+      tableRowClassName(row) {
         if (row.status === 1) {
           return 'info-row';
         }

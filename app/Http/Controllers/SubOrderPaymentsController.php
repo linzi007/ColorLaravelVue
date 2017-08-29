@@ -22,7 +22,7 @@ class SubOrderPaymentsController extends Controller
 
     const FIELDS = [
         'sub_order_payments.*'
-        , 'order.pay_id', 'order.pay_sn', 'order.add_time', 'order.goods_amount'
+        , 'order.pay_id', 'order.pay_sn', 'order.store_id', 'order.add_time', 'order.goods_amount'
         , 'order.promotion_amount', 'order.pd_amount', 'order.order_amount'
         , 'order.share_union_promotion as union_promotion', 'order.share_site_promotion as site_promotion'
         , 'main_order_payments.jk_at', 'main_order_payments.out_pay_sn', 'main_order_payments.jk_at'
@@ -41,9 +41,7 @@ class SubOrderPaymentsController extends Controller
 	{
         $where = $this->getWhere();
         if (request()->has('add_time')) {
-            $timeStart = strtotime(request()->add_time[0]);
-            $timeEnd = strtotime(request()->add_time[1]);
-            $this->order->whereBetween('add_time', [$timeStart, $timeEnd]);
+            $this->order->whereBetween('add_time', $this->getRequestAddTime());
         } else {
             //$timeStart = Carbon::now()->firstOfMonth()->timestamp;
             //$timeEnd = Carbon::now()->lastOfMonth()->timestamp;
@@ -51,12 +49,12 @@ class SubOrderPaymentsController extends Controller
 
         $subOrderPayments = $this->order->leftJoin('main_order_payments', 'order.pay_id', '=', 'main_order_payments.pay_id')
             ->leftJoin('sub_order_payments', 'order.pay_id', '=', 'sub_order_payments.pay_id')
-            ->where($where)->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS, 'current_page');
-
+            ->where($where)->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS);
+        $subOrderPayments->load('store');
         return response($subOrderPayments);
 	}
 
-    public function getWhere()
+    private function getWhere()
     {
         $request = request();
         $where = [];
@@ -84,5 +82,10 @@ class SubOrderPaymentsController extends Controller
         }
 
         return $where;
+    }
+
+    public function export(Request $request)
+    {
+
     }
 }

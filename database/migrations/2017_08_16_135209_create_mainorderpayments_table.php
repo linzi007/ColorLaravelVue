@@ -10,7 +10,7 @@ class CreateMainOrderPaymentsTable extends Migration
 		Schema::create('main_order_payments', function(Blueprint $table) {
             $table->increments('id');
             $table->string('pay_id', 30)->index();
-            $table->integer('add_time')->index();
+            $table->timestamp('add_time')->index();
             $table->string('pay_sn', 30)->comment('支付单号');
             $table->float('quehuo')->default('0.00')->nullable()->comment('缺货金额');
             $table->float('jushou')->default('0.00')->nullable()->comment('拒收金额');

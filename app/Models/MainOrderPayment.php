@@ -8,11 +8,11 @@ use Exception;
 class MainOrderPayment extends Model
 {
     protected $fillable = [
-        'pay_id', 'quehuo', 'jushou', 'qiandan', 'ziti', 'qita',
+        'pay_id', 'pay_sn', 'add_time', 'quehuo', 'jushou', 'qiandan', 'ziti', 'qita',
         'weicha', 'desc_remark', 'pos', 'weixin', 'alipay',
         'yizhifu', 'out_pay_sn', 'cash', 'delivery_fee',
         'driver_fee', 'second_driver_id', 'jk_driver_id', 'updater',
-        'shifa', 'yingshou', 'shishou', 'jk_at', 'ck_at'
+        'shifa', 'yingshou', 'shishou', 'jk_at', 'ck_at', 'remark'
     ];
 
     // 日期字段

@@ -23,17 +23,7 @@ Route::get('/lg', function () {
 });
 
 Route::get('/test', function () {
-    $mainOrders = \App\Models\MainOrder::with('orderGoods')->where('pay_id', '<=', '10923')->orderBy('pay_id', 'desc')->limit(50)->get();
-
-    $goodsIds = $mainOrders->map(function ($mainOrder) {
-        return $mainOrder->orderGoods;
-    })->flatten(1)->map(function ($orderGoods) {
-        return $orderGoods->goods_id;
-    })->unique();
-    //取得订单对应的goods_id
-    $goodsList = \App\Models\Goods::with('goodsCommon')->whereIn('goods_id', $goodsIds)->get();
-    $goodsList = $goodsList->toArray();
-    dd($goodsList);
+    dd(date('Y-m-d H:i:s', strtotime('2017-08-28T15:10:06.000Z')));
 });
 Route::get('/user/info', function () {
     $user = Auth::user()->toArray();

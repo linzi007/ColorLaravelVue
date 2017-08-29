@@ -9,7 +9,7 @@ class SubOrderPayment extends Model
 {
 
     protected $fillable = [
-        'pay_id', 'desc_remark', 'quehuo', 'jushou', 'shifa', 'percent', 'store_id', 'qiandan', 'ziti', 'qita', 'weicha'
+        'order_id', 'order_sn', 'store_id', 'pay_id', 'pay_sn', 'add_time', 'desc_remark', 'desc_remark', 'quehuo', 'jushou', 'shifa', 'percent', 'store_id', 'qiandan', 'ziti', 'qita', 'weicha'
         , 'yingshou', 'pos', 'weixin', 'alipay', 'yizhifu', 'cash', 'shishou', 'delivery_fee', 'driver_fee'
     ];
 

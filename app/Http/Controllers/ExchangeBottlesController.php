@@ -22,7 +22,7 @@ class ExchangeBottlesController extends Controller
 
 	public function index(Request $request)
 	{
-        $exchange_bottles = $this->exchangeBottle->paginate($request->per_page, ['*'], 'current_page');
+        $exchange_bottles = $this->exchangeBottle->paginate($request->per_page);
 		return response($exchange_bottles);
 	}
 

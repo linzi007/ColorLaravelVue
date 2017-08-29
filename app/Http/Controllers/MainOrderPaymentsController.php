@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\OrderGoods;
 use App\Models\OrderGoodsPayment;
 use App\Models\SubOrderPayment;
+use function foo\func;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MainOrderPaymentRequest;
@@ -79,9 +80,36 @@ class MainOrderPaymentsController extends Controller
 
     public function index(Request $request)
     {
-        $where = $this->getWhere($request);
-        $mainOrders = $this->mainOrder->list($where)->paginate($request->per_page, self::FIELDS, 'current_page');
+        $condition = [];
+        $mainOrders = $this->mainOrder->whereIn('order_state', [30, 40]);
+        if ($request->pay_driver_id) {
+            $condition['jk_driver_id'] = $request->jk_driver_id;
+        }
+        if ($request->jzr) {
+            $condition['jzr'] = $request->jzr;
+        }
+        if (isset($request->status) && in_array($request->status, [0, 1])) {
+            $condition['status'] = $request->status;
+        } else if(2 == $request->status) {
+            $mainOrders = $mainOrders->doesntHave('mainOrderPayment');
+        }
 
+        if ($condition && '' != $request->status) {
+            $mainOrders = $mainOrders->whereHas('mainOrderPayment', function ($query) use ($condition) {
+                $query->where($condition);
+            });
+        }
+
+        $where = [];
+        if ($paySn = $request->pay_sn) {
+            $where['pay_sn'] = $paySn;
+        }
+        if ($request->has('add_time')) {
+            $mainOrders = $mainOrders->whereBetween('add_time', $this->getRequestAddTime());
+        }
+        //$where = $this->getWhere($request);
+        $mainOrders = $mainOrders->where($where)->orderBy('pay_id', 'desc')->paginate($request->per_page);
+        //$mainOrders = $this->mainOrder->list($where)->paginate($request->per_page, self::FIELDS);
         return response()->json($mainOrders);
     }
 
@@ -232,6 +260,8 @@ class MainOrderPaymentsController extends Controller
             'updater'          => currentUserId(),
             'jlr'              => currentUserId(),
             'remark'           => $mainOrder['remark'],
+            'jk_at'           => date('Y-m-d H:i:s', strtotime($mainOrder['jk_at'])),
+            'ck_at'           => date('Y-m-d H:i:s', strtotime($mainOrder['ck_at'])),
         ];
 
         $quehuo = $jushou = $shifa = $delivery_fee = $driver_fee = 0;
@@ -344,16 +374,16 @@ class MainOrderPaymentsController extends Controller
         $storeOrderMap = $this->getStoreOrderMap($mainOrderPayments['pay_id']);
         foreach ($orderPayments as $storeId => $subPayments) {
             $percentage = $subPayments['percent'] / 100;
-            $subPayments['store_id'] = $storeId;
             foreach ($subOrderDefault as $key => $value) {
                 $subPayments[$key] = round($value * $percentage, 4);
             }
             $condition = [
                 'pay_id'   => $subPayments['pay_id'],
-                'store_id' => $subPayments['store_id'],
+                'store_id' => $storeId,
             ];
 
             //冗余数据
+            $subPayments['store_id'] = $storeId;
             $subPayments['order_id'] = $storeOrderMap[$storeId]['order_id'];
             $subPayments['order_sn'] = $storeOrderMap[$storeId]['order_sn'];
             //数据写入或则更新

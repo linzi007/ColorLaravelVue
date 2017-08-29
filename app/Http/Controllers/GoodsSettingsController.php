@@ -10,17 +10,23 @@ use App\Http\Requests\GoodsSettingRequest;
 class GoodsSettingsController extends Controller
 {
     /**
+     * @var GoodsSetting
+     */
+    private $goodsSetting;
+
+    /**
      * 货品配送费设置表
      * GoodsSettingsController constructor.
      */
-    public function __construct()
+    public function __construct(GoodsSetting $goodsSetting)
     {
         $this->middleware('auth', ['except' => ['index', 'show']]);
+        $this->goodsSetting = $goodsSetting;
     }
 
 	public function index()
 	{
-		$goods_settings = GoodsSetting::paginate();
+		$goods_settings = $this->goodsSetting->paginate();
 
 		return response($goods_settings);
 	}
@@ -38,11 +44,13 @@ class GoodsSettingsController extends Controller
 	    return response(['id'=>$goods_setting->id, 'message'=>'Updated successfully.']);
 	}
 
-	public function destroy(GoodsSetting $goods_setting)
-	{
-		$this->authorize('destroy', $goods_setting);
-		$goods_setting->delete();
+    public function import(Request $request)
+    {
 
-        response(['message' => 'Deleted successfully.']);
-    }
+	}
+
+    public function export(Request $request)
+    {
+
+	}
 }
