@@ -104,12 +104,17 @@ class MainOrderPaymentsController extends Controller
         if ($paySn = $request->pay_sn) {
             $where['pay_sn'] = $paySn;
         }
-        if ($request->has('add_time')) {
+        if ($request->add_time && 'null' != $request->add_time[0]) {
             $mainOrders = $mainOrders->whereBetween('add_time', $this->getRequestAddTime());
         }
-        //$where = $this->getWhere($request);
-        $mainOrders = $mainOrders->where($where)->orderBy('pay_id', 'desc')->paginate($request->per_page);
-        //$mainOrders = $this->mainOrder->list($where)->paginate($request->per_page, self::FIELDS);
+        $mainOrders = $mainOrders->with('mainOrderPayment')->where($where)->orderBy('pay_id', 'desc')->paginate($request->per_page)->toArray();
+        foreach ($mainOrders['data'] as $key => $item) {
+            if (!empty($item['main_order_payment']['id'])) {
+                $payment = $item['main_order_payment'];
+                unset($item['main_order_payment']);
+                $mainOrders['data'][$key] = array_merge($item, $payment);
+            }
+        }
         return response()->json($mainOrders);
     }
 
@@ -255,7 +260,7 @@ class MainOrderPaymentsController extends Controller
             'cash'             => $mainOrder['cash'],
             'delivery_fee'     => $mainOrder['delivery_fee'],
             'driver_fee'       => $mainOrder['driver_fee'],
-            'second_driver_id' => $mainOrder['driver_id'],
+            'second_driver_id' => $mainOrder['second_driver_id'],
             'jk_driver_id'     => $mainOrder['jk_driver_id'],
             'updater'          => currentUserId(),
             'jlr'              => currentUserId(),
@@ -263,7 +268,6 @@ class MainOrderPaymentsController extends Controller
             'jk_at'           => date('Y-m-d H:i:s', strtotime($mainOrder['jk_at'])),
             'ck_at'           => date('Y-m-d H:i:s', strtotime($mainOrder['ck_at'])),
         ];
-
         $quehuo = $jushou = $shifa = $delivery_fee = $driver_fee = 0;
         foreach ($orderGoodsPayments as $goods) {
             $quehuo += $goods['quehuo_amount'];
@@ -346,13 +350,16 @@ class MainOrderPaymentsController extends Controller
                 $orderPayment['shifa'] += $goodsPayment['shifa_amount'];
             }
             $orderPayment['percent'] = round($orderPayment['shifa']/$mainOrderPayments['shifa'], 4) * 100;
+            $orderPayment['store_id'] = $storeId;
 
             $orderPayments[$storeId] = $orderPayment;
         }
-
         //修正百分比
-        $orderPayments = fixArrayTotal($orderPayments, ['percent'], 100);
-
+        if (100 != collect($orderPayments)->sum('percent')) {
+            $orderPayments = fixArrayTotal($orderPayments, ['percent'], 100);
+            $orderPayments = collect($orderPayments)->keyBy('store_id')->toArray();
+        }
+        //keys by store_id
         //子单字段对应主单的内容
         $subOrderDefault = [
             'qiandan'      => $mainOrderPayments['qiandan'],

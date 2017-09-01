@@ -47,7 +47,7 @@
               </el-option>
           </el-select>
           <span class="demonstration">交款人</span>
-          <select-driver :selected="listQuery.jkr_jd" @changeSelect="queryChangeJkr"></select-driver>
+          <select-driver :selected="listQuery.jk_driver_jd" @changeSelect="queryChangeJkr"></select-driver>
         </el-row>
       </div>
     </div>
@@ -180,7 +180,7 @@
         </el-table-column>
         <el-table-column label="交款人" width="100">
             <template scope="scope">
-                <span class="table-col-text">{{scope.row.jkr}}</span>
+                <span class="table-col-text">{{scope.row.jk_driver_id}}</span>
             </template>
         </el-table-column>
         <el-table-column label="配送费" width="100">
@@ -250,11 +250,12 @@
           add_time: undefined,
           pay_sn: undefined,
           status: undefined,
-          jkr_jd: undefined,
+          jk_driver_jd: undefined,
           jzr_id: undefined
         },
         statusMap: [
-          { label: '未录入', value: '' },
+          { label: '全部', value: '' },
+          { label: '未录入', value: 2 },
           { label: '已录入', value: 0 },
           { label: '已记账', value: 1 }
         ],
@@ -290,6 +291,9 @@
           this.dialogFormVisible = true;
           loadingInstance.close();
           this.formData = response.data;
+          if (this.formData.ck_at) {
+            this.formData.ck_at = new Date(this.formData.ck_at)
+          }
         })
       }, // checked
       getSelected() {
