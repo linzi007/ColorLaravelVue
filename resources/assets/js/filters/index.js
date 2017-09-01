@@ -136,3 +136,11 @@ export function orderPaymentsStatus(status) {
   }
   return statusMap[status];
 }
+
+export function chargingTypeName($id) {
+  const statusMap = {
+    0: '数量',
+    1: '金额'
+  }
+  return statusMap[$id];
+}

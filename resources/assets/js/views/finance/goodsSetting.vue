@@ -14,14 +14,11 @@
         </el-button-group>
       </el-row>
       <el-row :gutter='10'>
-        <span class="demonstration">订单时间：</span>
-        <el-date-picker
-                v-model="listQuery.add_time"
-                type="datetimerange"
-                placeholder="选择时间范围"
-                :picker-options="addTimePickerOption">
-        </el-date-picker>
         <select-store :selected="listQuery.store_id" @changeSelect="queryChangeStore"></select-store>
+        <span class="demonstration">货品id：</span>
+        <el-input placeholder="货品id" v-model="listQuery.goods_id" style="width:80px"></el-input>
+        <span class="demonstration">货品名称：</span>
+        <el-input placeholder="货品名称" v-model="listQuery.goods_name" style="width:80px"></el-input>
         <el-button class="filter-item" type="primary" icon="search"
                    @click="handleSearch()">查询</el-button>
         <el-button class="filter-item" type="text"
@@ -29,12 +26,8 @@
       </el-row>
       <div :class="{ 'search-more':isSearchMore }">
         <el-row>
-          <span class="demonstration">货品id：</span>
-          <el-input placeholder="货品id" v-model="listQuery.goods_id" style="width:80px"></el-input>
-          <span class="demonstration">货品名称：</span>
-          <el-input placeholder="货品id" v-model="listQuery.goods_id" style="width:80px"></el-input>
           <span class="demonstration">货品条码：</span>
-          <el-input placeholder="货品id" v-model="listQuery.goods_id" style="width:80px"></el-input>
+          <el-input placeholder="货品条码" v-model="listQuery.goods_serial" style="width:80px"></el-input>
           <span class="demonstration">计费方式</span>
           <el-select v-model="listQuery.type">
             <el-option
@@ -51,22 +44,17 @@
               :data="list" ref="goodSettingTable" v-loading.body="listLoading"
               boder fit highlight-current-row
               @sort-change="sortQuery"
-              show-summary
-              @selection-change="handleSelectionChange"
+              @row-dblclick='handleUpdateDialog'
+              :default-sort = "{prop: 'good_id', order: 'descending'}"
               style="width: 100%">
       <el-table-column align="center" type="index" label="序号" width="65">
       </el-table-column>
-      <el-table-column
-              type="selection"
-              prop="pay_id"
-              width="55">
-      </el-table-column>
-      <el-table-column label="档口" width="200">
+      <el-table-column label="档口" width="200" sortable>
         <template scope="scope">
           <span class="table-col-text">{{scope.row.store_id}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="SKU" width="150">
+      <el-table-column label="SKU" width="150" sortable>
         <template scope="scope">
           <span class="table-col-text">{{scope.row.goods_id}}</span>
         </template>
@@ -93,7 +81,7 @@
       </el-table-column>
       <el-table-column label="计费方式" width="100">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.shipping_charging_type}}</span>
+          <span class="table-col-text">{{scope.row.shipping_charging_type | chargingTypeName}}</span>
         </template>
       </el-table-column>
       <el-table-column label="单件费用&费率" width="100">
@@ -108,12 +96,12 @@
       </el-table-column>
       <el-table-column label="司机计费方式" width="100">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.driver_charging_type}}</span>
+          <span class="table-col-text">{{scope.row.driver_charging_type | chargingTypeName}}</span>
         </template>
       </el-table-column>
       <el-table-column label="单件费用&费率" width="100">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.driver_fee}}</span>
+          <span class="table-col-text">{{scope.row.driver_rate}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -125,58 +113,117 @@
                      layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
+
+    <el-dialog :title="dialogTextMap[dialogStatus]"
+               :visible.sync="dialogFormVisible">
+      <el-form class="small-space" :model="formData"
+                ref="formData"
+               label-position="left" label-width="150px"
+               style='width: 400px; margin-left:50px;'>
+        <el-form-item label="档口名称：">
+          <span class="form-item">{{formData.store_id}}</span>
+        </el-form-item>
+        <el-form-item label="SKU：">
+          <span class="form-item">{{formData.goods_id}}</span>
+        </el-form-item>
+        <el-form-item label="货品名称：">
+          <span class="form-item">{{formData.goods_name}}</span>
+        </el-form-item>
+        <el-form-item label="货品条码：">
+          <span class="form-item">{{formData.goods_serial}}</span>
+        </el-form-item>
+        <el-form-item label="单价：">
+          <span class="form-item">{{formData.goods_price}}</span>
+          <span v-if="formData.g_unit">/{{formData.g_unit}}</span>
+        </el-form-item>
+        <el-form-item label="计费方式：" prop="shipping_charging_type">
+          <el-radio class="radio" v-model="formData.shipping_charging_type" label="0">数量</el-radio>
+          <el-radio class="radio" v-model="formData.shipping_charging_type" label="1">金额</el-radio>
+        </el-form-item>
+        <el-form-item label="单件费用&费率：" prop="shipping_rate">
+          <el-input v-model="formData.shipping_rate"></el-input>
+        </el-form-item>
+        <el-form-item label="拆包费（元/件）：" prop="unpack_fee">
+          <el-input v-model="formData.unpack_fee"></el-input>
+        </el-form-item>
+        <el-form-item label="司机计费方式：" prop="driver_charging_type">
+          <el-radio class="radio" v-model="formData.driver_charging_type" label="0">数量</el-radio>
+          <el-radio class="radio" v-model="formData.driver_charging_type" label="1">金额</el-radio>
+        </el-form-item>
+        <el-form-item label="单件费用&费率：" prop="driver_rate">
+          <el-input v-model="formData.driver_rate"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelForm('formData')">取 消</el-button>
+        <el-button type="primary" @click="handleUpdate('formData')">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import { fetchList } from 'api/restfull';
-  import mainOrderDetail from './_mainOrderDetail.vue'
-  import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
+  import { fetchList, fetchUpdate } from 'api/restfull';
+  import { showMsg } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
   export default {
-    name: 'mainOrder',
-    components: { mainOrderDetail, SelectStore },
+    name: 'goods_setting',
+    components: { SelectStore },
     data() {
       return {
         listLoading: false,
         isSearchMore: true,
         list: null,
         total: null,
-        sortBy: 'pay_sn',
-        sortOrder: 'descending',
-        baseURL: '/sub_order_payments',
+        baseURL: '/goods_settings',
         selectedRows: [],
         listQuery: {
           page: 1,
           per_page: 20,
+          sortBy: 'goods_id',
+          sortOrder: 'descending',
           add_time: undefined,
           store_id: undefined,
           goods_id: undefined,
           goods_name: undefined,
           goods_serial: undefined,
-          type: undefined
+          type: ''
         },
-        statusMap: [
+        typeMap: [
           { label: '全部', value: '' },
           { label: '按数量计费', value: 0 },
           { label: '按金额计费', value: 1 }
         ],
         dialogFormVisible: false,
         dialogFormStauts: '',
+        dialogStatus: 'update',
+        dialogTextMap: {
+          update: '编辑',
+          create: '新增'
+        },
         dialogSearchVisible: false,
         dialogGoodsListVisible: false,
         tableKey: 0,
         formData: {},
-        validateRules: {},
-        addTimePickerOption: {
-          shortcuts: pickerOptions
+        validateRules: {
+          shipping_rate: [
+            { required: true, type: 'float', message: '必须为数值', trigger: 'blur' },
+            { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
+          ],
+          unpack_fee: [
+            { type: 'float', message: '必须为数值', trigger: 'blur' },
+          ],
+          driver_rate: [
+            { required: true, type: 'float', message: '必须为数值', trigger: 'blur' },
+            { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
+          ],
         }
       }
     },
     created() {
+      this.formData = {};
       this.getList();
-      this.listQuery.add_time = initDateMothRange()
     },
     computed: {
     },
@@ -188,18 +235,6 @@
           this.total = response.data.total;
           this.listLoading = false;
         })
-      }, // checked
-      getSelected() {
-        let goods_id = _.map(this.selectedRows, 'goods_id')
-        if (_.isEmpty(goods_id)) {
-          this.$message({
-            message: '请选择要操作的数据',
-            type: 'error'
-          });
-          return false;
-        }
-        goods_id = goods_id.join(',')
-        return { goods_id };
       }, // 查询
       handleSearch() {
         this.getList();
@@ -207,9 +242,49 @@
       handleSearchMore() {
         return this.isSearchMore = !this.isSearchMore
       }, // 排序查询
+      cancelForm(formName) {
+        this.dialogFormVisible = false;
+        this.$refs[formName].resetFields();
+      },
+      handleUpdateDialog(row) {
+        this.formData = Object.assign({}, row);
+        this.dialogStatus = 'update';
+        this.dialogFormVisible = true;
+      },
+      handleUpdate(formName) {
+        this.$refs[formName].validate(valid => {
+          if (valid) {
+            fetchUpdate(this.formData, this.baseURL).then(response => {
+              if (response.status !== 200) {
+                this.$message({
+                  message: response.data.message,
+                  type: 'error'
+                });
+                return false;
+              }
+              for (const v of this.list) {
+                if (v.goods_id === this.formData.goods_id) {
+                  const index = this.list.indexOf(v);
+                  this.list.splice(index, 1, this.formData);
+                  break;
+                }
+              }
+              this.dialogFormVisible = false;
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              });
+            })
+          } else {
+            return false;
+          }
+        });
+      },
       sortQuery(sort) {
-        this.sortBy = sort.column;
-        this.sortOrder = sort.order;
+        this.listQuery.sort_by = sort.column;
+        this.listQuery.sort_order = sort.order;
         this.handleSearch();
       }, // 查看
       showError(msg) {
@@ -218,19 +293,7 @@
           type: 'error'
         });
         return false;
-      },
-      handleSelectionChange(val) {
-        this.selectedRows = val;
       }, // 编辑
-      handleReCalculate() {
-        const query = this.getSelected();
-        if (!query) {
-          return false;
-        }
-        fetchList(query, '/main_order_payments/re_calculate').then(response => {
-          showMsg(response.data)
-        })
-      },
       handlePrint() {
         const newWindow = window.open('_blank');   // 打开新窗口
         const codestr = document.getElementById('print-wrap').innerHTML;   // 获取需要生成pdf页面的div代码

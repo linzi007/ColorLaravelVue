@@ -80,6 +80,18 @@ class MainOrderPaymentsController extends Controller
 
     public function index(Request $request)
     {
+        $sortOrderMap = [
+            'ascending' => 'asc', 'descending' => 'desc',
+        ];
+        $sortBy = 'pay_sn';
+        $sortOrder = 'desc';
+        if ($request->sort_by && in_array($request->sort_by, ['pay_sn'])) {
+            $sortBy = $request->sort_by;
+        }
+        if ($request->sort_order && in_array($request->sort_order, ['ascending', 'descending'])) {
+            $sortOrder = $sortOrderMap[$request->sort_order];
+        }
+
         $condition = [];
         $mainOrders = $this->mainOrder->whereIn('order_state', [30, 40]);
         if ($request->pay_driver_id) {
@@ -107,7 +119,7 @@ class MainOrderPaymentsController extends Controller
         if ($request->add_time && 'null' != $request->add_time[0]) {
             $mainOrders = $mainOrders->whereBetween('add_time', $this->getRequestAddTime());
         }
-        $mainOrders = $mainOrders->with('mainOrderPayment')->where($where)->orderBy('pay_id', 'desc')->paginate($request->per_page)->toArray();
+        $mainOrders = $mainOrders->with('mainOrderPayment')->where($where)->orderBy($sortBy, $sortOrder)->paginate($request->per_page)->toArray();
         foreach ($mainOrders['data'] as $key => $item) {
             if (!empty($item['main_order_payment']['id'])) {
                 $payment = $item['main_order_payment'];

@@ -240,13 +240,13 @@
         isSearchMore: true,
         list: null,
         total: null,
-        sortBy: 'pay_sn',
-        sortOrder: 'descending',
         baseURL: '/main_order_payments',
         selectedRows: [],
         listQuery: {
           page: 1,
           per_page: 20,
+          sort_by: 'pay_sn',
+          sort_order: 'descending',
           add_time: undefined,
           pay_sn: undefined,
           status: undefined,
@@ -315,8 +315,8 @@
         return this.isSearchMore = !this.isSearchMore
       }, // 排序查询
       sortQuery(sort) {
-        this.sortBy = sort.column;
-        this.sortOrder = sort.order;
+        this.listQuery.sort_by = sort.column;
+        this.listQuery.sort_order = sort.order;
         this.handleSearch();
       }, // 查看
       handleShow(row) {

@@ -53,12 +53,12 @@ export const asyncRouterMap = [
     icon: 'tubiaoleixingzhengchang',
     meta: { role: ['admin', 'finance'] },
     children: [
-      { path: 'mainorder', component: _import('finance/mainOrder'), name: '收款登记表' },
-      { path: 'suborder', component: _import('finance/subOrder'), name: '收款登记表-子订单' },
-      { path: 'detaillist', component: _import('finance/detailList'), name: '配送费明细' },
-      { path: 'exchangereport', component: _import('finance/exchangeReport'), name: '换盖金额汇总表' },
-      { path: 'goodsshippingfee', component: _import('finance/goodsShippingFee'), name: '货品配送费设置' },
-      { path: 'deliveryman', component: _import('finance/deliveryMan'), name: '司机信息表' }
+      { path: 'main-order', component: _import('finance/mainOrder'), name: '收款登记表' },
+      { path: 'sub-order', component: _import('finance/subOrder'), name: '收款登记表-子订单' },
+      { path: 'detail-list', component: _import('finance/detailList'), name: '配送费明细' },
+      { path: 'exchange-bottles', component: _import('finance/exchangeReport'), name: '换盖金额汇总表' },
+      { path: 'goods-settings', component: _import('finance/goodsSetting'), name: '货品配送费设置' },
+      { path: 'delivery-man', component: _import('finance/deliveryMan'), name: '司机信息表' }
     ]
   },
   {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Goods;
 use App\Models\GoodsSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -13,35 +14,122 @@ class GoodsSettingsController extends Controller
      * @var GoodsSetting
      */
     private $goodsSetting;
+    /**
+     * @var Goods
+     */
+    private $goods;
 
     /**
      * 货品配送费设置表
      * GoodsSettingsController constructor.
      */
-    public function __construct(GoodsSetting $goodsSetting)
+    public function __construct(GoodsSetting $goodsSetting, Goods $goods)
     {
         $this->middleware('auth', ['except' => ['index', 'show']]);
         $this->goodsSetting = $goodsSetting;
+        $this->goods = $goods;
+        parent::__construct();
     }
 
-	public function index()
+	public function index(Request $request)
 	{
-		$goods_settings = $this->goodsSetting->paginate();
+        $where = [];
+        if ($request->store_id) {
+            $where['goods.store_id'] = $request->store_id;
+        }
+        if ($request->has('shipping_charging_type')) {
+            $where['goods_settings.shipping_charging_type'] = $request->shipping_charging_type;
+        }
+        if ($request->goods_name) {
+            $where['goods.goods_name'] = ['like', $request->goods_name.'%'];
+        }
+        if ($request->goods_serial) {
+            $where['goods.goods_serial'] = $request->goods_serial;
+        }
+        if ($request->goods_id) {
+            $where['goods.goods_id'] = $request->goods_id;
+        }
 
-		return response($goods_settings);
+        $goodsSettings = $this->goods->list($where)->paginate();
+
+        return response()->json($goodsSettings);
+	}
+
+    public function searchByRelations(Request $request)
+    {
+        if ($request->store_id) {
+            $where['store_id'] = $request->store_id;
+        }
+        if ($request->has('shipping_charging_type')) {
+            $where['shipping_charging_type'] = $request->shipping_charging_type;
+        }
+        if ($request->has(['goods_name', 'goods_serial'])) {
+            if ($request->goods_name) {
+                $condition['goods_name'] = ['like', $request->goods_name];
+            }
+            if ($request->goods_serial) {
+                $condition['goods_serial'] = $request->goods_serial;
+            }
+        }
+        if ($request->goods_id) {
+            $where['goods_id'] = $request->goods_id;
+        } else if (!empty($condition)) {
+            $goods = $this->goods->where($condition)->first();
+            if (!empty($goods)) {
+                $where['goods_id'] = $goods['goods_id'];
+            }
+        }
+        $goodsSettings = $this->goodsSetting->with(['goods' => function($query) {
+            $query->select(['goods_serial, goods_name, goods_price, g_unit']);
+        }])->paginate($request->per_page);
+
+        foreach ($goodsSettings['data'] as $key => $item) {
+            if (!empty($item['goods'])) {
+                $payment = $item['goods'];
+                unset($item['goods']);
+                $mainOrders['data'][$key] = array_merge($item, $payment);
+            }
+        }
+        return response()->json($goodsSettings);
 	}
 
 	public function store(GoodsSettingRequest $request)
 	{
-		$goods_setting = GoodsSetting::create($request->all());
-	    return response(['id'=>$goods_setting->id, 'message'=>'Created successfully.']);
+        $data = $request->all();
+        $insert = [
+            'store_id' => $data['store_id'],
+            'goods_id' => $data['goods_id'],
+            'shipping_charging_type' => $data['shipping_charging_type'],
+            'shipping_rate' => $data['shipping_rate'],
+            'unpack_fee' => $data['unpack_fee'],
+            'driver_charging_type' => $data['driver_charging_type'],
+            'driver_rate' => $data['driver_rate'],
+        ];
+		$goods_setting = $this->goodsSetting->updateOrInsert($insert);
+        if ($goods_setting) {
+            return $this->success('保存成功');
+        }
+
+        return $this->fail('保存失败');
 	}
 
 	public function update(GoodsSettingRequest $request, GoodsSetting $goods_setting)
 	{
-		$this->authorize('update', $goods_setting);
-		$goods_setting->update($request->all());
-	    return response(['id'=>$goods_setting->id, 'message'=>'Updated successfully.']);
+		//$this->authorize('update', $goods_setting);
+        $data = $request->all();
+        $insert = [
+            'store_id' => $data['store_id'],
+            'goods_id' => $data['goods_id'],
+            'shipping_charging_type' => $data['shipping_charging_type'],
+            'shipping_rate' => $data['shipping_rate'],
+            'unpack_fee' => $data['unpack_fee'],
+            'driver_charging_type' => $data['driver_charging_type'],
+            'driver_rate' => $data['driver_rate'],
+        ];
+        $goods_setting = GoodsSetting::create($insert);
+        if ($goods_setting) {
+            return $this->success('保存成功');
+        }
 	}
 
     public function import(Request $request)

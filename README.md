@@ -9,4 +9,5 @@
 - 开发规范参考：[laravel团队开发规范](https://fsdhub.com/books/laravel-specification)
 
 目前处于练手中。。。
-果然新手还是要多练习基础啊！
+
+果然新手还是要多练习基础！
