@@ -47,6 +47,7 @@ export default new Router({
 export const asyncRouterMap = [
   {
     path: '/finance',
+    // beforeEnter: requireAuth,
     component: Layout,
     redirect: 'noredirect',
     name: '财务收款',
@@ -86,3 +87,11 @@ export const asyncRouterMap = [
 
   { path: '*', redirect: '/404', hidden: true }
 ];
+
+function requireAuth (to, from, next) {
+  if (window.User) {
+    return next()
+  } else {
+    return next('/')
+  }
+}

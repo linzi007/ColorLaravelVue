@@ -25,13 +25,6 @@ class StoresController extends Controller
 
 	public function list(Request $request)
 	{
-        return Cache::remember('stores', 60*6, function () use ($request) {
-            $stores = app(\App\Models\Store::class)->whereIn('store_state', [0, 1])
-                ->orderBy('store_state', 'desc');
-            if($request->get('name')){
-                $stores->where('store_name', 'like', '%' . $request->get('name') . '%');
-            }
-            return $stores->get();
-        });
+        return $this->stores->list($request);
     }
 }

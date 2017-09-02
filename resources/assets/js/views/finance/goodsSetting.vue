@@ -29,7 +29,7 @@
           <span class="demonstration">货品条码：</span>
           <el-input placeholder="货品条码" v-model="listQuery.goods_serial" style="width:80px"></el-input>
           <span class="demonstration">计费方式</span>
-          <el-select v-model="listQuery.type">
+          <el-select v-model="listQuery.shipping_charging_type">
             <el-option
                     v-for="item in typeMap"
                     :key="item.value"
@@ -42,19 +42,19 @@
     </div>
     <el-table id="print-wrap"
               :data="list" ref="goodSettingTable" v-loading.body="listLoading"
-              boder fit highlight-current-row
+              border fit highlight-current-row
               @sort-change="sortQuery"
               @row-dblclick='handleUpdateDialog'
               :default-sort = "{prop: 'good_id', order: 'descending'}"
               style="width: 100%">
       <el-table-column align="center" type="index" label="序号" width="65">
       </el-table-column>
-      <el-table-column label="档口" width="200" sortable>
+      <el-table-column prop="goods_id" label="档口" width="200" sortable>
         <template scope="scope">
           <span class="table-col-text">{{scope.row.store_id}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="SKU" width="150" sortable>
+      <el-table-column prop="goods_id" label="SKU" width="150" sortable>
         <template scope="scope">
           <span class="table-col-text">{{scope.row.goods_id}}</span>
         </template>
@@ -119,7 +119,7 @@
       <el-form class="small-space" :model="formData"
                 ref="formData"
                label-position="left" label-width="150px"
-               style='width: 400px; margin-left:50px;'>
+               style='width: 500px; margin-left:50px;'>
         <el-form-item label="档口名称：">
           <span class="form-item">{{formData.store_id}}</span>
         </el-form-item>
@@ -137,8 +137,10 @@
           <span v-if="formData.g_unit">/{{formData.g_unit}}</span>
         </el-form-item>
         <el-form-item label="计费方式：" prop="shipping_charging_type">
-          <el-radio class="radio" v-model="formData.shipping_charging_type" label="0">数量</el-radio>
-          <el-radio class="radio" v-model="formData.shipping_charging_type" label="1">金额</el-radio>
+          <el-radio-group v-model="formData.shipping_charging_type">
+            <el-radio class="radio" label="0">数量</el-radio>
+            <el-radio class="radio" label="1">金额</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="单件费用&费率：" prop="shipping_rate">
           <el-input v-model="formData.shipping_rate"></el-input>
@@ -147,8 +149,10 @@
           <el-input v-model="formData.unpack_fee"></el-input>
         </el-form-item>
         <el-form-item label="司机计费方式：" prop="driver_charging_type">
-          <el-radio class="radio" v-model="formData.driver_charging_type" label="0">数量</el-radio>
-          <el-radio class="radio" v-model="formData.driver_charging_type" label="1">金额</el-radio>
+          <el-radio-group v-model="formData.driver_charging_type">
+            <el-radio class="radio" label="0">数量</el-radio>
+            <el-radio class="radio" label="1">金额</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="单件费用&费率：" prop="driver_rate">
           <el-input v-model="formData.driver_rate"></el-input>
@@ -159,11 +163,24 @@
         <el-button type="primary" @click="handleUpdate('formData')">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="excel导入"
+               :visible.sync="dialogUploadVisible">
+      <el-upload
+              class="upload-file"
+              :headers="uploadHeaders"
+              drag
+              action="/import/goods_settings"
+              name="file">
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip" slot="tip">只能上传excel文件，且不超过500kb</div>
+      </el-upload>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-  import { fetchList, fetchUpdate } from 'api/restfull';
+  import { fetchList, fetchCreate } from 'api/restfull';
   import { showMsg } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
@@ -181,14 +198,14 @@
         listQuery: {
           page: 1,
           per_page: 20,
-          sortBy: 'goods_id',
-          sortOrder: 'descending',
+          sort_by: 'goods_id',
+          sort_order: 'descending',
           add_time: undefined,
           store_id: undefined,
           goods_id: undefined,
           goods_name: undefined,
           goods_serial: undefined,
-          type: ''
+          shipping_charging_type: ''
         },
         typeMap: [
           { label: '全部', value: '' },
@@ -196,6 +213,7 @@
           { label: '按金额计费', value: 1 }
         ],
         dialogFormVisible: false,
+        dialogUploadVisible: false,
         dialogFormStauts: '',
         dialogStatus: 'update',
         dialogTextMap: {
@@ -218,6 +236,9 @@
             { required: true, type: 'float', message: '必须为数值', trigger: 'blur' },
             { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
           ],
+        },
+        uploadHeaders: {
+          'X-CSRF-TOKEN': window.Laravel.csrfToken
         }
       }
     },
@@ -254,7 +275,7 @@
       handleUpdate(formName) {
         this.$refs[formName].validate(valid => {
           if (valid) {
-            fetchUpdate(this.formData, this.baseURL).then(response => {
+            fetchCreate(this.formData, this.baseURL).then(response => {
               if (response.status !== 200) {
                 this.$message({
                   message: response.data.message,
@@ -283,7 +304,8 @@
         });
       },
       sortQuery(sort) {
-        this.listQuery.sort_by = sort.column;
+        console.log(sort);
+        this.listQuery.sort_by = sort.prop;
         this.listQuery.sort_order = sort.order;
         this.handleSearch();
       }, // 查看
@@ -303,7 +325,7 @@
         return true;
       },
       handleImport() {
-        return false;
+        this.dialogUploadVisible = true;
       }, // 导出
       handleExport() {
         fetchList(this.listQuery, '/export/goods_settings').then(response => {

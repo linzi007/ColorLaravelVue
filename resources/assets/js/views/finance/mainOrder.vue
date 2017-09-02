@@ -11,7 +11,7 @@
             @click="handleFanjizhang()">反记账</el-button>
           <el-button class="top-button-group" type="text"
             @click="handleReCalculate()">重算配送费</el-button>
-          <router-link to="/finance/subOrder" class="el-button filter-item el-button--text">切换为子订单模式</router-link>
+          <router-link to="/finance/sub-order" class="el-button filter-item el-button--text">切换为子订单模式</router-link>
           <el-button class="top-button-group" type="text"
             @click="handleExport()"
             >导出</el-button>
@@ -53,7 +53,9 @@
     </div>
     <el-table id="print-wrap" class="myDivToPrint"
         :data="list" ref="mainOrderTable" v-loading.body="listLoading"
-        boder fit highlight-current-row
+        border
+        fit
+        highlight-current-row
         @row-dbclick="handleEdit"
         @sort-change="sortQuery"
         :default-sort = "{prop: 'pay_sn', order: 'descending'}"
@@ -68,7 +70,7 @@
           prop="pay_id"
           width="55">
         </el-table-column>
-        <el-table-column label="支付单号" width="200">
+        <el-table-column prop="pay_sn" label="支付单号" width="200" sortable>
           <template scope="scope">
             <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.pay_sn}}</span>
           </template>
@@ -78,96 +80,28 @@
             <span class="table-col-text">{{scope.row.add_time}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="货品金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.goods_amount}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="缺货金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.quehuo}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="拒收金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.jushou}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="实发金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.shifa}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="签单金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.qiandan}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="自提金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.ziti}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="其他金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.qita}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="尾差金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.weicha}}</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="goods_amount" label="货品金额" width="100"></el-table-column>
+        <el-table-column prop="quehuo" label="缺货金额" width="100"></el-table-column>
+        <el-table-column prop="jushou" label="拒收金额" width="100"></el-table-column>
+        <el-table-column prop="shifa" label="实发金额" width="100"></el-table-column>
+        <el-table-column prop="qiandan" label="签单金额" width="100"></el-table-column>
+        <el-table-column prop="ziti" label="自提金额" width="100"></el-table-column>
+        <el-table-column prop="qita" label="其他金额" width="100"></el-table-column>
+        <el-table-column prop="weicha" label="尾差金额" width="100"></el-table-column>
         <el-table-column label="扣减备注" width="100">
           <template scope="scope">
             <span class="table-col-text">{{scope.row.desc_remark}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="代金券" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.promotion_amount}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="应收金额" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.yingshou}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="预存款" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.pd_amount}}</span>
-            </template>
-        </el-table-column>
-        <el-table-column label="POS刷卡" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.pos}}</span>
-            </template>
-        </el-table-column>
-        <el-table-column label="微信" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.weixin}}</span>
-            </template>
-        </el-table-column>
-        <el-table-column label="支付宝" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.alipay}}</span>
-            </template>
-        </el-table-column>
-        <el-table-column label="翼支付" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.yizhifu}}</span>
-            </template>
-        </el-table-column>
-        <el-table-column label="现金" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.cash}}</span>
-            </template>
-        </el-table-column>
-        <el-table-column label="实收金额" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.promotion_amount}}</span>
-            </template>
-        </el-table-column>
+        <el-table-column prop="promotion_amount" label="代金券" width="100"></el-table-column>
+        <el-table-column prop="yingshou" label="应收金额" width="100"></el-table-column>
+        <el-table-column prop="pd_amount" label="预存款" width="100"></el-table-column>
+        <el-table-column prop="pos" label="POS刷卡" width="100"></el-table-column>
+        <el-table-column prop="weixin" label="微信" width="100"></el-table-column>
+        <el-table-column prop="alipay" label="支付宝" width="100"></el-table-column>
+        <el-table-column prop="yizhifu" label="翼支付" width="100"></el-table-column>
+        <el-table-column prop="cash" label="现金" width="100"></el-table-column>
+        <el-table-column prop="shishou" label="实收金额" width="100"></el-table-column>
         <el-table-column label="交款日期" width="180">
             <template scope="scope">
                 <span class="table-col-text">{{scope.row.jk_at}}</span>
@@ -183,11 +117,7 @@
                 <span class="table-col-text">{{scope.row.jk_driver_id}}</span>
             </template>
         </el-table-column>
-        <el-table-column label="配送费" width="100">
-            <template scope="scope">
-                <span class="table-col-text">{{scope.row.delivery_fee}}</span>
-            </template>
-        </el-table-column>
+        <el-table-column prop="delivery_fee" label="配送费" width="100"></el-table-column>
         <el-table-column label="收款备注" width="200">
             <template scope="scope">
                 <span class="table-col-text">{{scope.row.remark}}</span>
@@ -203,11 +133,6 @@
                 <span class="table-col-text">{{scope.row.jzr}}</span>
             </template>
         </el-table-column>
-        <el-table-column label="录入状态" width="100">
-          <template scope="scope">
-            <span class="table-col-text">{{scope.row.status | orderPaymentsStatus}}</span>
-          </template>
-        </el-table-column>
     </el-table>
 
     <div v-show="!listLoading" class="pagination-container">
@@ -218,8 +143,8 @@
       </el-pagination>
     </div>
 
-    <el-dialog title="收款登记" size="large" class="dialog" ref="mainOrderDialog" :visible.sync="dialogFormVisible">
-      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts" @formSave="handleSave" @handleCancel="handleCancel"></mainOrderDetail>
+    <el-dialog title="收款登记" size="large" top="5%" class="dialog" ref="mainOrderDialog" :visible.sync="dialogFormVisible">
+      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts" @pre="handlePreOne" @next="handleNextOne" @handleCancel="handleCancel"></mainOrderDetail>
     </el-dialog>
   </div>
 </template>
@@ -242,6 +167,7 @@
         total: null,
         baseURL: '/main_order_payments',
         selectedRows: [],
+        currentEditIndex: 0,
         listQuery: {
           page: 1,
           per_page: 20,
@@ -315,21 +241,16 @@
         return this.isSearchMore = !this.isSearchMore
       }, // 排序查询
       sortQuery(sort) {
-        this.listQuery.sort_by = sort.column;
+        this.listQuery.sort_by = sort.prop;
         this.listQuery.sort_order = sort.order;
         this.handleSearch();
       }, // 查看
-      handleShow(row) {
-        this.getDetail(row.pay_id);
-        this.dialogFormStauts = 'view';
-      },
       handleRecord() {
-        console.log(this.selectedRows);
         if (this.selectedRows.length === 0) {
           this.showError('请选择要登记的数据')
           return false
         }
-        this.handleEdit(this.selectedRows[0])
+        this.handleEdit(this.selectedRows[0], 0)
       },
       showError(msg) {
         this.$message({
@@ -342,7 +263,9 @@
         this.selectedRows = val;
       }, // 编辑
       handleEdit(row) {
-        this.getDetail(row.pay_id);
+        this.currentEditIndex = this.list.indexOf(row);
+        const payId = this.list[this.currentEditIndex].pay_id;
+        this.getDetail(payId);
         this.dialogFormStauts = 'edit';
       }, // 记账
       handleJizhang() {
@@ -384,32 +307,29 @@
         fetchList(this.listQuery, '/export/main_order_payments').then(response => {
           showMsg(response.data)
         })
-      }, // 数据保存
-      handleSave() {
-        this.$refs.orderMainForm.validate(valid => {
-          if (valid) {
-            fetchCreate(this.formData, this.baseURL).then(response => {
-              if (!response.data.status) {
-                this.showError(response.data.msg)
-              }
-              this.$notify({
-                title: '更新成功',
-                message: '更新成功',
-                type: 'success',
-                duration: 1000
-              })
-            })
-          } else {
-            return false;
-          }
-        })
       }, // 取消
       handleCancel() {
         this.dialogFormVisible = false;
-      }, // 保存并关闭
-      handleSaveAndCancel() {
-        this.handleSave();
-        this.handleCancel();
+      },
+      handlePreOne() {
+        const index = this.currentEditIndex - 1;
+        if (this.currentEditIndex === 0) {
+          this.showError('已经是第一个');
+          return false;
+        }
+        const payId = this.list[index].pay_id;
+        this.getDetail(payId);
+        this.currentEditIndex = index;
+      },
+      handleNextOne() {
+        const index = this.currentEditIndex + 1;
+        if (index > this.list.length) {
+          this.showError('已经是最后一个');
+          return false;
+        }
+        const payId = this.list[index].pay_id;
+        this.getDetail(payId);
+        this.currentEditIndex = index;
       },
       handleSizeChange(val) {
         this.listQuery.per_page = val;
@@ -508,15 +428,6 @@
   @media print {
     .myDivToPrint {
       background-color: white;
-      height: 100%;
-      width: 100%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      margin: 0;
-      padding: 15px;
-      font-size: 14px;
-      line-height: 18px;
     }
   }
 </style>

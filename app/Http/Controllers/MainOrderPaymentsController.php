@@ -133,6 +133,9 @@ class MainOrderPaymentsController extends Controller
     //主订单详情
     public function show($pay_id)
     {
+        if (empty($pay_id)) {
+            return $this->fail('参数错误');
+        }
         $mainOrder = $this->mainOrder->leftJoin('main_order_payments', 'main_order.pay_id', '=', 'main_order_payments.pay_id')
             ->where(['main_order.pay_id' => $pay_id])->first(['main_order_payments.*', 'main_order.*']);
         $orderGoods = $this->orderGoods->with('payments')
@@ -146,6 +149,12 @@ class MainOrderPaymentsController extends Controller
     {
         $data = $request->all();
         DB::beginTransaction();
+        if ($data['id']) {
+            $result = $this->mainOrderPayment->where('status', 0)->find($data['id']);
+            if (! $result) {
+                return $this->fail('订单状态不正确');
+            }
+        }
         try {
             $orderGoodsPayments = $this->calculateOrderGoods($data, $data['id']);
             $mainOrderPayments = $this->calculateMainOrder($data, $orderGoodsPayments);
@@ -153,7 +162,6 @@ class MainOrderPaymentsController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-
             return $this->fail('保存失败：'.$e->getMessage());
         }
         return $this->success('保存成功');
@@ -201,12 +209,16 @@ class MainOrderPaymentsController extends Controller
         foreach ($orderGoodsPayments as $goods) {
             $goodsPayment = $goods['payments'];
             //校验合计金额
+            $goodsPayment['goods_id'] = $goods['goods_id'];
             $shifaNumber = $goods['goods_num'] - $goodsPayment['quehuo_number'] - $goodsPayment['jushou_number'];
             $shifaAmount = round($shifaNumber * $goods['goods_price'], 2);
             //计算缺货金额
             $goodsPayment['shifa_number'] = $shifaNumber;
             $goodsPayment['shifa_amount'] = $shifaAmount;
             $goodsPayment = $this->goodsSetting->calculate($goodsPayment);
+            if (empty($goodsPayment)) {
+                throw new Exception('货品配送费用未设置：' . $goods['goods_id']);
+            }
             if (!empty($goodsPayment['id'])) {
                 $result = $this->orderGoodsPayment->where('id', $goodsPayment['id'])->update($goodsPayment);
                 if ($result === false) {
@@ -221,7 +233,6 @@ class MainOrderPaymentsController extends Controller
                 $goodsPayment['id'] = $goods['rec_id'];
                 $insertData[] = $goodsPayment;
             }
-
             //增加部分后面需要用的数据
             $goodsPayment['quehuo_amount'] = round($goodsPayment['quehuo_number'] * $goods['goods_price'], 2);
             $goodsPayment['jushou_amount'] = round($goodsPayment['jushou_number'] * $goods['goods_price'], 2);

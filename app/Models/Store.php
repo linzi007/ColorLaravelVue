@@ -3,6 +3,8 @@
 namespace App\Models;
 
 
+use Cache;
+
 class Store extends Model
 {
     protected $table = 'store';
@@ -16,6 +18,18 @@ class Store extends Model
     public function goods()
     {
         return $this->hasMany(\App\Models\Goods::class, 'store_id', 'store_id');
+    }
+
+    public function list($request)
+    {
+        return Cache::remember('stores', 60*6, function () use ($request) {
+            $stores = $this->whereIn('store_state', [0, 1])
+                ->orderBy('store_state', 'desc');
+            if($request->get('name')){
+                $stores->where('store_name', 'like', '%' . $request->get('name') . '%');
+            }
+            return $stores->get();
+        });
     }
 
     /**

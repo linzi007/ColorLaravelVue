@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Imports\GoodsSettingImport;
+use App\Http\Controllers\Traits\ExcelTrait;
 use App\Models\Goods;
 use App\Models\GoodsSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GoodsSettingRequest;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GoodsSettingsController extends Controller
 {
+    use ExcelTrait;
     /**
      * @var GoodsSetting
      */
@@ -33,6 +37,18 @@ class GoodsSettingsController extends Controller
 
 	public function index(Request $request)
 	{
+        $sortOrderMap = [
+            'ascending' => 'asc', 'descending' => 'desc',
+        ];
+        $sortBy = 'goods_id';
+        $sortOrder = 'desc';
+        if ($request->sort_by && in_array($request->sort_by, ['goods_id', 'store_id'])) {
+            $sortBy = 'goods.'.$request->sort_by;
+        }
+        if ($request->sort_order && in_array($request->sort_order, ['ascending', 'descending'])) {
+            $sortOrder = $sortOrderMap[$request->sort_order];
+        }
+
         $where = [];
         if ($request->store_id) {
             $where['goods.store_id'] = $request->store_id;
@@ -50,7 +66,7 @@ class GoodsSettingsController extends Controller
             $where['goods.goods_id'] = $request->goods_id;
         }
 
-        $goodsSettings = $this->goods->list($where)->paginate();
+        $goodsSettings = $this->goods->list($where)->orderBy($sortBy, $sortOrder)->paginate();
 
         return response()->json($goodsSettings);
 	}
@@ -105,7 +121,7 @@ class GoodsSettingsController extends Controller
             'driver_charging_type' => $data['driver_charging_type'],
             'driver_rate' => $data['driver_rate'],
         ];
-		$goods_setting = $this->goodsSetting->updateOrInsert($insert);
+		$goods_setting = $this->goodsSetting->updateOrInsert(['goods_id' => $insert['goods_id']], $insert);
         if ($goods_setting) {
             return $this->success('保存成功');
         }
@@ -132,10 +148,15 @@ class GoodsSettingsController extends Controller
         }
 	}
 
-    public function import(Request $request)
+    public function import(GoodsSettingImport $import)
     {
+        $success = $import->doImport();
+        if ($success) {
+            return $this->success('导入成功');
+        }
 
-	}
+        return $this->fail('导入失败');
+    }
 
     public function export(Request $request)
     {

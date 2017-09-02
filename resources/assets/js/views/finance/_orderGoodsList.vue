@@ -4,7 +4,12 @@
       :data="orderGoodsList"
       max-height="250"
       style="width: 100%">
-      <el-table-column width="210px" align="center" label="货品名称">
+      <el-table-column width="100px" align="center" label="SKU">
+          <template scope="scope">
+              <span>{{scope.row.goods_id}}</span>
+          </template>
+      </el-table-column>
+      <el-table-column align="center" label="货品名称">
         <template scope="scope">
           <span>{{scope.row.goods_name}}</span>
         </template>
@@ -31,12 +36,12 @@
       </el-table-column>
       <el-table-column width="110px" align="center" label="缺货数量">
         <template scope="scope">
-          <el-input size="small" v-model="scope.row.payments.quehuo_number"></el-input>
+          <el-input size="small" v-model.number="scope.row.payments.quehuo_number"></el-input>
         </template>
       </el-table-column>
       <el-table-column width="110px" fix="right" align="center" label="拒收数量">
         <template scope="scope">
-          <el-input size="small" v-model="scope.row.payments.jushou_number"></el-input>
+          <el-input size="small" v-model.number="scope.row.payments.jushou_number"></el-input>
         </template>
       </el-table-column>
       <el-table-column width="110px" fix="right" align="center" label="实发数量">
@@ -72,8 +77,11 @@ export default {
         list.map(item => {
           // @TODO 初始化 payments
           if (_.isNull(item.payments)) {
-            item.payments.quehuo_number = 0
-            item.payments.jushou_number = 0
+            item.payments = {
+              goods_id: item.goods_id,
+              quehuo_number: 0,
+              jushou_number: 0
+            }
           }
           item.payments.shifa_number = item.goods_num - item.payments.quehuo_number - item.payments.jushou_number
           return item;

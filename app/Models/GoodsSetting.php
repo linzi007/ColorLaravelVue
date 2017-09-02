@@ -76,7 +76,7 @@ class GoodsSetting extends Model
     {
         $goodsSetting = $this->where('goods_id', $goodsPayment['goods_id'])->first();
         if (empty($goodsSetting)) {
-            return $goodsPayment;
+            return [];
         }
 
         return $this->doCalculate($goodsPayment, $goodsSetting);

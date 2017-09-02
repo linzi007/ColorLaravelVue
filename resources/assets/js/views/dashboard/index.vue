@@ -27,10 +27,10 @@
       ])
     },
     created() {
-      if (this.roles.indexOf('admin') >= 0) {
-        return;
-      }
-      this.currentRole = 'DefaultDashboard';
+      //if (this.roles.indexOf('admin') >= 0) {
+      //  return;
+      //}
+      //this.currentRole = 'DefaultDashboard';
     }
   }
 </script>

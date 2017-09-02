@@ -50,7 +50,8 @@ const permission = {
         if (roles.indexOf('admin') >= 0) {
           accessedRouters = asyncRouterMap
         } else {
-          accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
+          accessedRouters = asyncRouterMap
+          // @TODO 角色权限 accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
         }
         commit('SET_ROUTERS', accessedRouters);
         resolve();

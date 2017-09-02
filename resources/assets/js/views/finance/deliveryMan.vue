@@ -15,7 +15,7 @@
     </div>
     <el-table
         :data="list" :key='tableKey' v-loading.body="listLoading"
-        boder fit highlight-current-row
+        border fit highlight-current-row
         @row-dblclick='handleUpdate'
         style="width: 100%">
       <el-table-column align="center" label="序号" width="65">

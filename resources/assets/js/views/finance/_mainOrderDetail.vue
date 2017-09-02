@@ -3,8 +3,8 @@
     <el-row :gutter="30" type="flex" justify="left">
       <el-col :span="6">
         <el-button-group>
-          <el-button type="primary" size="small" icon="arrow-left">上一条</el-button>
-          <el-button type="primary" size="small">下一条<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+          <el-button type="primary" size="small" @click="handlePreOne()" icon="arrow-left">上一条</el-button>
+          <el-button type="primary" size="small" @click="handleNextOne()">下一条<i class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
       </el-col>
     </el-row>
@@ -100,25 +100,25 @@
     <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item label="签单金额：" prop="qiandan">
-            <el-input placeholder="签单金额" v-model="orderPayments.qiandan">
+            <el-input placeholder="签单金额" v-model.number="orderPayments.qiandan">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="自提金额：" prop="ziti">
-            <el-input placeholder="自提金额" v-model="orderPayments.ziti">
+            <el-input placeholder="自提金额" v-model.number="orderPayments.ziti">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="尾差金额：" prop="weicha">
-            <el-input placeholder="尾差金额" v-model="orderPayments.weicha">
+            <el-input placeholder="尾差金额" v-model.number="orderPayments.weicha">
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="其他金额：" prop="qita">
-            <el-input placeholder="其他金额" v-model="orderPayments.qita">
+            <el-input placeholder="其他金额" v-model.number="orderPayments.qita">
             </el-input>
           </el-form-item>
         </el-col>
@@ -153,43 +153,50 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="POS金额：" prop="pos">
-          <el-input placeholder="POS金额" v-model="orderPayments.pos">
+          <el-input placeholder="POS金额" v-model.number="orderPayments.pos">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="刷卡单号：" prop="out_pay_sn">
-          <el-input placeholder="刷卡单号" v-model="orderPayments.out_pay_sn">
+          <el-input placeholder="刷卡单号" v-model.number="orderPayments.out_pay_sn">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="微信金额：" prop="weixin">
-          <el-input placeholder="微信金额" v-model="orderPayments.weixin">
+          <el-input placeholder="微信金额" v-model.number="orderPayments.weixin">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="支付宝金额：" prop="alipay">
-          <el-input placeholder="支付宝金额" v-model="orderPayments.alipay">
+          <el-input placeholder="支付宝金额" v-model.number="orderPayments.alipay">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="现金：" prop="cash">
-          <el-input placeholder="现金" v-model="orderPayments.cash">
+          <el-input placeholder="现金" v-model.number="orderPayments.cash">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="翼支付金额：" prop="yizhifu">
-          <el-input placeholder="翼支付金额" v-model="orderPayments.yizhifu">
+          <el-input placeholder="翼支付金额" v-model.number="orderPayments.yizhifu">
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="交款人：">
-          <select-driver :selected="orderPayments.jk_driver_id" @changeSelect="jkrChange"></select-driver>
+        <el-form-item label="交款人：" prop="jk_driver_id">
+          <el-select v-model="orderPayments.jk_driver_id" filterable placeholder="请输入关键词">
+            <el-option
+                    v-for="item in driverOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -249,7 +256,14 @@
         </el-col>
         <el-col :span="14" v-show="selectFirstDriver">
           <el-form-item label="首配司机：">
-            <select-driver :selected="orderPayments.second_driver_id" @changeSelect="firstDriverChange"></select-driver>
+            <el-select v-model="orderPayments.second_driver_id" filterable placeholder="请输入关键词">
+              <el-option
+                      v-for="item in driverOptions"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+              </el-option>
+            </el-select>
           </el-form-item>
         </el-col>
     </el-row>
@@ -259,7 +273,14 @@
       </el-col>
       <el-col :span="10" v-show="exchangeBottle.is_checked">
         <el-form-item label="兑换档口：">
-          <select-store :selected="exchangeBottle.store_id" @changeSelect="storeChange"></select-store>
+          <el-select v-model="exchangeBottle.store_id" filterable placeholder="请输入关键词">
+          <el-option
+                  v-for="item in storeOptions"
+                  :key="item.store_id"
+                  :label="item.store_name"
+                  :value="item.store_id">
+          </el-option>
+          </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="10" v-show="exchangeBottle.is_checked">
@@ -289,10 +310,10 @@
         <el-button @click="handleCancel">取 消</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button type="primary" @click="handleSaveAndCancel">保存并退出</el-button>
+        <el-button v-if="orderPayments.status != 1" type="primary" @click="handleSaveAndCancel">保存并退出</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button type="primary" @click="handleSave">保 存</el-button>
+        <el-button v-if="orderPayments.status != 1" type="primary" @click="handleSave">保 存</el-button>
       </el-col>
     </el-row>
   </el-form>
@@ -302,11 +323,9 @@
 import { fetchList, fetchUpdate, fetchCreate } from 'api/restfull';
 import { showMsg } from 'utils/index';
 import OrderGoodsList from './_orderGoodsList.vue';
-import SelectDriver from 'components/Selector/SelectDriver';
-import SelectStore from 'components/Selector/SelectStore';
 export default {
   name: 'MainOrderDetail',
-  components: { OrderGoodsList, SelectDriver, SelectStore },
+  components: { OrderGoodsList },
   props: {
     mainOrder: {
       type: Object,
@@ -320,8 +339,8 @@ export default {
   data() {
     return {
       selectFirstDriver: false,
-      storeList: [{ store_id: 12, store_name: '档口' }],
-      driverList: [{ id: 1, name: '司机' }],
+      storeOptions: [],
+      driverOptions: [],
       goodsListVisible: false,
       exchangeBottle: {
         is_checked: false,
@@ -335,20 +354,47 @@ export default {
       ],
       rules: {
         jk_driver_id: [
-          { required: true, message: '请选择交款人', trigger: 'change' }
+          { required: true, message: '请选择交款人' }
         ],
         ck_at: [
-          { type: 'date', required: true, message: '请选择存款日期', trigger: 'change' }
+          { type: 'date', required: true, message: '请选择存款日期' }
         ],
         desc_remark: [
           { type: 'string', message: '必须为数值', trigger: 'blur' },
           { max: 100, message: '最大长度为 100 个字符', trigger: 'blur' }
         ],
         out_pay_sn: [
-          { max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
+          { type: 'string', max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
         ],
         remark: [
-          { max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
+          { type: 'string', max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
+        ],
+        qiandan: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        ziti: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        weicha: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        qita: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        pos: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        weixin: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        alipay: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        cash: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
+        ],
+        yizhifu: [
+          { type: 'number', message: '必须为数值', trigger: 'blur' }
         ]
       },
       dateOptions: {
@@ -374,6 +420,10 @@ export default {
         }]
       }
     }
+  },
+  created() {
+    this.getDriverOptions();
+    this.getStoreOptions()
   },
   computed: {
     orderPayments() {
@@ -431,7 +481,7 @@ export default {
           fetchCreate(this.orderPayments, '/main_order_payments').then(response => {
             if (!response.data.status) {
               this.$message({
-                message: response.data.message,
+                message: response.data.msg,
                 type: 'error'
               });
               return false;
@@ -463,13 +513,21 @@ export default {
       let sum_jushou = 0.0;
       let sum_quehuo = 0.0;
       _.forEach(this.orderPayments.goods_list, goods => {
-        sum_jushou = _.add(goods.payments.jushou_number * goods.goods_price, sum_jushou)
-        sum_quehuo = _.add(goods.payments.quehuo_number * goods.goods_price, sum_quehuo)
+        if (!_.isNull(goods.payments)) {
+          sum_jushou = _.add(goods.payments.jushou_number * goods.goods_price, sum_jushou)
+          sum_quehuo = _.add(goods.payments.quehuo_number * goods.goods_price, sum_quehuo)
+        }
       });
 
       this.orderPayments.jushou = sum_jushou
       this.orderPayments.quehuo = sum_quehuo
       this.orderPayments.shifa = this.getShifaAmount()
+    },
+    handlePreOne() {
+      this.$emit('pre');
+    },
+    handleNextOne() {
+      this.$emit('next');
     },
     handleNull() {
       if (_.isNull(this.orderPayments.pd_amount)) {
@@ -502,14 +560,15 @@ export default {
     getShifaAmount() {
       return this.orderPayments.goods_amount - this.orderPayments.jushou - this.orderPayments.quehuo
     },
-    firstDriverChange(val) {
-      return this.orderPayments.driver_id = val
+    getDriverOptions() {
+      fetchList({}, '/drivers_list').then(response => {
+        this.driverOptions = response.data;
+      })
     },
-    jkrChange(val) {
-      this.orderPayments.jk_driver_id = val
-    },
-    storeChange(val) {
-      return this.exchangeBottle.store_id = val
+    getStoreOptions() {
+      fetchList({}, '/stores').then(response => {
+        this.storeOptions = response.data;
+      })
     }
   }
 }

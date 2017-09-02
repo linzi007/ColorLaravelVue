@@ -31,11 +31,6 @@ Vue.component('Sticky', Sticky);
 Vue.component('icon-svg', IconSvg);
 Vue.use(ElementUI);
 
-// passport
-Vue.component('passport-clients', require('./components/passport/Clients.vue'));
-Vue.component('passport-authorized-clients', require('./components/passport/AuthorizedClients.vue'));
-Vue.component('passport-personal-access-tokens', require('./components/passport/PersonalAccessTokens.vue'));
-
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
