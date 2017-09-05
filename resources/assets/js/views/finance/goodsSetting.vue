@@ -14,11 +14,12 @@
         </el-button-group>
       </el-row>
       <el-row :gutter='10'>
+        <span class="demonstration">档口</span>
         <select-store :selected="listQuery.store_id" @changeSelect="queryChangeStore"></select-store>
-        <span class="demonstration">货品id：</span>
-        <el-input placeholder="货品id" v-model="listQuery.goods_id" style="width:80px"></el-input>
-        <span class="demonstration">货品名称：</span>
-        <el-input placeholder="货品名称" v-model="listQuery.goods_name" style="width:80px"></el-input>
+        <span class="demonstration">货品id</span>
+        <el-input placeholder="货品id" v-model="listQuery.goods_id" style="width:150px"></el-input>
+        <span class="demonstration">货品名称</span>
+        <el-input placeholder="货品名称" v-model="listQuery.goods_name" style="width:150px"></el-input>
         <el-button class="filter-item" type="primary" icon="search"
                    @click="handleSearch()">查询</el-button>
         <el-button class="filter-item" type="text"
@@ -26,8 +27,8 @@
       </el-row>
       <div :class="{ 'search-more':isSearchMore }">
         <el-row>
-          <span class="demonstration">货品条码：</span>
-          <el-input placeholder="货品条码" v-model="listQuery.goods_serial" style="width:80px"></el-input>
+          <span class="demonstration">货品条码</span>
+          <el-input placeholder="货品条码" v-model="listQuery.goods_serial" style="width:150px"></el-input>
           <span class="demonstration">计费方式</span>
           <el-select v-model="listQuery.shipping_charging_type">
             <el-option
@@ -117,7 +118,7 @@
     <el-dialog :title="dialogTextMap[dialogStatus]"
                :visible.sync="dialogFormVisible">
       <el-form class="small-space" :model="formData"
-                ref="formData"
+                ref="dialogForm" :rule="validateRules"
                label-position="left" label-width="150px"
                style='width: 500px; margin-left:50px;'>
         <el-form-item label="档口名称：">
@@ -137,30 +138,30 @@
           <span v-if="formData.g_unit">/{{formData.g_unit}}</span>
         </el-form-item>
         <el-form-item label="计费方式：" prop="shipping_charging_type">
-          <el-radio-group v-model="formData.shipping_charging_type">
-            <el-radio class="radio" label="0">数量</el-radio>
-            <el-radio class="radio" label="1">金额</el-radio>
+          <el-radio-group v-model.number="formData.shipping_charging_type">
+            <el-radio class="radio" :label="0">数量</el-radio>
+            <el-radio class="radio" :label="1">金额</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="单件费用&费率：" prop="shipping_rate">
-          <el-input v-model="formData.shipping_rate"></el-input>
+          <el-input v-model.number="formData.shipping_rate"></el-input>
         </el-form-item>
         <el-form-item label="拆包费（元/件）：" prop="unpack_fee">
-          <el-input v-model="formData.unpack_fee"></el-input>
+          <el-input v-model.number="formData.unpack_fee"></el-input>
         </el-form-item>
         <el-form-item label="司机计费方式：" prop="driver_charging_type">
-          <el-radio-group v-model="formData.driver_charging_type">
-            <el-radio class="radio" label="0">数量</el-radio>
-            <el-radio class="radio" label="1">金额</el-radio>
+          <el-radio-group v-model.number="formData.driver_charging_type">
+            <el-radio class="radio" :label="0">数量</el-radio>
+            <el-radio class="radio" :label="1">金额</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="单件费用&费率：" prop="driver_rate">
-          <el-input v-model="formData.driver_rate"></el-input>
+          <el-input v-model.number="formData.driver_rate"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelForm('formData')">取 消</el-button>
-        <el-button type="primary" @click="handleUpdate('formData')">确 定</el-button>
+        <el-button type="primary" @click="handleUpdate()">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="excel导入"
@@ -226,14 +227,14 @@
         formData: {},
         validateRules: {
           shipping_rate: [
-            { required: true, type: 'float', message: '必须为数值', trigger: 'blur' },
+            { required: true, type: 'number', message: '必须为数值', trigger: 'blur' },
             { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
           ],
           unpack_fee: [
             { type: 'float', message: '必须为数值', trigger: 'blur' },
           ],
           driver_rate: [
-            { required: true, type: 'float', message: '必须为数值', trigger: 'blur' },
+            { required: true, type: 'number', message: '必须为数值', trigger: 'blur' },
             { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
           ],
         },
@@ -272,8 +273,8 @@
         this.dialogStatus = 'update';
         this.dialogFormVisible = true;
       },
-      handleUpdate(formName) {
-        this.$refs[formName].validate(valid => {
+      handleUpdate() {
+        this.$refs.dialogForm.validate(valid => {
           if (valid) {
             fetchCreate(this.formData, this.baseURL).then(response => {
               if (response.status !== 200) {

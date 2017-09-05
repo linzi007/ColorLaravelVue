@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExchangeBottle;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExchangeBottleRequest;
@@ -22,7 +23,27 @@ class ExchangeBottlesController extends Controller
 
 	public function index(Request $request)
 	{
-        $exchange_bottles = $this->exchangeBottle->paginate($request->per_page);
+        $where = [];
+        if ($request->has('pay_sn')) {
+            $where['pay_sn'] = $request->pay_sn;
+        }
+        if ($request->has('store_id')) {
+            $where['store_id'] = $request->store_id;
+        }
+
+        if ($request->has('created_at') && 'null' != $request->created_at[0]) {
+            $startAt = Carbon::parse($request->created_at[0])->toDateTimeString();
+            $endAt = Carbon::parse($request->created_at[1])->toDateTimeString();
+            $this->exchangeBottle = $this->exchangeBottle->whereBetween('created_at', [$startAt, $endAt]);
+        }
+        $exchange_bottles = $this->exchangeBottle->with(['store' => function ($query) {
+            $query->select('store_id', 'store_name');
+        }, 'driver' => function($query) {
+            $query->select('id','name');
+        }, 'admin' => function($query) {
+            $query->select('admin_id', 'admin_name');
+        }])->where($where)->paginate($request->per_page);
+
 		return response($exchange_bottles);
 	}
 

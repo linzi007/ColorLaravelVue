@@ -11,15 +11,6 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    /**
-     * 构造函数
-    **/
-    public function __construct(){
-        if (request()->has('sql')) {
-            getSql();
-        }
-    }
-
     public function success($msg = '操作成功', $data = [])
     {
         return response(['status' => 1, 'msg' => $msg, 'data' => $data]);

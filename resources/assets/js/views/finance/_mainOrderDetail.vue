@@ -437,20 +437,18 @@ export default {
     },
     shishouAmount() {
       return this.getShishouAmount();
-    },
-    'exchangeBottle.driver_id'() {
-      return this.orderPayments.jk_driver_id
     }
   },
   methods: {
     handleExchangeBottle() {
-      if (!this.exchangeBottle.driver_id) {
+      if (_.isNull(this.orderPayments.jk_driver_id)) {
         this.$message({
           message: '请先选择交款人',
           type: 'error'
         });
         return false;
       }
+      this.exchangeBottle.driver_id = this.orderPayments.jk_driver_id;
       if (!this.exchangeBottle.amount) {
         this.$message({
           message: '请输入兑换金额',

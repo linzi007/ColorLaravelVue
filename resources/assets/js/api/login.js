@@ -14,8 +14,8 @@ export function loginByEmail(email, password) {
 
 export function loginByUserName(user, password) {
   const data = {
-    name: user,
-    password: password,
+    admin_name: user,
+    admin_password: password,
     //client_id: process.env.PASSPORT_CLIETN_ID,
     //client_secret: process.env.PASSPORT_CLIENT_SECRET,
     //grant_type: process.env.PASSPORT_GRANT_TYPE,

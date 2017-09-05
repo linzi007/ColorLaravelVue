@@ -25,7 +25,6 @@ class HomeController extends Controller
     public function __construct(Store $store, Driver $driver)
     {
         $this->middleware('auth');
-        parent::__construct();
         $this->store = $store;
         $this->driver = $driver;
     }

@@ -32,7 +32,6 @@ class GoodsSettingsController extends Controller
         $this->middleware('auth', ['except' => ['index', 'show']]);
         $this->goodsSetting = $goodsSetting;
         $this->goods = $goods;
-        parent::__construct();
     }
 
 	public function index(Request $request)

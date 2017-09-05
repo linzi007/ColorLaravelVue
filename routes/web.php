@@ -23,6 +23,7 @@ Route::resource('exchange_bottles', 'ExchangeBottlesController', ['only' => ['in
 //下拉列表
 Route::get('/stores', 'StoresController@list');
 Route::get('/drivers_list', 'DriversController@list');
+Route::get('/admins_list', 'AdminsController@list');
 //
 Route::get('/main_order_payments', 'MainOrderPaymentsController@index')->name('main_order_payments.index');
 Route::post('/main_order_payments', 'MainOrderPaymentsController@store');
@@ -42,3 +43,4 @@ Route::group(['prefix' => 'import'], function () {
     Route::post('driver', 'DriversController@import');
     Route::post('goods_settings', 'GoodsSettingsController@import');
 });
+Route::resource('admins', 'AdminsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);

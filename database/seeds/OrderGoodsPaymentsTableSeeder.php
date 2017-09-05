@@ -23,6 +23,7 @@ class OrderGoodsPaymentsTableSeeder extends Seeder
                 $payment['goods_id'] = $goods['goods_id'];
 
                 $payment['id'] = $goods['rec_id'];
+                $payment['pay_id'] = $goods['pay_id'];
                 $quehuoNumber = ($goods['goods_num'] - 1) >= 0 ? ($goods['goods_num'] - 1) : $goods['goods_num'];
                 $payment['quehuo_number'] = $faker->numberBetween(0, $quehuoNumber);
                 $payment['jushou_number'] = intval($faker->boolean(20));

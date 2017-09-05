@@ -29,11 +29,11 @@
             :picker-options="addTimePickerOption">
         </el-date-picker>
         <span class="demonstration">支付单号</span>
-        <el-input placeholder="支付单号" v-model="listQuery.pay_sn" style="width:100px"></el-input>
+        <el-input placeholder="支付单号" v-model="listQuery.pay_sn" style="width:200px"></el-input>
         <el-button class="filter-item" type="primary" icon="search"
           @click="handleSearch()">查询</el-button>
-          <el-button class="filter-item" type="text"
-            @click="handleSearchMore()">更多</el-button>
+        <el-button class="filter-item" type="text"
+          @click="handleSearchMore()">更多</el-button>
       </el-row>
       <div :class="{ 'search-more':isSearchMore }">
         <el-row>
@@ -48,6 +48,16 @@
           </el-select>
           <span class="demonstration">交款人</span>
           <select-driver :selected="listQuery.jk_driver_jd" @changeSelect="queryChangeJkr"></select-driver>
+          <span class="demonstration">记账人</span>
+          <el-select v-model="listQuery.jzr" filterable placeholder="请输入记账人">
+            <el-option label="全部" value=""></el-option>
+            <el-option
+              v-for="item in adminOptions"
+              :key="item.admin_id"
+              :label="item.admin_name"
+              :value="item.admin_id">
+            </el-option>
+          </el-select>
         </el-row>
       </div>
     </div>
@@ -63,14 +73,15 @@
         @selection-change="handleSelectionChange"
         :row-class-name="tableRowClassName"
         style="width: 100%">
-        <el-table-column align="center" type="index" label="序号" width="65">
+        <el-table-column align="center" fixed type="index" label="序号" width="65">
         </el-table-column>
         <el-table-column
           type="selection"
           prop="pay_id"
+          fixed
           width="55">
         </el-table-column>
-        <el-table-column prop="pay_sn" label="支付单号" width="200" sortable>
+        <el-table-column prop="pay_sn" label="支付单号" width="200" fixed sortable>
           <template scope="scope">
             <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.pay_sn}}</span>
           </template>
@@ -150,7 +161,7 @@
 </template>
 
 <script>
-  import { fetchList, fetchCreate } from 'api/restfull';
+  import { fetchList } from 'api/restfull';
   import mainOrderDetail from './_mainOrderDetail.vue'
   import { Loading } from 'element-ui';
   import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
@@ -167,6 +178,7 @@
         total: null,
         baseURL: '/main_order_payments',
         selectedRows: [],
+        adminOptions: [],
         currentEditIndex: 0,
         listQuery: {
           page: 1,
@@ -200,6 +212,7 @@
     created() {
       this.getList();
       this.listQuery.add_time = initDateMothRange()
+      this.getAdminOptions()
     },
     computed: {},
     methods: {
@@ -236,6 +249,11 @@
       }, // 查询
       handleSearch() {
         this.getList();
+      },
+      getAdminOptions() {
+        fetchList({}, '/admins_list').then(response => {
+          this.adminOptions = response.data;
+        })
       },
       handleSearchMore() {
         return this.isSearchMore = !this.isSearchMore

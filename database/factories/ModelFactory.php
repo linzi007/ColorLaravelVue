@@ -58,3 +58,9 @@ $factory->define(App\Models\ExchangeBottle::class, function (Faker\Generator $fa
         // 'name' => $faker->name,
     ];
 });
+
+$factory->define(App\Models\Admin::class, function (Faker\Generator $faker) {
+    return [
+        // 'name' => $faker->name,
+    ];
+});

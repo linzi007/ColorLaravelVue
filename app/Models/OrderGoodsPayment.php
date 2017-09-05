@@ -19,7 +19,7 @@ class OrderGoodsPayment extends Model
      */
     public function orderGoods()
     {
-        return $this->belongsTo(\App\Models\OrderGoods::class, 'rec_id', 'rec_id');
+        return $this->belongsTo(\App\Models\OrderGoods::class, 'id', 'rec_id');
     }
 
     public function mainOrder()

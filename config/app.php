@@ -77,7 +77,7 @@ return [
     |
     */
 
-    'locale' => 'zh',
+    'locale' => 'zh_cn',
 
     /*
     |--------------------------------------------------------------------------
@@ -177,6 +177,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Silber\Bouncer\BouncerServiceProvider::class,
     ],
 
     /*
@@ -228,6 +229,7 @@ return [
 
         //alias
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Bouncer' => Silber\Bouncer\BouncerFacade::class,
     ],
 
 ];

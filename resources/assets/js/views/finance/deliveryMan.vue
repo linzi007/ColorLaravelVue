@@ -1,9 +1,11 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input placeholder="司机姓名" style="width: 100px" v-model="listQuery.name">
+      <span>司机姓名</span>
+      <el-input placeholder="司机姓名" style="width: 150px" v-model="listQuery.name">
       </el-input>
-      <el-input placeholder="电话" style="width: 100px" v-model="listQuery.mobile">
+      <span>电话</span>
+      <el-input placeholder="电话" style="width: 150px" v-model="listQuery.mobile">
       </el-input>
 
       <el-button class="filter-item" type="primary" icon="search"

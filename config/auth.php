@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'color',
         'passwords' => 'users',
     ],
 
@@ -40,7 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
+        'color' => [
+            'driver' => 'session',
+            'provider' => 'admin'
+        ],
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
@@ -69,7 +72,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
+        'admin' => [
+            'driver' => 'MD5',
+            'model' => App\Models\Admin::class
+        ]
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

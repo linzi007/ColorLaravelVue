@@ -56,8 +56,8 @@ export const asyncRouterMap = [
     children: [
       { path: 'main-order', component: _import('finance/mainOrder'), name: '收款登记表' },
       { path: 'sub-order', component: _import('finance/subOrder'), name: '收款登记表-子订单' },
-      { path: 'detail-list', component: _import('finance/detailList'), name: '配送费明细' },
-      { path: 'exchange-bottles', component: _import('finance/exchangeReport'), name: '换盖金额汇总表' },
+      { path: 'order-goods-payments', component: _import('finance/orderGoodsPayments'), name: '配送费明细' },
+      { path: 'exchange-bottles', component: _import('finance/exchangeBottles'), name: '换盖金额汇总表' },
       { path: 'goods-settings', component: _import('finance/goodsSetting'), name: '货品配送费设置' },
       { path: 'delivery-man', component: _import('finance/deliveryMan'), name: '司机信息表' }
     ]
@@ -88,10 +88,10 @@ export const asyncRouterMap = [
   { path: '*', redirect: '/404', hidden: true }
 ];
 
-function requireAuth (to, from, next) {
-  if (window.User) {
-    return next()
-  } else {
-    return next('/')
-  }
-}
+// function requireAuth (to, from, next) {
+//   if (window.User) {
+//     return next()
+//   } else {
+//     return next('/')
+//   }
+// }

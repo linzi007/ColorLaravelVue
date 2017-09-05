@@ -1,6 +1,7 @@
 <template>
   <el-select v-model="selectAt" filterable
     placeholder="请输入关键词">
+    <el-option label="全部" value=""></el-option>
     <el-option
       v-for="item in selectOptions"
       :key="item.store_id"

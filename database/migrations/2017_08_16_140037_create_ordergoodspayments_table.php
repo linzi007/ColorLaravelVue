@@ -9,6 +9,7 @@ class CreateOrderGoodsPaymentsTable extends Migration
 	{
 		Schema::create('order_goods_payments', function(Blueprint $table) {
             $table->increments('id')->comment('order_goods.rec_id');
+            $table->integer('pay_id')->index()->comment('支付id');
             $table->integer('goods_id')->index()->comment('货品id');
             $table->integer('order_id')->index()->comment('子单id');
             $table->integer('store_id')->index()->comment('档口id');

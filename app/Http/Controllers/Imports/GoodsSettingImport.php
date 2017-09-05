@@ -99,14 +99,20 @@ class GoodsSettingImport extends ExcelFile
 
     public function doExport($exportData, $headers = [])
     {
+        $headers = [
+            'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',
+            'Cache-Control'       => 'cache, must-revalidate',
+            'Pragma'              => 'public',
+        ];
+        \Maatwebsite\Excel\Excel::
         return Excel::create('goods_setting' . Carbon::now(), function($excel) use($exportData, $headers) {
             $excel->sheet('Sheet1', function($sheet) use($exportData, $headers) {
                 $sheet->setAutoSize(true);
-                $sheet->fromArray($exportData, null, 'A1', true, false);
+                $sheet->fromArray($exportData, null, 'A1', true, true);
                 if ($headers) {
                     $sheet->prependRow($headers);
                 }
             });
-        })->export('xlsx');
+        })->export('xls', $headers);
     }
 }

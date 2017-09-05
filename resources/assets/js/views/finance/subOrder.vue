@@ -23,7 +23,7 @@
                 :picker-options="addTimePickerOption">
         </el-date-picker>
         <span class="demonstration">子订单号</span>
-        <el-input placeholder="子订单号" v-model="listQuery.order_sn" style="width:100px"></el-input>
+        <el-input placeholder="子订单号" v-model="listQuery.order_sn" style="width:200px"></el-input>
         <el-button class="filter-item" type="primary" icon="search"
                    @click="handleSearch()">查询</el-button>
         <el-button class="filter-item" type="text"
@@ -32,7 +32,7 @@
       <div :class="{ 'search-more':isSearchMore }">
         <el-row>
           <span class="demonstration">支付单号</span>
-          <el-input placeholder="支付单号" v-model="listQuery.pay_sn" style="width:100px"></el-input>
+          <el-input placeholder="支付单号" v-model="listQuery.pay_sn" style="width:200px"></el-input>
           <span class="demonstration">录入状态</span>
           <el-select v-model="listQuery.status">
             <el-option
