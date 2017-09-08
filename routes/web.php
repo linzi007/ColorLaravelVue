@@ -10,7 +10,20 @@ Route::get('/user/info', function () {
     return $user;
 });
 Route::get('/test', function () {
-    return auth()->user();
+    $collection = app(\App\Models\MainOrderPayment::class)->where([])->get()->toArray();
+    $adminIds = $driverIds = [];
+    foreach ($collection as $item) {
+        $driverIds[] = $item['jk_driver_id'];
+        $driverIds[] = $item['second_driver_id'];
+        $adminIds[] = $item['jlr'];
+        $adminIds[] = $item['updater'];
+    }
+
+    $drivers = app(\App\Models\Driver::class)->select('id', 'name')->whereIn('id', $driverIds)->get()->toArray();
+    $admins = app(\App\Models\Admin::class)->select('admin_id', 'admin_name')->whereIn('admin_id', $adminIds)->get()->toArray();
+    $drivers = array_column($drivers, 'name', 'id');
+    $admins = array_column($admins, 'admin_name', 'admin_id');
+    dd($drivers, $admins);
 });
 Auth::routes();
 //司机信息

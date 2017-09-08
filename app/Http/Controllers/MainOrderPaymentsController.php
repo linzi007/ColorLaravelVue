@@ -497,6 +497,6 @@ class MainOrderPaymentsController extends Controller
 
     public function export(Request $request)
     {
-        $this->mainOrder->list($this->getWhere($request))->export();
+        return app('App\Services\MainOrderPaymentsExport')->excel($request->toArray());
     }
 }

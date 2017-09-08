@@ -60,7 +60,6 @@ class DriversController extends Controller
 
 	public function update(DriverRequest $request, Driver $driver)
 	{
-		$this->authorize('update', $driver);
 		$driver->update($request->all());
 
         return response(['id'=>$driver->id, 'message'=>'Updated successfully.']);
