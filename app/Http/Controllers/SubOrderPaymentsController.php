@@ -86,6 +86,6 @@ class SubOrderPaymentsController extends Controller
 
     public function export(Request $request)
     {
-
+        return app('App\Services\SubOrderPaymentsExport')->excel($request->toArray());
     }
 }

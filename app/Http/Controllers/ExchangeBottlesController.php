@@ -70,4 +70,9 @@ class ExchangeBottlesController extends Controller
         }
         return $this->fail('保存失败');
 	}
+
+    public function export(Request $request)
+    {
+        return app('App\Services\ExchangeBottlesExport')->excel($request->toArray());
+    }
 }

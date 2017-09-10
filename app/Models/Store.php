@@ -10,6 +10,11 @@ class Store extends Model
     protected $table = 'store';
 
     protected $primaryKey = 'store_id';
+
+    protected $cacheMinutes = 60 * 1;
+
+    protected $cacheKey = 'stores';
+
     /**
      * goods
      *
@@ -22,13 +27,13 @@ class Store extends Model
 
     public function list($request)
     {
-        return Cache::remember('stores', 60*6, function () use ($request) {
+        return Cache::remember($this->getCacheKey(), $this->cacheMinutes, function () use ($request) {
             $stores = $this->whereIn('store_state', [0, 1])
                 ->orderBy('store_state', 'desc');
             if($request->get('name')){
                 $stores->where('store_name', 'like', '%' . $request->get('name') . '%');
             }
-            return $stores->get();
+            return $stores->get()->toArray();
         });
     }
 
@@ -50,5 +55,19 @@ class Store extends Model
     public function subOrder()
     {
         return $this->hasMany(\App\Models\Order::class, 'store_id', 'store_id');
+    }
+
+    public function getStoreCache()
+    {
+        return Cache::remember($this->getCacheKey(), $this->cacheMinutes, function () {
+            $stores = $this->whereIn('store_state', [0, 1])
+                ->orderBy('store_state', 'desc');
+            return $stores->get()->toArray();
+        });
+    }
+
+    public function getCacheKey()
+    {
+        return $this->cacheKey;
     }
 }

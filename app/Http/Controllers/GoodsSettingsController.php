@@ -159,6 +159,6 @@ class GoodsSettingsController extends Controller
 
     public function export(Request $request)
     {
-
+        return app('App\Services\GoodsSettingExport')->excel($request->toArray());
 	}
 }

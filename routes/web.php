@@ -49,6 +49,10 @@ Route::get('/main_order_payments/{pay_id}', 'MainOrderPaymentsController@show');
 Route::group(['prefix' => 'export'], function () {
     Route::get('driver', 'DriversController@export');
     Route::get('main_order_payments', 'MainOrderPaymentsController@export');
+    Route::get('order_goods_payments', 'OrderGoodsPaymentsController@export');
+    Route::get('sub_order_payments', 'SubOrderPaymentsController@export');
+    Route::get('exchange_bottles', 'ExchangeBottlesController@export');
+    Route::get('goods_settings', 'GoodsSettingsController@export');
 });
 
 //导入

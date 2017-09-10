@@ -84,41 +84,8 @@ class OrderGoodsPaymentsController extends Controller
         return response()->json($orderGoodsPayments);
 	}
 
-    public function getWhere()
+    public function export(Request $request)
     {
-        $request = request()->all();
-        if (request()->has('add_time')) {
-            $timeStart = strtotime(request()->add_time[0]);
-            $timeEnd = strtotime(request()->add_time[1]);
-            $this->orderGoodsPayment->whereBetween('main_order_payments.add_time', [$timeStart, $timeEnd]);
-        }
-
-        if (request()->has('store_id')) {
-
-        }
-
-        if (request()->has('pay_sn')) {
-
-        }
-
-        if (request()->has('order_sn')) {
-
-        }
-
-        if (in_array(request()->get('status'), [0, 1])) {
-
-        }
-
-        if (request()->has('jk_driver_id')) {
-
-        }
-
-        if (request()->has('jzr')) {
-
-        }
-
-        if (request()->has('has_second_driver')) {
-
-        }
+        return app('App\Services\OrderGoodsPaymentsExport')->excel($request->toArray());
     }
 }

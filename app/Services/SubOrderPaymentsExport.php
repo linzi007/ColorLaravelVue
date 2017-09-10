@@ -4,63 +4,30 @@
 namespace App\Services;
 
 
-use App\Models\MainOrderPayment;
+use App\Models\SubOrderPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 
-class MainOrderPaymentsExport
+class SubOrderPaymentsExport
 {
     /**
-     * @var MainOrderPayment
+     * @var SubOrderPayment
      */
-    private $mainOrderPayment;
+    private $subOrderPayment;
 
     /**
      * MainOrderPaymentsExport constructor.
+     * @param SubOrderPayment $subOrderPayment
      */
-    public function __construct(MainOrderPayment $mainOrderPayment)
+    public function __construct(SubOrderPayment $subOrderPayment)
     {
-
-        $this->mainOrderPayment = $mainOrderPayment;
+        $this->subOrderPayment = $subOrderPayment;
     }
 
-    const Export_FIELDS = [
-        'main_order.pay_sn'           => '支付单号',
-        'main_order.add_time'         => '订单时间',
-        'main_order.goods_amount'     => '货品金额',
-        'quehuo'                      => '缺货金额',
-        'jushou'                      => '拒收金额',
-        'shifa'                       => '实发金额',
-        'qiandan'                     => '签单金额',
-        'ziti'                        => '自提金额',
-        'qita'                        => '其他金额',
-        'weicha'                      => '尾差金额',
-        'desc_remark'                 => '扣减备注',
-        'main_order.promotion_amount' => '代金券',
-        'yingshou'                    => '应收金额',
-        'main_order.pd_amount'        => '预存款',
-        'pos'                         => 'POS金额',
-        'out_pay_sn'                  => '刷卡单号',
-        'weixin'                      => '微信金额',
-        'alipay'                      => '支付宝金额',
-        'cash'                        => '现金金额',
-        'yizhifu'                     => '翼支付金额',
-        'shishou'                     => '应收金额',
-        'jk_driver_id'                => '交款人',
-        'jk_at'                       => '收款时间',
-        'ck_at'                       => '存款时间',
-        'delivery_fee'                => '配送费',
-        'second_driver_id'            => '二次配送司机',
-        'jlr'                         => '录入人',
-        'updater'                     => '变更人',
-        'updated_at'                  => '变更时间',
-        'status'                      => '录入状态',
-    ];
 
     public function excel($params)
     {
-
         $condition = [];
         if (!empty($params['jzr'])) {
             $condition['jzr'] = $params['jzr'];
@@ -70,29 +37,24 @@ class MainOrderPaymentsExport
         }
 
         if (!empty($params['add_time']) && 'null' != $params['add_time'][0]) {
-            $this->mainOrderPayment = $this->mainOrderPayment->whereBetween('add_time', [
+            $this->mainOrderPayment = $this->subOrderPayment->whereBetween('add_time', [
                 strtotime($params['add_time'][0]),
                 strtotime($params['add_time'][1])
             ]);
         }
 
-        //$data = $this->mainOrderPayment->leftJoin('main_order', 'main_order_payments.pay_id', '=', 'main_order.pay_id')->select(array_keys(self::Export_FIELDS))->where($condition)->get();
-        //$this->exportExcel($data->toArray(), array_values(self::Export_FIELDS), '收款登记表');
         return $this->excelChunk($condition);
     }
 
     public function excelChunk($condition)
     {
-        $data = $this->mainOrderPayment
-            ->leftJoin('main_order', 'main_order_payments.pay_id', '=', 'main_order.pay_id')
-            ->select(array_keys(self::Export_FIELDS))
-            ->where($condition)
-            ->orderByDesc('main_order_payments.pay_id');
+        $data = $this->subOrderPayment->leftJoin('main_order_payments', 'sub_order_payments.pay_id', '=', 'main_order_payments.pay_id')
+            ->select(['main_order_payments.*', 'sub_order_payments.*'])->where($condition)->orderByDesc('main_order_payments.pay_id');
 
         return Excel::create($this->getFileName(), function ($excel) use ($data) {
             $data->chunk(5000, function ($items) use ($excel) {
                 $collection = $this->transformCollection($items);
-                $excel->sheet('收款登记表', function ($sheet) use ($collection) {
+                $excel->sheet('sheet1', function ($sheet) use ($collection) {
                     $sheet->fromModel($collection, null, 'A1', true);
                 });
             });
@@ -121,12 +83,16 @@ class MainOrderPaymentsExport
         }
         $drivers = array_column($drivers, 'name', 'id');
         $admins = array_column($admins, 'admin_name', 'admin_id');
+        $stores = app(\App\Models\Store::class)->getStoreCache();
+        $stores = array_column($stores, 'store_name', 'store_id');
         $exportData = [];
         foreach ($collection as $payment) {
             $exportData[] = [
                 '支付单号'   => $payment['pay_sn'],
-                '订单时间'   => date('Y-m-d H:i:s', $payment['add_time']),
-                '货品金额'   => $payment['goods_amount'],
+                '子订单号'   => $payment['order_sn'],
+                '订单时间'   => $payment['add_time'],
+                '档口名称'   => empty($stores[$payment['store_id']]) ? '' : $stores[$payment['store_id']],
+                '货品金额'   => $payment['quehuo'] + $payment['jushou'] + $payment['shifa'],
                 '缺货金额'   => $payment['quehuo'],
                 '拒收金额'   => $payment['jushou'],
                 '实发金额'   => $payment['shifa'],
