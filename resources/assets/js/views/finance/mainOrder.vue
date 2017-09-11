@@ -125,7 +125,7 @@
         </el-table-column>
         <el-table-column label="交款人" width="100">
             <template scope="scope">
-                <span class="table-col-text">{{scope.row.jk_driver_id}}</span>
+                <span class="table-col-text">{{scope.row.jk_driver_name}}</span>
             </template>
         </el-table-column>
         <el-table-column prop="delivery_fee" label="配送费" width="100"></el-table-column>
@@ -141,7 +141,7 @@
         </el-table-column>
         <el-table-column label="记账人" width="100">
             <template scope="scope">
-                <span class="table-col-text">{{scope.row.jzr}}</span>
+                <span class="table-col-text">{{scope.row.jzr_name}}</span>
             </template>
         </el-table-column>
     </el-table>
@@ -164,7 +164,7 @@
   import { fetchList } from 'api/restfull';
   import mainOrderDetail from './_mainOrderDetail.vue'
   import { Loading } from 'element-ui';
-  import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
+  import { pickerOptions, showMsg, initDateMothRange, param } from 'utils/index'
   import SelectDriver from 'components/Selector/SelectDriver';
 
   export default {
@@ -189,7 +189,7 @@
           pay_sn: undefined,
           status: undefined,
           jk_driver_jd: undefined,
-          jzr_id: undefined
+          jzr: undefined
         },
         statusMap: [
           { label: '全部', value: '' },
@@ -322,9 +322,8 @@
         return true;
       }, // 导出
       handleExport() {
-        fetchList(this.listQuery, '/export/main_order_payments').then(response => {
-          showMsg(response.data)
-        })
+        const query = param(this.listQuery)
+        window.location.href = '/export/main_order_payments?' + query;
       }, // 取消
       handleCancel() {
         this.dialogFormVisible = false;
@@ -358,7 +357,7 @@
         this.handleSearch();
       },
       queryChangeJkr(val) {
-        this.listQuery.jkr_id = val
+        this.listQuery.jk_driver_id = val
       },
       tableRowClassName(row) {
         if (row.status === 1) {

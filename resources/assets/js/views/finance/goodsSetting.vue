@@ -50,9 +50,9 @@
               style="width: 100%">
       <el-table-column align="center" type="index" label="序号" width="65">
       </el-table-column>
-      <el-table-column prop="goods_id" label="档口" width="200" sortable>
+      <el-table-column prop="store_name" label="档口" width="200" sortable>
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.store_id}}</span>
+          <span class="table-col-text">{{scope.row.store_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="goods_id" label="SKU" width="150" sortable>
@@ -182,7 +182,7 @@
 
 <script>
   import { fetchList, fetchCreate } from 'api/restfull';
-  import { showMsg } from 'utils/index'
+  import { param } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
   export default {
@@ -231,15 +231,15 @@
             { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
           ],
           unpack_fee: [
-            { type: 'float', message: '必须为数值', trigger: 'blur' },
+            { type: 'float', message: '必须为数值', trigger: 'blur' }
           ],
           driver_rate: [
             { required: true, type: 'number', message: '必须为数值', trigger: 'blur' },
             { min: 0, max: 1, message: '必须为 0 ~ 1 的小数', trigger: 'blur' }
-          ],
+          ]
         },
         uploadHeaders: {
-          'X-CSRF-TOKEN': window.Laravel.csrfToken
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
       }
     },
@@ -305,7 +305,6 @@
         });
       },
       sortQuery(sort) {
-        console.log(sort);
         this.listQuery.sort_by = sort.prop;
         this.listQuery.sort_order = sort.order;
         this.handleSearch();
@@ -329,9 +328,8 @@
         this.dialogUploadVisible = true;
       }, // 导出
       handleExport() {
-        fetchList(this.listQuery, '/export/goods_settings').then(response => {
-          showMsg(response.data)
-        })
+        const query = param(this.listQuery)
+        window.location.href = '/export/goods_settings?' + query;
       }, // 数据保存
       handleSizeChange(val) {
         this.listQuery.per_page = val;

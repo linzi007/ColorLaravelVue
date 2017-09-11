@@ -43,7 +43,17 @@
             </el-option>
           </el-select>
           <span class="demonstration">交款人</span>
-          <select-driver :selected="listQuery.jkr_jd" @changeSelect="queryChangeJkr"></select-driver>
+          <select-driver :selected="listQuery.jk_driver_id" @changeSelect="queryChangeJkr"></select-driver>
+          <span class="demonstration">记账人</span>
+          <el-select v-model="listQuery.jzr" filterable placeholder="请输入记账人">
+            <el-option label="全部" value=""></el-option>
+            <el-option
+              v-for="item in adminOptions"
+              :key="item.admin_id"
+              :label="item.admin_name"
+              :value="item.admin_id">
+            </el-option>
+          </el-select>
         </el-row>
       </div>
     </div>
@@ -80,7 +90,7 @@
       </el-table-column>
       <el-table-column label="档口" width="150">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.store_id}}</span>
+          <span class="table-col-text">{{scope.row.store.store_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="goods_amount" label="货品金额" width="100"></el-table-column>
@@ -117,7 +127,7 @@
       </el-table-column>
       <el-table-column label="交款人" width="100">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.jkr}}</span>
+          <span class="table-col-text">{{scope.row.jk_driver_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="delivery_fee" label="配送费" width="100"></el-table-column>
@@ -133,7 +143,7 @@
       </el-table-column>
       <el-table-column label="记账人" width="100">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.jzr}}</span>
+          <span class="table-col-text">{{scope.row.jzr_name}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -149,10 +159,9 @@
 </template>
 
 <script>
-  import { fetchList, fetchCreate } from 'api/restfull';
+  import { fetchList } from 'api/restfull';
   import mainOrderDetail from './_mainOrderDetail.vue'
-  import { Loading } from 'element-ui';
-  import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
+  import { pickerOptions, showMsg, initDateMothRange, param } from 'utils/index'
   import SelectDriver from 'components/Selector/SelectDriver';
 
   export default {
@@ -168,6 +177,7 @@
         sortOrder: 'descending',
         baseURL: '/sub_order_payments',
         selectedRows: [],
+        adminOptions: [],
         listQuery: {
           page: 1,
           per_page: 20,
@@ -175,8 +185,8 @@
           pay_sn: undefined,
           order_sn: undefined,
           status: undefined,
-          jkr_jd: undefined,
-          jzr_id: undefined
+          jk_driver_jd: undefined,
+          jzr: undefined
         },
         statusMap: [
           { label: '未录入', value: 2 },
@@ -198,6 +208,7 @@
     created() {
       this.getList();
       this.listQuery.add_time = initDateMothRange()
+      this.getAdminOptions()
     },
     computed: {
     },
@@ -261,9 +272,8 @@
         return true;
       }, // 导出
       handleExport() {
-        fetchList(this.listQuery, '/export/sub_order_payments').then(response => {
-          showMsg(response.data)
-        })
+        const query = param(this.listQuery)
+        window.location.href = '/export/sub_order_payments?' + query;
       }, // 数据保存
       handleSizeChange(val) {
         this.listQuery.per_page = val;
@@ -274,7 +284,7 @@
         this.handleSearch();
       },
       queryChangeJkr(val) {
-        this.listQuery.jkr_id = val
+        this.listQuery.jk_driver_id = val
       },
       tableRowClassName(row, index) {
         if (row.status === 1) {
@@ -283,6 +293,11 @@
         if (row.status === 0) {
           return 'positive-row';
         }
+      },
+      getAdminOptions() {
+        fetchList({}, '/admins_list').then(response => {
+          this.adminOptions = response.data;
+        })
       }
     }
   }

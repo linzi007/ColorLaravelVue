@@ -67,6 +67,25 @@ class MainOrderPayment extends Model
         return $this->belongsTo(\App\Models\Driver::class, 'driver_id');
     }
 
+    /**
+     * 交款司机信息
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function jkDriver()
+    {
+        return $this->hasOne(\App\Models\Driver::class, 'id', 'jk_driver_id');
+    }
+
+    /**
+     * 记账人信息
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function jzAdmin()
+    {
+        return $this->hasOne(\App\Models\Admin::class, 'admin_id', 'jzr');
+    }
+
     public function jizhang($payIds)
     {
         $data = [

@@ -202,7 +202,6 @@
               });
             })
           } else {
-            console.log('error submit!!');
             return false;
           }
         });
@@ -261,22 +260,8 @@
         this.getList();
       },
       handleDownload() {
-        require.ensure([], () => {
-          const { export_json_to_excel } = require('vendor/Export2Excel');
-          const tHeader = ['编码', '司机名字', '手机', '备注'];
-          const filterVal = ['code', 'name', 'mobile', 'title', 'importance'];
-          const data = this.formatJson(filterVal, this.list);
-          export_json_to_excel(tHeader, data, 'table数据');
-        })
-      },
-      formatJson(filterVal, jsonData) {
-        return jsonData.map(v => filterVal.map(j => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
-          } else {
-            return v[j]
-          }
-        }))
+        const query = param(this.listQuery)
+        window.location.href = '/export/driver?' + query;
       }
     }
   }

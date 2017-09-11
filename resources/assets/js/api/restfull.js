@@ -8,6 +8,15 @@ export function fetchList(query, url) {
   });
 }
 
+export function fetchDownLoad(query, url) {
+  return fetch({
+    url,
+    mehtod: 'get',
+    params: query,
+    responseType: 'arraybuffer'
+  })
+}
+
 export function fetchCreate(data, url) {
   return fetch({
     url,

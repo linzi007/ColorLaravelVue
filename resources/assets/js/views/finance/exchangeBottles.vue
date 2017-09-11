@@ -64,7 +64,7 @@
       </el-table-column>
       <el-table-column label="操作员" width="150">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.creator}}</span>
+          <span class="table-col-text">{{scope.row.creator_name}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -81,7 +81,7 @@
 
 <script>
   import { fetchList } from 'api/restfull';
-  import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
+  import { pickerOptions, initDateMothRange, param } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
   export default {
@@ -151,9 +151,8 @@
         this.dialogUploadVisible = true;
       }, // 导出
       handleExport() {
-        fetchList(this.listQuery, '/export/exchange_bottles').then(response => {
-          showMsg(response.data)
-        })
+        const query = param(this.listQuery)
+        window.location.href = '/export/exchange_bottles?' + query;
       }, // 数据保存
       handleSizeChange(val) {
         this.listQuery.per_page = val;

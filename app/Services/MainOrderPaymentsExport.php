@@ -6,8 +6,8 @@ namespace App\Services;
 
 use App\Models\MainOrderPayment;
 use Carbon\Carbon;
+use Excel;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Facades\Excel;
 
 class MainOrderPaymentsExport
 {
@@ -60,8 +60,14 @@ class MainOrderPaymentsExport
 
     public function excel($params)
     {
-
         $condition = [];
+        if (!empty($params['pay_sn'])) {
+            $condition['main_order.pay_sn'] = $params['pay_sn'];
+        }
+
+        if (!empty($params['jk_driver_id'])) {
+            $condition['jk_driver_id'] = $params['jk_driver_id'];
+        }
         if (!empty($params['jzr'])) {
             $condition['jzr'] = $params['jzr'];
         }
@@ -70,7 +76,7 @@ class MainOrderPaymentsExport
         }
 
         if (!empty($params['add_time']) && 'null' != $params['add_time'][0]) {
-            $this->mainOrderPayment = $this->mainOrderPayment->whereBetween('add_time', [
+            $this->mainOrderPayment = $this->mainOrderPayment->whereBetween('main_order.add_time', [
                 strtotime($params['add_time'][0]),
                 strtotime($params['add_time'][1])
             ]);
@@ -88,7 +94,6 @@ class MainOrderPaymentsExport
             ->select(array_keys(self::Export_FIELDS))
             ->where($condition)
             ->orderByDesc('main_order_payments.pay_id');
-
         return Excel::create($this->getFileName(), function ($excel) use ($data) {
             $data->chunk(5000, function ($items) use ($excel) {
                 $collection = $this->transformCollection($items);

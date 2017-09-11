@@ -64,8 +64,14 @@ class GoodsSettingsController extends Controller
         if ($request->goods_id) {
             $where['goods.goods_id'] = $request->goods_id;
         }
+        $stores = app(\App\Models\Store::class)->getStoreCache();
+        $stores = array_column($stores, 'store_name', 'store_id');
 
-        $goodsSettings = $this->goods->list($where)->orderBy($sortBy, $sortOrder)->paginate();
+        $goodsSettings = $this->goods->list($where)->orderBy($sortBy, $sortOrder)->paginate()->toArray();
+        foreach ($goodsSettings['data'] as $key => $payment) {
+            $payment['store_name'] = empty($stores[$payment['store_id']]) ? $payment['store_id'] : $stores[$payment['store_id']];
+            $goodsSettings['data'][$key] = $payment;
+        }
 
         return response()->json($goodsSettings);
 	}

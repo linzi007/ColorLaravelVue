@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Traits\ExcelTrait;
-use App\Models\ExchangeBottle;
 use App\Models\GoodsSetting;
 use App\Models\MainOrder;
 use App\Models\MainOrderPayment;
@@ -11,10 +10,7 @@ use App\Models\Order;
 use App\Models\OrderGoods;
 use App\Models\OrderGoodsPayment;
 use App\Models\SubOrderPayment;
-use function foo\func;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\MainOrderPaymentRequest;
 use Illuminate\Support\Facades\DB;
 use Mockery\Exception;
 
@@ -94,7 +90,7 @@ class MainOrderPaymentsController extends Controller
 
         $condition = [];
         $mainOrders = $this->mainOrder->whereIn('order_state', [30, 40]);
-        if ($request->pay_driver_id) {
+        if ($request->jk_driver_id) {
             $condition['jk_driver_id'] = $request->jk_driver_id;
         }
         if ($request->jzr) {
@@ -119,11 +115,16 @@ class MainOrderPaymentsController extends Controller
         if ($request->add_time && 'null' != $request->add_time[0]) {
             $mainOrders = $mainOrders->whereBetween('add_time', $this->getRequestAddTime());
         }
-        $mainOrders = $mainOrders->with('mainOrderPayment')->where($where)->orderBy($sortBy, $sortOrder)->paginate($request->per_page)->toArray();
+        $mainOrders = $mainOrders->with(['mainOrderPayment', 'mainOrderPayment.jkDriver', 'mainOrderPayment.jzAdmin'])
+            ->where($where)->orderBy($sortBy, $sortOrder)->paginate($request->per_page)->toArray();
         foreach ($mainOrders['data'] as $key => $item) {
             if (!empty($item['main_order_payment']['id'])) {
                 $payment = $item['main_order_payment'];
+                $payment['jk_driver_name'] = empty($payment['jk_driver']) ? $payment['jk_driver_id'] : $payment['jk_driver']['name'];
+                $payment['jzr_name'] = empty($payment['jz_admin']) ? $payment['jzr'] : $payment['jz_admin']['admin_name'];
                 unset($item['main_order_payment']);
+                unset($payment['jz_admin']);
+                unset($payment['jk_driver']);
                 $mainOrders['data'][$key] = array_merge($item, $payment);
             }
         }
@@ -497,6 +498,7 @@ class MainOrderPaymentsController extends Controller
 
     public function export(Request $request)
     {
-        return app('App\Services\MainOrderPaymentsExport')->excel($request->toArray());
+        $result = app(\App\Services\MainOrderPaymentsExport::class)->excel($request->toArray());
+        dd($result);
     }
 }

@@ -105,7 +105,7 @@
       </el-table-column>
       <el-table-column label="档口" width="180">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.store_id}}</span>
+          <span class="table-col-text">{{scope.row.store_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="goods_name" label="货品名称" width="200"></el-table-column>
@@ -135,7 +135,7 @@
       <el-table-column prop="delivery_fee" label="配送费" width="100"></el-table-column>
       <el-table-column label="交款人" width="100">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.jk_driver_id}}</span>
+          <span class="table-col-text">{{scope.row.jk_driver_name}}</span>
         </template>
       </el-table-column>
       <el-table-column label="司机计费方式" width="130">
@@ -156,7 +156,7 @@
       </el-table-column>
       <el-table-column label="记账人" width="100">
           <template scope="scope">
-              <span class="table-col-text">{{scope.row.jzr}}</span>
+              <span class="table-col-text">{{scope.row.jzr_name}}</span>
           </template>
       </el-table-column>
     </el-table>
@@ -292,9 +292,8 @@
         this.dialogUploadVisible = true;
       }, // 导出
       handleExport() {
-        fetchList(this.listQuery, '/export/exchange_bottles').then(response => {
-          showMsg(response.data)
-        })
+        const query = param(this.listQuery)
+        window.location.href = '/export/order_goods_payments?' + query;
       }, // 数据保存
       handleSizeChange(val) {
         this.listQuery.per_page = val;

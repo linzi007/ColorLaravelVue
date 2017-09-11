@@ -37,20 +37,74 @@ class SubOrderPaymentsController extends Controller
         $this->order = $order;
     }
 
-	public function index()
+	public function index(Request $request)
 	{
         $where = $this->getWhere();
-        if (request()->has('add_time')) {
-            $this->order->whereBetween('add_time', $this->getRequestAddTime());
-        } else {
-            //$timeStart = Carbon::now()->firstOfMonth()->timestamp;
-            //$timeEnd = Carbon::now()->lastOfMonth()->timestamp;
+        if ($request->add_time && 'null' != $request->add_time[0]) {
+            $this->order = $this->order->whereBetween('order.add_time', $this->getRequestAddTime());
         }
-
-        $subOrderPayments = $this->order->leftJoin('main_order_payments', 'order.pay_id', '=', 'main_order_payments.pay_id')
+        if ($paySn = $request->pay_sn) {
+            $where['order.pay_sn'] = $paySn;
+        }
+        if ($orderSn = $request->order_sn) {
+            $where['order.order_sn'] = $orderSn;
+        }
+        if (isset($request->status) && in_array($request->status, [0, 1])) {
+            $where['main_order_payments.status'] = $request->status;
+        }
+        if (isset($request->status) && in_array($request->status, [0, 1])) {
+            $where['main_order_payments.status'] = $request->status;
+        }
+        if ($request->has('jk_driver_id')) {
+            $where['main_order_payments.jk_driver_id'] = $request->jk_driver_id;
+        }
+        if ($request->has('jzr')) {
+            $where['main_order_payments.jzr'] = $request->jzr;
+        }
+        $subOrderPayments = $this->order
+            ->leftJoin('main_order_payments', 'order.pay_id', '=', 'main_order_payments.pay_id')
             ->leftJoin('sub_order_payments', 'order.pay_id', '=', 'sub_order_payments.pay_id')
             ->where($where)->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS);
-        $subOrderPayments->load('store');
+        $subOrderPayments->load(['store' => function($query) {
+            $query->select('store_id', 'store_name');
+        }]);
+        $subOrderPayments = $subOrderPayments->toArray();
+        $jkDriverIds = $jzrIds = $drivers = $admins = [];
+        foreach ($subOrderPayments['data'] as $key => $item) {
+            $jkDriverIds[] = $item['jk_driver_id'];
+            $jzrIds[] = $item['jzr'];
+            if (!empty($item['jk_driver'])) {
+                $item['jk_driver_name'] = $item['jk_driver']['name'];
+                unset($item['jk_driver']);
+            }
+            if (!empty($item['jz_admin'])) {
+                $item['jzr_name'] = $item['jz_admin']['admin_name'];
+                unset($item['jk_driver']);
+            }
+        }
+        if ($jkDriverIds) {
+            $drivers = app(\App\Models\Driver::class)->whereIn('id', array_unique($jkDriverIds))->get()->toArray();
+            if (!empty($drivers)) {
+                $drivers = array_column($drivers, 'name', 'id');
+            }
+        }
+        if ($jzrIds) {
+            $admins = app(\App\Models\Admin::class)->whereIn('admin_id', array_unique($jzrIds))->get()->toArray();
+            if ($admins) {
+                $admins = array_column($admins, 'admin_name', 'admin_id');
+            }
+        }
+        foreach ($subOrderPayments['data'] as $key => $item) {
+            if (!empty($item['jk_driver_id'])) {
+                $item['jk_driver_name'] = empty($drivers[$item['jk_driver_id']]) ? $item['jk_driver_id'] : $drivers[$item['jk_driver_id']];
+            }
+
+            if (!empty($item['jzr'])) {
+                $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
+            }
+
+            $subOrderPayments['data'][$key] = $item;
+        }
         return response($subOrderPayments);
 	}
 

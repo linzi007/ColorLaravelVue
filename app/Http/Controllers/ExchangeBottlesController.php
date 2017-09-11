@@ -36,15 +36,19 @@ class ExchangeBottlesController extends Controller
             $endAt = Carbon::parse($request->created_at[1])->toDateTimeString();
             $this->exchangeBottle = $this->exchangeBottle->whereBetween('created_at', [$startAt, $endAt]);
         }
-        $exchange_bottles = $this->exchangeBottle->with(['store' => function ($query) {
+        $exchangeBottles = $this->exchangeBottle->with(['store' => function ($query) {
             $query->select('store_id', 'store_name');
         }, 'driver' => function($query) {
             $query->select('id','name');
         }, 'admin' => function($query) {
             $query->select('admin_id', 'admin_name');
-        }])->where($where)->paginate($request->per_page);
+        }])->where($where)->paginate($request->per_page)->toArray();
+        foreach ($exchangeBottles['data'] as $key => $exchangeBottle) {
+            $exchangeBottle['creator_name'] = empty($exchangeBottle['admin']) ? '' : $exchangeBottle['admin']['admin_name'];
+            $exchangeBottles['data'][$key] = $exchangeBottle;
+        }
 
-		return response($exchange_bottles);
+		return response($exchangeBottles);
 	}
 
     public function show(ExchangeBottle $exchange_bottle)

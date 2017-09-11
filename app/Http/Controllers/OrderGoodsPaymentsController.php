@@ -38,8 +38,7 @@ class OrderGoodsPaymentsController extends Controller
 	{
         $where = [];
         if ($request->has('add_time')&& 'null' != $request->add_time[0]) {
-            $where[] = ['main_order_payments.add_time', 'between', $this->getRequestAddTime()];
-            //$this->orderGoodsPayment->whereBetween('main_order_payments.add_time', $this->getRequestAddTime());
+            $this->orderGoodsPayment = $this->orderGoodsPayment->whereBetween('main_order_payments.add_time', $this->getRequestAddTime());
         }
 
         if ($request->has('store_id')) {
@@ -69,16 +68,55 @@ class OrderGoodsPaymentsController extends Controller
                 $where[] = ['main_order_payments.jk_driver_id', '=', null];
             }
         }
-
+        $stores = app(\App\Models\Store::class)->getStoreCache();
+        $stores = array_column($stores, 'store_name', 'store_id');
         $orderGoodsPayments = $this->orderGoodsPayment->leftJoin('main_order_payments', 'order_goods_payments.pay_id', '=', 'main_order_payments.pay_id')
             ->with(['orderGoods'])->where($where)->orderBy('main_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS);
         $orderGoodsPayments = $orderGoodsPayments->toArray();
+        $jkDriverIds = $jzrIds = $drivers = $admins = [];
         foreach ($orderGoodsPayments['data'] as $key => $payment) {
+            $jkDriverIds[] = $payment['jk_driver_id'];
+            $jzrIds[] = $payment['jzr'];
+            if (!empty($payment['jk_driver'])) {
+                $payment['jk_driver_name'] = $payment['jk_driver']['name'];
+                unset($payment['jk_driver']);
+            }
+            if (!empty($payment['jz_admin'])) {
+                $payment['jzr_name'] = $payment['jz_admin']['admin_name'];
+                unset($payment['jk_driver']);
+            }
+            //处理order_goods
             if ($payment['order_goods']) {
                 $payment = array_merge($payment, $payment['order_goods']);
                 unset($payment['order_goods']);
-                $orderGoodsPayments['data'][$key] = $payment;
             }
+            $payment['store_name'] = empty($stores[$payment['store_id']]) ? $payment['store_id'] : $stores[$payment['store_id']];
+            $orderGoodsPayments['data'][$key] = $payment;
+        }
+
+        if ($jkDriverIds) {
+            $drivers = app(\App\Models\Driver::class)->whereIn('id', array_unique($jkDriverIds))->get()->toArray();
+            if (!empty($drivers)) {
+                $drivers = array_column($drivers, 'name', 'id');
+            }
+        }
+        if ($jzrIds) {
+            $admins = app(\App\Models\Admin::class)->whereIn('admin_id', array_unique($jzrIds))->get()->toArray();
+            if ($admins) {
+                $admins = array_column($admins, 'admin_name', 'admin_id');
+            }
+        }
+
+        foreach ($orderGoodsPayments['data'] as $key => $item) {
+            if (!empty($item['jk_driver_id'])) {
+                $item['jk_driver_name'] = empty($drivers[$item['jk_driver_id']]) ? $item['jk_driver_id'] : $drivers[$item['jk_driver_id']];
+            }
+
+            if (!empty($item['jzr'])) {
+                $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
+            }
+
+            $orderGoodsPayments['data'][$key] = $item;
         }
 
         return response()->json($orderGoodsPayments);
