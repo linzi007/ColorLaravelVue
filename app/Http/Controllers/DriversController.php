@@ -34,7 +34,7 @@ class DriversController extends Controller
 	{
         $where = $this->getWhere($request);
 		$drivers = $this->driver->where($where)
-            ->orderBy('id', 'asc')->paginate();
+            ->orderBy('id', 'asc')->paginate($request->per_page);
         return response($drivers);
 	}
 

@@ -29,12 +29,10 @@ class ExchangeBottlesExport
     public function excel($params)
     {
         $condition = [];
-
         if (!empty($params['created_at']) && 'null' != $params['created_at'][0]) {
-            $this->exchangeBottle = $this->exchangeBottle->whereBetween('created_at', [
-                $params['created_at'][0],
-                $params['created_at'][1]
-            ]);
+            $startAt = Carbon::parse($params['created_at'][0])->toDateTimeString();
+            $endAt = Carbon::parse($params['created_at'][1])->toDateTimeString();
+            $this->exchangeBottle = $this->exchangeBottle->whereBetween('created_at', [$startAt, $endAt]);
         }
 
         if (!empty($params['store_id'])) {
@@ -44,9 +42,10 @@ class ExchangeBottlesExport
         if (!empty($params['pay_sn'])) {
             $condition['pay_sn'] = $params['pay_sn'];
         }
-
+        getSql();
         $data = $this->exchangeBottle->where($condition);
-
+        $count = $data->count();
+        dd($count);
         return Excel::create($this->getFileName(), function ($excel) use ($data) {
             $data->chunk($this->getChunkSize(), function ($items) use ($excel) {
                 $collection = $this->transformCollection($items);

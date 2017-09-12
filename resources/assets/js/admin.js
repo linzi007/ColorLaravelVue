@@ -18,16 +18,10 @@ import 'assets/custom-theme/index.css';
 import 'assets/iconfont/iconfont';
 import NProgress from 'nprogress';
 import * as filters from './filters';
-import Multiselect from 'vue-multiselect';// 使用的一个多选框组件，element-ui的select不能满足所有需求
-import 'vue-multiselect/dist/vue-multiselect.min.css';// 多选框组件css
-import Sticky from 'components/Sticky';
 import IconSvg from 'components/Icon-svg';
 import errLog from 'store/errLog';
 import { getToken } from 'utils/auth'
-import './mock/index.js';  // 演示数据请求使用mockjs模拟
 // register globally
-Vue.component('multiselect', Multiselect);
-Vue.component('Sticky', Sticky);
 Vue.component('icon-svg', IconSvg);
 Vue.use(ElementUI);
 

@@ -58,13 +58,14 @@ class ExchangeBottlesController extends Controller
 
 	public function store(ExchangeBottleRequest $request)
 	{
-        if ($request->has('exchangeBottle')){
+        if ($request->has('is_checked')){
+            $adminId = auth()->id();
             $attributes = [
                 'store_id'  => $request->store_id,
                 'amount'    => $request->amount,
                 'driver_id' => $request->driver_id,
                 'pay_sn'    => $request->pay_sn,
-                'creator'   => currentUserId(),
+                'creator'   => $adminId,
             ];
 
             $result = $this->exchangeBottle->create($attributes);

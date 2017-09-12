@@ -159,7 +159,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="刷卡单号：" prop="out_pay_sn">
-          <el-input placeholder="刷卡单号" v-model.number="orderPayments.out_pay_sn">
+          <el-input placeholder="刷卡单号" v-model="orderPayments.out_pay_sn">
           </el-input>
         </el-form-item>
       </el-col>
@@ -286,7 +286,7 @@
       <el-col :span="10" v-show="exchangeBottle.is_checked">
         <el-form-item label="换盖金额：" prop="exhange_amount">
           <el-input placeholder="换盖金额" v-model="exchangeBottle.amount">
-            <el-button slot="append" @click="handleExchangeBottle()">保存</el-button>
+            <el-button slot="append" @click="handleExchangeBottle()" :loading="saveExchangeLoading">保存</el-button>
           </el-input>
         </el-form-item>
       </el-col>
@@ -337,8 +337,18 @@ export default {
     }
   },
   data() {
+    var validateOutPaySn = (rule, value, callback) => {
+      if (this.orderPayments.pos > 0 || this.orderPayments.wexin > 0 || this.orderPayments.wexin > 0) {
+        if (_.isNull(value)) {
+          callback(new Error('请输入刷卡单号'));
+        }
+      }
+      callback();
+    };
     return {
       selectFirstDriver: false,
+      saveExchangeLoading: false,
+      recalculateLoading: false,
       storeOptions: [],
       driverOptions: [],
       goodsListVisible: false,
@@ -364,6 +374,7 @@ export default {
           { max: 100, message: '最大长度为 100 个字符', trigger: 'blur' }
         ],
         out_pay_sn: [
+          { validator: validateOutPaySn, trigger: 'blur' },
           { type: 'string', max: 100, message: '最大长度在为 100 个字符', trigger: 'blur' }
         ],
         remark: [
@@ -457,7 +468,9 @@ export default {
         return false;
       }
       this.exchangeBottle.pay_sn = this.orderPayments.pay_sn;
-      fetchUpdate(this.exchangeBottle, '/exchange_bottles').then(response => {
+      this.saveExchangeLoading = true;
+      fetchCreate(this.exchangeBottle, '/exchange_bottles').then(response => {
+        this.saveExchangeLoading = false;
         showMsg(response.data)
       })
     },
@@ -469,7 +482,9 @@ export default {
         });
         return false;
       }
+      this.recalculateLoading = true;
       fetchList({ pay_ids: this.orderPayments.pay_id }, '/main_order_payments/re_calculate').then(response => {
+        this.recalculateLoading = false
         showMsg(response.data)
       })
     },

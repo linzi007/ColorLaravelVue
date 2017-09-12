@@ -18,7 +18,6 @@
         </el-button>
       </el-form-item>
       <div class='tips'>使用子站后台账号登录</div>
-      <div class='tips'>editor账号:editor@wallstreetcn.com 密码随便填</div>
     </el-form>
 
   </div>
@@ -26,6 +25,7 @@
 
 <script>
 
+  import { showMsg } from 'utils/index'
   export default {
     name: 'login',
     data() {
@@ -57,7 +57,8 @@
         this.$refs.loginForm.validate(valid => {
           if (valid) {
             this.loading = true;
-            this.$store.dispatch('LoginByUserName', this.loginForm).then(() => {
+            this.$store.dispatch('LoginByUserName', this.loginForm).then(response => {
+              showMsg(response.data);
               this.loading = false;
               this.$router.push({ path: '/' });
             }).catch(() => {

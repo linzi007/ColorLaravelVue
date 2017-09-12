@@ -169,12 +169,15 @@
       <el-upload
               class="upload-file"
               :headers="uploadHeaders"
+              :on-success="uploadSuccess"
               drag
               action="/import/goods_settings"
               name="file">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">只能上传excel文件，且不超过500kb</div>
+        <div class="el-upload__tip" slot="tip">只能上传excel文件，且不超过500kb,
+          <a href="/goods_settings/download-excel?path=/exports_demo/&name=goods_setting_demo.xls" target="_blank">下载模板</a>
+        </div>
       </el-upload>
     </el-dialog>
   </div>
@@ -182,7 +185,7 @@
 
 <script>
   import { fetchList, fetchCreate } from 'api/restfull';
-  import { param } from 'utils/index'
+  import { param, showMsg } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
   export default {
@@ -327,6 +330,15 @@
       handleImport() {
         this.dialogUploadVisible = true;
       }, // 导出
+      uploadSuccess(response) {
+        console.log(response);
+        showMsg(response);
+        const data = response.data;
+        if(! response.status) {
+          // 跳转下载错误表格
+          window.location.href = this.baseURL + '/download-excel' + '?' + 'path=' + data.path + '&name=' + data.name
+        }
+      },
       handleExport() {
         const query = param(this.listQuery)
         window.location.href = '/export/goods_settings?' + query;

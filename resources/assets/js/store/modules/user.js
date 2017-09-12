@@ -58,10 +58,19 @@ const user = {
       const userName = userInfo.username.trim();
       return new Promise((resolve, reject) => {
         loginByUserName(userName, userInfo.password).then(response => {
-          const data = response.data;
-          setToken(data.email);
-          commit('SET_TOKEN', data.email);
-          resolve();
+          if(0 === response.data.status) {
+            resolve(response);
+          } else {
+            const data = response.data.data;
+
+            setToken(data.email);
+            commit('SET_TOKEN', data.email);
+            // commit('SET_ROLES', data.role);
+            commit('SET_NAME', data.admin_name);
+            commit('SET_AVATAR', data.avatar);
+            commit('SET_INTRODUCTION', data.admin_name);
+            resolve(response);
+          }
         }).catch(error => {
           reject(error);
         })

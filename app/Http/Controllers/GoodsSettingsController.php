@@ -23,6 +23,8 @@ class GoodsSettingsController extends Controller
      */
     private $goods;
 
+    private $storagePath = 'exports';
+
     /**
      * 货品配送费设置表
      * GoodsSettingsController constructor.
@@ -67,7 +69,7 @@ class GoodsSettingsController extends Controller
         $stores = app(\App\Models\Store::class)->getStoreCache();
         $stores = array_column($stores, 'store_name', 'store_id');
 
-        $goodsSettings = $this->goods->list($where)->orderBy($sortBy, $sortOrder)->paginate()->toArray();
+        $goodsSettings = $this->goods->list($where)->orderBy($sortBy, $sortOrder)->paginate($request->per_page)->toArray();
         foreach ($goodsSettings['data'] as $key => $payment) {
             $payment['store_name'] = empty($stores[$payment['store_id']]) ? $payment['store_id'] : $stores[$payment['store_id']];
             $goodsSettings['data'][$key] = $payment;
@@ -155,16 +157,31 @@ class GoodsSettingsController extends Controller
 
     public function import(GoodsSettingImport $import)
     {
-        $success = $import->doImport();
-        if ($success) {
+        $result = $import->doImport();
+        if ($result['status']) {
             return $this->success('导入成功');
         }
-
-        return $this->fail('导入失败');
+        $name = $result['data']['file'];
+        $path = DIRECTORY_SEPARATOR . $this->storagePath . DIRECTORY_SEPARATOR;
+        return $this->fail('部分导入失败', ['path' => $path, 'name' =>$name]);
     }
 
     public function export(Request $request)
     {
         return app('App\Services\GoodsSettingExport')->excel($request->toArray());
 	}
+
+    /**
+     * 错误下载
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadFile(Request $request)
+    {
+        $name = $request->name;
+        $path = $request->path . $name;
+
+        return response()->download(storage_path($path), $name);
+    }
 }

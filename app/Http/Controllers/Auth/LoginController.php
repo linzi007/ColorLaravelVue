@@ -26,7 +26,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -71,7 +71,9 @@ class LoginController extends Controller
             $this->authenticated($request, $this->guard()->user());
             $data = auth()->user();
             $data->role = 'admin';
-            return response()->json($data, 200);
+            $data->avatar = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif';
+
+            return $this->success('登录成功', $data);
         }
 
         return $this->authenticated($request, $this->guard()->user())
@@ -80,12 +82,17 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        if (auth()->id()) {
+            auth()->logout();
+            $request->session()->invalidate();
+        }
 
+        return redirect('/login');
     }
 
     protected function sendFailedLoginResponse(Request $request)
     {
-
+        return $this->fail('用户名或者密码错误');
     }
 
 

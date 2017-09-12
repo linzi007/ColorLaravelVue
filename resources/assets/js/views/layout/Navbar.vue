@@ -16,9 +16,14 @@
 						首页
 					</el-dropdown-item>
 				</router-link>
-				<a target='_blank' href="https://github.com/PanJiaChen/vue-element-admin/">
+				<a target='_blank' href="http://xiamen.18duocai.com/">
 					<el-dropdown-item>
-						项目地址
+						厦门站
+					</el-dropdown-item>
+				</a>
+				<a target='_blank' href="http//xiamen.18duocai.com/admin">
+					<el-dropdown-item>
+						厦门站后台
 					</el-dropdown-item>
 				</a>
 				<el-dropdown-item divided><span @click="logout" style="display:block;">退出登录</span></el-dropdown-item>
@@ -35,6 +40,7 @@
   import Screenfull from 'components/Screenfull';
   import ErrorLog from 'components/ErrLog';
   import errLogStore from 'store/errLog';
+  import { logout } from 'api/login';
 
   export default {
     components: {

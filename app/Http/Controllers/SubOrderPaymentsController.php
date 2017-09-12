@@ -102,7 +102,7 @@ class SubOrderPaymentsController extends Controller
             if (!empty($item['jzr'])) {
                 $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
             }
-
+            $item['add_time'] = date('Y-m-d H:i:s', $item['add_time']);
             $subOrderPayments['data'][$key] = $item;
         }
         return response($subOrderPayments);

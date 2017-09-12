@@ -16,6 +16,8 @@ class Admin extends Authenticatable
 
     protected $hidden = ['admin_password'];
 
+    public $timestamps = false;
+
     public function isSuperAdmin()
     {
         return $this->admin_is_super;
@@ -24,6 +26,11 @@ class Admin extends Authenticatable
     public function getAuthPassword()
     {
         return $this->admin_password;
+    }
+
+    public function updateRememberToken()
+    {
+
     }
 
 
