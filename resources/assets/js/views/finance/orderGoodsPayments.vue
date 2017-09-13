@@ -172,7 +172,7 @@
 
 <script>
   import { fetchList } from 'api/restfull';
-  import { pickerOptions, showMsg, initDateMothRange } from 'utils/index'
+  import { pickerOptions, showMsg, initDateMothRange, parseTime, param } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
   export default {
@@ -292,7 +292,13 @@
         this.dialogUploadVisible = true;
       }, // 导出
       handleExport() {
-        const query = param(this.listQuery)
+        const params = this.listQuery
+        if (params.add_time) {
+          params.add_time_start = parseTime(params.add_time[0])
+          params.add_time_end = parseTime(params.add_time[1])
+          params.add_time = null
+        }
+        const query = param(params)
         window.location.href = '/export/order_goods_payments?' + query;
       }, // 数据保存
       handleSizeChange(val) {

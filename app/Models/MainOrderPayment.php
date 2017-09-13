@@ -120,4 +120,14 @@ class MainOrderPayment extends Model
         }
         return true;
     }
+
+    public function getAddTimeAttribute($value)
+    {
+        return Carbon::createFromTimestamp($value)->toDateTimeString();
+    }
+
+    public function setAddTimeAttribute($value)
+    {
+        return strtotime($value);
+    }
 }

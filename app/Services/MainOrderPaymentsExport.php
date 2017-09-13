@@ -75,10 +75,10 @@ class MainOrderPaymentsExport
             $condition['status'] = $params['status'];
         }
 
-        if (!empty($params['add_time']) && 'null' != $params['add_time'][0]) {
+        if (!empty($params['add_time_start'])) {
             $this->mainOrderPayment = $this->mainOrderPayment->whereBetween('main_order.add_time', [
-                strtotime($params['add_time'][0]),
-                strtotime($params['add_time'][1])
+                strtotime($params['add_time_start']),
+                strtotime($params['add_time_end']),
             ]);
         }
 
@@ -94,6 +94,9 @@ class MainOrderPaymentsExport
             ->select(array_keys(self::Export_FIELDS))
             ->where($condition)
             ->orderByDesc('main_order_payments.pay_id');
+        if($data->count() < 1) {
+            return false;
+        }
         return Excel::create($this->getFileName(), function ($excel) use ($data) {
             $data->chunk(5000, function ($items) use ($excel) {
                 $collection = $this->transformCollection($items);

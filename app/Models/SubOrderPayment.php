@@ -3,6 +3,7 @@
 namespace App\Models;
 
 
+use Carbon\Carbon;
 use Exception;
 
 class SubOrderPayment extends Model
@@ -56,5 +57,15 @@ class SubOrderPayment extends Model
         }
 
         return true;
+    }
+
+    public function getAddTimeAttribute($value)
+    {
+        return Carbon::createFromTimestamp($value)->toDateTimeString();
+    }
+
+    public function setAddTimeAttribute($value)
+    {
+        return strtotime($value);
     }
 }

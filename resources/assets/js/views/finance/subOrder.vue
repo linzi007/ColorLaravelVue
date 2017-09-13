@@ -161,7 +161,7 @@
 <script>
   import { fetchList } from 'api/restfull';
   import mainOrderDetail from './_mainOrderDetail.vue'
-  import { pickerOptions, showMsg, initDateMothRange, param } from 'utils/index'
+  import { pickerOptions, showMsg, initDateMothRange, param, parseTime } from 'utils/index'
   import SelectDriver from 'components/Selector/SelectDriver';
 
   export default {
@@ -272,7 +272,13 @@
         return true;
       }, // 导出
       handleExport() {
-        const query = param(this.listQuery)
+        const params = this.listQuery
+        if (!_.isNull(params.add_time)) {
+          params.add_time_start = parseTime(params.add_time[0])
+          params.add_time_end = parseTime(params.add_time[1])
+          params.add_time = null
+        }
+        const query = param(params)
         window.location.href = '/export/sub_order_payments?' + query;
       }, // 数据保存
       handleSizeChange(val) {

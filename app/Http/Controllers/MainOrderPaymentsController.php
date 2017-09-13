@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderGoods;
 use App\Models\OrderGoodsPayment;
 use App\Models\SubOrderPayment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Mockery\Exception;
@@ -102,7 +103,7 @@ class MainOrderPaymentsController extends Controller
             $mainOrders = $mainOrders->doesntHave('mainOrderPayment');
         }
 
-        if ($condition && '' != $request->status) {
+        if ($condition) {
             $mainOrders = $mainOrders->whereHas('mainOrderPayment', function ($query) use ($condition) {
                 $query->where($condition);
             });
@@ -113,7 +114,7 @@ class MainOrderPaymentsController extends Controller
             $where['pay_sn'] = $paySn;
         }
         if ($request->add_time && 'null' != $request->add_time[0]) {
-            $mainOrders = $mainOrders->whereBetween('add_time', $this->getRequestAddTime());
+            $mainOrders = $mainOrders->whereBetween('main_order.add_time', $this->getRequestAddTime());
         }
         $mainOrders = $mainOrders->with(['mainOrderPayment', 'mainOrderPayment.jkDriver', 'mainOrderPayment.jzAdmin'])
             ->where($where)->orderBy($sortBy, $sortOrder)->paginate($request->per_page)->toArray();

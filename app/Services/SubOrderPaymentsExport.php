@@ -8,6 +8,7 @@ use App\Models\SubOrderPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
+use Mockery\Exception;
 
 class SubOrderPaymentsExport
 {
@@ -35,11 +36,10 @@ class SubOrderPaymentsExport
         if (isset($params['status']) && in_array($params['status'], [0, 1])) {
             $condition['status'] = $params['status'];
         }
-
-        if (!empty($params['add_time']) && 'null' != $params['add_time'][0]) {
-            $this->mainOrderPayment = $this->subOrderPayment->whereBetween('add_time', [
-                strtotime($params['add_time'][0]),
-                strtotime($params['add_time'][1])
+        if (!empty($params['add_time_start'])) {
+            $this->subOrderPayment = $this->subOrderPayment->whereBetween('main_order_payments.add_time', [
+                strtotime($params['add_time_start']),
+                strtotime($params['add_time_end']),
             ]);
         }
 
@@ -50,7 +50,9 @@ class SubOrderPaymentsExport
     {
         $data = $this->subOrderPayment->leftJoin('main_order_payments', 'sub_order_payments.pay_id', '=', 'main_order_payments.pay_id')
             ->select(['main_order_payments.*', 'sub_order_payments.*'])->where($condition)->orderByDesc('main_order_payments.pay_id');
-
+        if ($data->count() <1) {
+            throw new Exception('导出数据为空');
+        }
         return Excel::create($this->getFileName(), function ($excel) use ($data) {
             $data->chunk(5000, function ($items) use ($excel) {
                 $collection = $this->transformCollection($items);
@@ -170,6 +172,6 @@ class SubOrderPaymentsExport
      */
     private function getFileName()
     {
-        return '收款登记表' . Carbon::now();
+        return '收款登记表-子订单' . Carbon::now();
     }
 }

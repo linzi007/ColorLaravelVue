@@ -334,9 +334,9 @@
         console.log(response);
         showMsg(response);
         const data = response.data;
-        if(! response.status) {
+        if (!response.status) {
           // 跳转下载错误表格
-          window.location.href = this.baseURL + '/download-excel' + '?' + 'path=' + data.path + '&name=' + data.name
+          window.location.href = this.baseURL + '/download-excel?path=' + data.path + '&name=' + data.name
         }
       },
       handleExport() {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -21,10 +22,15 @@ class Controller extends BaseController
         return response(['status' => 0, 'msg' => $msg, 'data' => $data]);
     }
 
-    public function getRequestAddTime()
+    public function getRequestAddTime($timeStamp = true)
     {
-        $timeStart = strtotime(request()->add_time[0]);
-        $timeEnd = strtotime(request()->add_time[1]);
+        if ($timeStamp) {
+            $timeStart = Carbon::parse(request()->add_time[0])->timestamp;
+            $timeEnd = Carbon::parse(request()->add_time[1])->timestamp;
+        } else {
+            $timeStart = Carbon::parse(request()->add_time[0])->toDateTimeString();
+            $timeEnd = Carbon::parse(request()->add_time[1])->toDateTimeString();
+        }
 
         return [$timeStart, $timeEnd];
     }

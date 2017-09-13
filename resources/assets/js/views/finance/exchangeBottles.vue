@@ -81,7 +81,7 @@
 
 <script>
   import { fetchList } from 'api/restfull';
-  import { pickerOptions, initDateMothRange, param } from 'utils/index'
+  import { pickerOptions, initDateMothRange, param, parseTime } from 'utils/index'
   import SelectStore from 'components/Selector/SelectStore';
 
   export default {
@@ -151,7 +151,13 @@
         this.dialogUploadVisible = true;
       }, // 导出
       handleExport() {
-        const query = param(this.listQuery)
+        const params = this.listQuery
+        if (params.created_at) {
+          params.created_at_start = parseTime(params.created_at[0])
+          params.created_at_end = parseTime(params.created_at[1])
+          params.created_at = null
+        }
+        const query = param(params)
         window.location.href = '/export/exchange_bottles?' + query;
       }, // 数据保存
       handleSizeChange(val) {

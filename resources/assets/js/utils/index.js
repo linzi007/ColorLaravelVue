@@ -35,6 +35,12 @@
    return time_str;
  }
 
+ export function parseTimeRange(time) {
+   const start = parseTime(time[0])
+   const end = parseTime(time[1])
+   return [start, end]
+ }
+
  export function formatTime(time, option) {
    time = +time * 1000;
    const d = new Date(time);

@@ -41,10 +41,10 @@ class OrderGoodsPaymentsExport
             $condition['status'] = $params['status'];
         }
 
-        if (!empty($params['add_time']) && 'null' != $params['add_time'][0]) {
+        if (!empty($params['add_time_start'])) {
             $this->orderGoodsPayment = $this->orderGoodsPayment->whereBetween('add_time', [
-                strtotime($params['add_time'][0]),
-                strtotime($params['add_time'][1])
+                strtotime($params['add_time_start']),
+                strtotime($params['add_time_end']),
             ]);
         }
 
