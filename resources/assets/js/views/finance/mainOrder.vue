@@ -155,7 +155,8 @@
     </div>
 
     <el-dialog title="收款登记" size="large" top="5%" class="dialog" ref="mainOrderDialog" :visible.sync="dialogFormVisible">
-      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts" @pre="handlePreOne" @next="handleNextOne" @handleCancel="handleCancel"></mainOrderDetail>
+      <mainOrderDetail :mainOrder="formData" :inputStaus="dialogFormStauts" @pre="handlePreOne" @next="handleNextOne"
+                       @handleCancel="handleCancel" @handleRefreshDetail="handleRefreshDetail"></mainOrderDetail>
     </el-dialog>
   </div>
 </template>
@@ -225,6 +226,13 @@
         })
       }, // 详情
       getDetail(pay_id) {
+        if (!pay_id) {
+          this.$message({
+            message: '订单支付ID不存在，请选择其他订单',
+            type: 'error'
+          });
+          return false
+        }
         const loadingInstance = Loading.service();
         fetchList(this.listQuery, this.baseURL + '/' + pay_id).then(response => {
           this.dialogFormVisible = true;
@@ -332,6 +340,9 @@
       }, // 取消
       handleCancel() {
         this.dialogFormVisible = false;
+      }, //更新信息
+      handleRefreshDetail(pay_id) {
+        this.getDetail(pay_id)
       },
       handlePreOne() {
         const index = this.currentEditIndex - 1;

@@ -25,7 +25,7 @@ if (!function_exists('getSql')) {
 
 function currentUserId()
 {
-    return Auth::user()->id;
+    return auth()->id();
 }
 
 /**

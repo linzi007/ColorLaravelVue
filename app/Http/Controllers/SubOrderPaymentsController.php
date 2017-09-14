@@ -21,7 +21,7 @@ class SubOrderPaymentsController extends Controller
     private $order;
 
     const FIELDS = [
-        'sub_order_payments.*'
+        'sub_order_payments.*', 'order.order_sn', 'order.order_id'
         , 'order.pay_id', 'order.pay_sn', 'order.store_id', 'order.add_time', 'order.goods_amount'
         , 'order.promotion_amount', 'order.pd_amount', 'order.order_amount'
         , 'order.share_union_promotion as union_promotion', 'order.share_site_promotion as site_promotion'
@@ -102,6 +102,7 @@ class SubOrderPaymentsController extends Controller
             if (!empty($item['jzr'])) {
                 $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
             }
+            $item['store']['store_name'] = empty($item['store']) ? $item['store_id'] : $item['store']['store_name'];
             $item['add_time'] = date('Y-m-d H:i:s', $item['add_time']);
             $subOrderPayments['data'][$key] = $item;
         }

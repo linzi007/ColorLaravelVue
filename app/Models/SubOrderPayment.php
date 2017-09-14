@@ -66,6 +66,6 @@ class SubOrderPayment extends Model
 
     public function setAddTimeAttribute($value)
     {
-        return strtotime($value);
+        return $this->attributes['add_time'] = strtotime($value);
     }
 }

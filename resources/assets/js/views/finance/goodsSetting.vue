@@ -160,7 +160,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelForm('formData')">取 消</el-button>
+        <el-button @click="cancelForm('dialogForm')">取 消</el-button>
         <el-button type="primary" @click="handleUpdate()">确 定</el-button>
       </div>
     </el-dialog>

@@ -29,7 +29,7 @@ class AdminsController extends Controller
 
     public function list()
     {
-        return $this->admin->select('admin_id', 'admin_name')->get();
+        return $this->admin->getCache();
 	}
 
     public function show(Admin $admin)

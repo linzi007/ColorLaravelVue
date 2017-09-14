@@ -3,14 +3,7 @@
 //home
 Route::get('/', 'HomeController@index')->name('welcome');
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/user/info', function () {
-    if ($user = Auth::user()) {
-        $user = $user->toArray();
-        $user['role'] = ['admin'];
-        $user['avatar'] = 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif';
-    }
-    return $user;
-});
+Route::get('/user/info', 'HomeController@userInfo');
 
 Auth::routes();
 //司机信息

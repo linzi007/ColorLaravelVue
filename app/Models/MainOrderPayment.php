@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 
 class MainOrderPayment extends Model
 {
     protected $fillable = [
         'pay_id', 'pay_sn', 'add_time', 'quehuo', 'jushou', 'qiandan', 'ziti', 'qita',
-        'weicha', 'desc_remark', 'pos', 'weixin', 'alipay',
+        'weicha', 'desc_remark', 'pos', 'weixin', 'alipay', 'jlr', 'jzr',
         'yizhifu', 'out_pay_sn', 'cash', 'delivery_fee',
         'driver_fee', 'second_driver_id', 'jk_driver_id', 'updater',
         'shifa', 'yingshou', 'shishou', 'jk_at', 'ck_at', 'remark'
@@ -37,6 +38,7 @@ class MainOrderPayment extends Model
         'alipay'  => 'float',
         'yizhifu' => 'float',
         'cash'    => 'float',
+        'add_time'    => 'int',
     ];
 
     /**
@@ -114,7 +116,8 @@ class MainOrderPayment extends Model
         $orderGoodsPayments = app(\App\Models\OrderGoods::class)->with('payments')->where('pay_id', $payId)->get()->pluck('payments');
         $deliveryFee = $orderGoodsPayments->sum('delivery_fee');
         $driverFee = $orderGoodsPayments->sum('driver_fee');
-        $result = $this->where('pay_id', $payId)->update(['delivery_fee' => $deliveryFee, 'driver_fee' => $driverFee]);
+
+        $result = $this->where('pay_id', $payId)->update(['delivery_fee' => $deliveryFee, 'driver_fee' => $driverFee,  'updater' => currentUserId()]);
         if ($result === false) {
             throw new Exception('更新主单配送费失败!' . $payId);
         }
@@ -128,6 +131,6 @@ class MainOrderPayment extends Model
 
     public function setAddTimeAttribute($value)
     {
-        return strtotime($value);
+        return $this->attributes['add_time'] = strtotime($value);
     }
 }

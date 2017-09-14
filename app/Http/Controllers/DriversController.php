@@ -40,9 +40,7 @@ class DriversController extends Controller
 
     public function list(Request $request)
     {
-        $name = $request->get('name');
-        $drivers = $this->driver->select(['id', 'name'])->where('name', 'like', $name . '%')
-            ->orderBy('id', 'desc')->get();
+        $drivers = $this->driver->getCache();
         return response($drivers);
     }
 
@@ -54,14 +52,14 @@ class DriversController extends Controller
 	public function store(DriverRequest $request)
 	{
 		$driver = $this->driver->create($request->all());
-
+        $this->driver->clearCache();
         return response(['id'=>$driver->id, 'message'=>'Created successfully.']);
 	}
 
 	public function update(DriverRequest $request, Driver $driver)
 	{
 		$driver->update($request->all());
-
+        $this->driver->clearCache();
         return response(['id'=>$driver->id, 'message'=>'Updated successfully.']);
 	}
 
@@ -69,7 +67,7 @@ class DriversController extends Controller
 	{
 		$this->authorize('destroy', $driver);
 		$driver->delete();
-
+        $this->driver->clearCache();
         response(['message' => 'Deleted successfully.']);
 	}
 

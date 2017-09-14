@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Imports;
 
 use App\Http\Controllers\Exports\GoodsSettingExport;
 use App\Http\Controllers\Traits\ExcelTrait;
+use App\Jobs\RemoveExportExcelFiles;
 use App\Models\Goods;
 use App\Models\GoodsSetting;
 use Carbon\Carbon;
@@ -91,6 +92,10 @@ class GoodsSettingImport extends ExcelFile
 
         if (count($importData)) {
             $data = $this->doExport($importData);
+            //定时删除任务，10分钟后删除文件
+            $filePath = $data['path'];
+            RemoveExportExcelFiles::dispatch($filePath)->delay(Carbon::now()->addMinutes(10));
+
             return ['status' => false, 'data' => $data];
         }
 

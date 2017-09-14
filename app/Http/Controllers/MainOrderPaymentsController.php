@@ -143,6 +143,11 @@ class MainOrderPaymentsController extends Controller
         $orderGoods = $this->orderGoods->with('payments')
             ->where('pay_id', $pay_id)->get();
         $mainOrder['goods_list'] = $orderGoods;
+        $admins = App(\App\Models\Admin::class)->getKeyMap();
+        $mainOrder['jlr'] = empty($admins[$mainOrder['jlr']]) ?: $admins[$mainOrder['jlr']];
+        $mainOrder['updater'] = empty($admins[$mainOrder['updater']]) ?: $admins[$mainOrder['updater']];
+        $mainOrder['jzr'] = empty($admins[$mainOrder['jzr']]) ?: $admins[$mainOrder['jzr']];
+
         return response()->json($mainOrder);
     }
 
@@ -233,6 +238,7 @@ class MainOrderPaymentsController extends Controller
                 $goodsPayment['order_sn'] = $storeOrderMap[$goods['store_id']]['order_sn'];
 
                 $goodsPayment['id'] = $goods['rec_id'];
+                $goodsPayment['pay_id'] = $mainOrder['pay_id'];
                 $insertData[] = $goodsPayment;
             }
             //增加部分后面需要用的数据
@@ -266,6 +272,9 @@ class MainOrderPaymentsController extends Controller
      */
     private function calculateMainOrder($mainOrder, $orderGoodsPayments)
     {
+        if (empty($mainOrder['jk_at'])) {
+            $mainOrder['jk_at'] = date('Y-m-d H:i:s');
+        }
         $payments = [
             'pay_id'           => $mainOrder['pay_id'],
             'pay_sn'           => $mainOrder['pay_sn'],
@@ -343,7 +352,6 @@ class MainOrderPaymentsController extends Controller
             + $mainOrder['alipay'] + $mainOrder['yizhifu'] + $mainOrder['cash'];
     }
 
-    // @TODO 计算子单的金额及保存
     private function calculateSubOrder(MainOrderPayment $mainOrderPayments)
     {
         $orderGoods = $this->orderGoods->with('payments')
@@ -359,7 +367,7 @@ class MainOrderPaymentsController extends Controller
         $orderPaymentDefault = [
             'pay_id'       => $mainOrderPayments['pay_id'],
             'pay_sn'       => $mainOrderPayments['pay_sn'],
-            'add_time'     => $mainOrderPayments['add_time'],
+            'add_time'     => strtotime($mainOrderPayments['add_time']),
             'desc_remark'  => $mainOrderPayments['desc_remark'],
             'quehuo' => 0,
             'jushou' => 0,
@@ -499,7 +507,6 @@ class MainOrderPaymentsController extends Controller
 
     public function export(Request $request)
     {
-        $result = app(\App\Services\MainOrderPaymentsExport::class)->excel($request->toArray());
-        dd($result);
+        return app(\App\Services\MainOrderPaymentsExport::class)->excel($request->toArray());
     }
 }

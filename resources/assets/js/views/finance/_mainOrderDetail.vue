@@ -238,14 +238,14 @@
       <el-col :span="12">
         <el-form-item label="货物配送费：">
           <el-input placeholder="货物配送费" :disabled="true" v-model="orderPayments.delivery_fee">
-            <el-button slot="append" @click="handleReCalculate()">重算</el-button>
+            <el-button slot="append" @click="handleReCalculate()" :loading="recalculateLoading">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="司机配送费：">
           <el-input placeholder="司机配送费" :disabled="true" v-model="orderPayments.driver_fee">
-            <el-button slot="append" @click="handleReCalculate()">重算</el-button>
+            <el-button slot="append" @click="handleReCalculate()" :loading="recalculateLoading">重算</el-button>
           </el-input>
         </el-form-item>
       </el-col>
@@ -310,10 +310,12 @@
         <el-button @click="handleCancel">取 消</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button v-if="orderPayments.status != 1" type="primary" @click="handleSaveAndCancel">保存并退出</el-button>
+        <el-button v-if="orderPayments.status != 1" :loading="saveLoading"
+                   type="primary" @click="handleSaveAndCancel">保存并退出</el-button>
       </el-col>
       <el-col :span="6">
-        <el-button v-if="orderPayments.status != 1" type="primary" @click="handleSave">保 存</el-button>
+        <el-button v-if="orderPayments.status != 1" :loading="saveLoading"
+                   type="primary" @click="handleSave(0)">保 存</el-button>
       </el-col>
     </el-row>
   </el-form>
@@ -347,6 +349,7 @@ export default {
     };
     return {
       selectFirstDriver: false,
+      saveLoading: false,
       saveExchangeLoading: false,
       recalculateLoading: false,
       storeOptions: [],
@@ -488,16 +491,23 @@ export default {
         showMsg(response.data)
       })
     },
-    handleSave() {
+    handleSave(isClose) {
       this.$refs.orderMainForm.validate(valid => {
         if (valid) {
+          this.saveLoading = true;
           fetchCreate(this.orderPayments, '/main_order_payments').then(response => {
+            this.saveLoading = false;
             if (!response.data.status) {
               this.$message({
                 message: response.data.msg,
                 type: 'error'
               });
               return false;
+            }
+            if (isClose > 0) {
+              this.$emit('handleCancel')
+            } else {
+              this.$emit('handleRefreshDetail', this.orderPayments.pay_id);
             }
             this.$notify({
               title: '更新成功',
@@ -515,8 +525,7 @@ export default {
       this.$emit('handleCancel');
     }, // 保存并关闭
     handleSaveAndCancel() {
-      this.handleSave();
-      this.handleCancel();
+      this.handleSave(1);
     },
     toogleGoodsList() {
       this.goodsListVisible = !this.goodsListVisible;

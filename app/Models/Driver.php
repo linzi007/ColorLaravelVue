@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\Cache;
+
 class Driver extends Model
 {
     protected $fillable = ['name', 'code', 'mobile', 'description', 'created_at', 'updated_at'];
@@ -21,16 +23,21 @@ class Driver extends Model
         return $this->hasMany(\App\Models\MainOrderPayment::class, 'driver_id');
     }
 
-    public function list($request)
+    public function getCache()
     {
-        return Cache::remember('drivers', 60*6, function () use ($request) {
-            $stores = app(\App\Models\Store::class)->whereIn('store_state', [0, 1])
-                ->orderBy('store_state', 'desc');
-            if($request->get('name')){
-                $stores->where('store_name', 'like', '%' . $request->get('name') . '%');
-            }
-            return $stores->get();
+        return Cache::remember($this->getCacheKey(), 60*6, function () {
+            return app(\App\Models\Driver::class)->orderBy('id', 'desc')->get();
         });
+    }
+
+    public function clearCache()
+    {
+        Cache::forget($this->getCacheKey);
+    }
+
+    public function getCacheKey()
+    {
+        return 'drivers';
     }
 
 }

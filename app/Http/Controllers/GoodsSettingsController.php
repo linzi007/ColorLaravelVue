@@ -54,11 +54,11 @@ class GoodsSettingsController extends Controller
         if ($request->store_id) {
             $where['goods.store_id'] = $request->store_id;
         }
-        if ($request->has('shipping_charging_type')) {
+        if ($request->filled('shipping_charging_type')) {
             $where['goods_settings.shipping_charging_type'] = $request->shipping_charging_type;
         }
         if ($request->goods_name) {
-            $where['goods.goods_name'] = ['like', $request->goods_name.'%'];
+            $where[] = ['goods.goods_name', 'rlike', $request->goods_name];
         }
         if ($request->goods_serial) {
             $where['goods.goods_serial'] = $request->goods_serial;
@@ -68,7 +68,6 @@ class GoodsSettingsController extends Controller
         }
         $stores = app(\App\Models\Store::class)->getStoreCache();
         $stores = array_column($stores, 'store_name', 'store_id');
-
         $goodsSettings = $this->goods->list($where)->orderBy($sortBy, $sortOrder)->paginate($request->per_page)->toArray();
         foreach ($goodsSettings['data'] as $key => $payment) {
             $payment['store_name'] = empty($stores[$payment['store_id']]) ? $payment['store_id'] : $stores[$payment['store_id']];
