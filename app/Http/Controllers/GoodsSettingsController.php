@@ -82,10 +82,10 @@ class GoodsSettingsController extends Controller
         if ($request->store_id) {
             $where['store_id'] = $request->store_id;
         }
-        if ($request->has('shipping_charging_type')) {
+        if ($request->filled('shipping_charging_type')) {
             $where['shipping_charging_type'] = $request->shipping_charging_type;
         }
-        if ($request->has(['goods_name', 'goods_serial'])) {
+        if ($request->filled(['goods_name', 'goods_serial'])) {
             if ($request->goods_name) {
                 $condition['goods_name'] = ['like', $request->goods_name];
             }

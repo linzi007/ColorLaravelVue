@@ -55,10 +55,10 @@ class SubOrderPaymentsController extends Controller
         if (isset($request->status) && in_array($request->status, [0, 1])) {
             $where['main_order_payments.status'] = $request->status;
         }
-        if ($request->has('jk_driver_id')) {
+        if ($request->filled('jk_driver_id')) {
             $where['main_order_payments.jk_driver_id'] = $request->jk_driver_id;
         }
-        if ($request->has('jzr')) {
+        if ($request->filled('jzr')) {
             $where['main_order_payments.jzr'] = $request->jzr;
         }
         $subOrderPayments = $this->order

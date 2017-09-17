@@ -33,7 +33,7 @@ class LoginController extends ApiController
         }
 
         $credentials = $this->credentials($request);
-        if (app('auth')->guard('api')->attempt($credentials, $request->has('remember'))) {
+        if (app('auth')->guard('api')->attempt($credentials, $request->filled('remember'))) {
             return $this->sendLoginResponse($request);
         }
 

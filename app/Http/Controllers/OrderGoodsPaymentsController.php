@@ -37,31 +37,31 @@ class OrderGoodsPaymentsController extends Controller
 	public function index(Request $request)
 	{
         $where = [];
-        if ($request->has('add_time')&& 'null' != $request->add_time[0]) {
+        if ($request->filled('add_time')&& 'null' != $request->add_time[0]) {
             $this->orderGoodsPayment = $this->orderGoodsPayment->whereBetween('main_order_payments.add_time', $this->getRequestAddTime());
         }
 
-        if ($request->has('store_id')) {
+        if ($request->filled('store_id')) {
             $where['order_goods_payments.store_id'] = $request->store_id;
         }
 
-        if ($request->has('pay_sn')) {
+        if ($request->filled('pay_sn')) {
             $where['main_order_payments.pay_sn'] = $request->pay_sn;
         }
 
-        if ($request->has('status') && in_array($request->status, [0, 1])) {
+        if ($request->filled('status') && in_array($request->status, [0, 1])) {
             $where['main_order_payments.status'] = $request->status;
         }
 
-        if ($request->has('jk_driver_id')) {
+        if ($request->filled('jk_driver_id')) {
             $where['main_order_payments.jk_driver_id'] = $request->jk_driver_id;
         }
 
-        if ($request->has('jzr')) {
+        if ($request->filled('jzr')) {
             $where['main_order_payments.jzr'] = $request->jzr;
         }
 
-        if ($request->has('is_second_delivery')) {
+        if ($request->filled('is_second_delivery')) {
             if (1 == $request->is_second_delivery) {
                 $where['main_order_payments.jk_driver_id'] = ['gt', 0];
             } else {

@@ -80,7 +80,7 @@
       </el-table-column>
       <el-table-column label="子订单号" width="200">
         <template scope="scope">
-          <span class="table-col-text">{{scope.row.pay_sn}}</span>
+          <span class="table-col-text">{{scope.row.order_sn}}</span>
         </template>
       </el-table-column>
       <el-table-column label="订单时间" width="180">

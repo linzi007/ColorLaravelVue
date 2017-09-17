@@ -24,14 +24,14 @@ class ExchangeBottlesController extends Controller
 	public function index(Request $request)
 	{
         $where = [];
-        if ($request->has('pay_sn')) {
+        if ($request->filled('pay_sn')) {
             $where['pay_sn'] = $request->pay_sn;
         }
-        if ($request->has('store_id')) {
+        if ($request->filled('store_id')) {
             $where['store_id'] = $request->store_id;
         }
 
-        if ($request->has('created_at') && 'null' != $request->created_at[0]) {
+        if ($request->filled('created_at') && 'null' != $request->created_at[0]) {
             $startAt = Carbon::parse($request->created_at[0])->toDateTimeString();
             $endAt = Carbon::parse($request->created_at[1])->toDateTimeString();
             $this->exchangeBottle = $this->exchangeBottle->whereBetween('created_at', [$startAt, $endAt]);
@@ -58,7 +58,7 @@ class ExchangeBottlesController extends Controller
 
 	public function store(ExchangeBottleRequest $request)
 	{
-        if ($request->has('is_checked')){
+        if ($request->filled('is_checked')){
             $adminId = auth()->id();
             $attributes = [
                 'store_id'  => $request->store_id,
