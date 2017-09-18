@@ -147,6 +147,7 @@ class MainOrderPaymentsController extends Controller
         $mainOrder['jlr'] = empty($admins[$mainOrder['jlr']]) ?: $admins[$mainOrder['jlr']];
         $mainOrder['updater'] = empty($admins[$mainOrder['updater']]) ?: $admins[$mainOrder['updater']];
         $mainOrder['jzr'] = empty($admins[$mainOrder['jzr']]) ?: $admins[$mainOrder['jzr']];
+        $mainOrder['promotion_amount'] = $mainOrder['site_promotion'] + $mainOrder['union_promotion'];
 
         return response()->json($mainOrder);
     }
@@ -382,7 +383,7 @@ class MainOrderPaymentsController extends Controller
                 $orderPayment['jushou'] += $goods['goods_price'] * $goodsPayment['jushou_number'];
                 $orderPayment['shifa'] += $goodsPayment['shifa_amount'];
             }
-            $orderPayment['percent'] = round($orderPayment['shifa']/$mainOrderPayments['shifa'], 4) * 100;
+            $orderPayment['percent'] = round($orderPayment['shifa']/$mainOrderPayments['shifa'], 2) * 100;
             $orderPayment['store_id'] = $storeId;
 
             $orderPayments[$storeId] = $orderPayment;

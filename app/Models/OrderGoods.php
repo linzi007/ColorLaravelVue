@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+
 class OrderGoods extends Model
 {
     protected $table = 'order_goods';

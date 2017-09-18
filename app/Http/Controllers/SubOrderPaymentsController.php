@@ -21,7 +21,7 @@ class SubOrderPaymentsController extends Controller
     private $order;
 
     const FIELDS = [
-        'sub_order_payments.*', 'order.order_sn', 'order.order_id'
+        'order.order_sn', 'order.order_id'
         , 'order.pay_id', 'order.pay_sn', 'order.store_id', 'order.add_time', 'order.goods_amount'
         , 'order.promotion_amount', 'order.pd_amount', 'order.order_amount'
         , 'order.share_union_promotion as union_promotion', 'order.share_site_promotion as site_promotion'
@@ -40,11 +40,14 @@ class SubOrderPaymentsController extends Controller
 	public function index(Request $request)
 	{
         $where = $this->getWhere();
-        if ($request->add_time && 'null' != $request->add_time[0]) {
+        if ($request->filled('add_time') && 'null' != $request->add_time[0]) {
             $this->order = $this->order->whereBetween('order.add_time', $this->getRequestAddTime());
         }
-        if ($paySn = $request->pay_sn) {
+        if ($paySn = $request->filled('pay_sn')) {
             $where['order.pay_sn'] = $paySn;
+        }
+        if ($request->filled('store_id')) {
+            $where['order.store_id'] = $request->store_id;
         }
         if ($orderSn = $request->order_sn) {
             $where['order.order_sn'] = $orderSn;
@@ -63,8 +66,8 @@ class SubOrderPaymentsController extends Controller
         }
         $subOrderPayments = $this->order
             ->leftJoin('main_order_payments', 'order.pay_id', '=', 'main_order_payments.pay_id')
-            ->leftJoin('sub_order_payments', 'order.pay_id', '=', 'sub_order_payments.pay_id')
-            ->where($where)->orderBy('sub_order_payments.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS);
+            ->with(['subOrderPayment'])
+            ->where($where)->orderBy('order.pay_id', 'desc')->paginate(request()->per_page, self::FIELDS);
         $subOrderPayments->load(['store' => function($query) {
             $query->select('store_id', 'store_name');
         }]);
@@ -103,7 +106,10 @@ class SubOrderPaymentsController extends Controller
                 $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
             }
             $item['store']['store_name'] = empty($item['store']) ? $item['store_id'] : $item['store']['store_name'];
-            $item['add_time'] = date('Y-m-d H:i:s', $item['add_time']);
+            if (!empty($item['sub_order_payment'])) {
+                $item = array_merge($item['sub_order_payment'], $item);
+                unset($item['sub_order_payment']);
+            }
             $subOrderPayments['data'][$key] = $item;
         }
         return response($subOrderPayments);

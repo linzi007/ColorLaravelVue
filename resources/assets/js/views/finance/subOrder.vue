@@ -22,6 +22,16 @@
                 placeholder="选择时间范围"
                 :picker-options="addTimePickerOption">
         </el-date-picker>
+        <span class="demonstration">档口</span>
+        <el-select v-model="listQuery.store_id" filterable placeholder="请输入档口">
+          <el-option label="全部" value=""></el-option>
+          <el-option
+            v-for="item in storeOptions"
+            :key="item.store_id"
+            :label="item.store_name"
+            :value="item.store_id">
+          </el-option>
+        </el-select>
         <span class="demonstration">子订单号</span>
         <el-input placeholder="子订单号" v-model="listQuery.order_sn" style="width:200px"></el-input>
         <el-button class="filter-item" type="primary" icon="search"
@@ -177,6 +187,7 @@
         sortOrder: 'descending',
         baseURL: '/sub_order_payments',
         selectedRows: [],
+        storeOptions: [],
         adminOptions: [],
         listQuery: {
           page: 1,
@@ -186,6 +197,7 @@
           order_sn: undefined,
           status: undefined,
           jk_driver_jd: undefined,
+          store_id: undefined,
           jzr: undefined
         },
         statusMap: [
@@ -209,6 +221,7 @@
       this.getList();
       this.listQuery.add_time = initDateMothRange()
       this.getAdminOptions()
+      this.getStoreOptions()
     },
     computed: {
     },
@@ -292,7 +305,7 @@
       queryChangeJkr(val) {
         this.listQuery.jk_driver_id = val
       },
-      tableRowClassName(row, index) {
+      tableRowClassName(row) {
         if (row.status === 1) {
           return 'info-row';
         }
@@ -303,6 +316,11 @@
       getAdminOptions() {
         fetchList({}, '/admins_list').then(response => {
           this.adminOptions = response.data;
+        })
+      },
+      getStoreOptions() {
+        fetchList({}, '/stores').then(response => {
+          this.storeOptions = response.data;
         })
       }
     }

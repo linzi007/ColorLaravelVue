@@ -16,8 +16,7 @@ class SubOrderPayment extends Model
 
     protected $dates = [
         'created_at',
-        'updated_at',
-        'add_time'
+        'updated_at'
     ];
     /**
      * sub order

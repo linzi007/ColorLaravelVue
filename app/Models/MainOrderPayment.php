@@ -17,14 +17,13 @@ class MainOrderPayment extends Model
     ];
 
     // 日期字段
-    /*protected $dates = [
+    protected $dates = [
         'created_at',
         'updated_at',
         'jk_at',
         'ck_at',
         'jz_at',
-        'add_time'
-    ];*/
+    ];
 
     protected $casts = [
         'quehuo'  => 'float',

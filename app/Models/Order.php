@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+
 class Order extends Model
 {
     protected $table = 'order';
@@ -37,6 +39,22 @@ class Order extends Model
     {
         return $this->hasMany(\App\Models\OrderGoods::class, 'order_id', 'order_id');
     }
+
+    /**
+     * subOrderPayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function subOrderPayment()
+    {
+        return $this->hasOne(\App\Models\SubOrderPayment::class, 'order_id', 'order_id');
+    }
+
+    public function getAddTimeAttribute($value)
+    {
+        return Carbon::createFromTimestamp($value)->toDateTimeString();
+    }
+
 
 
 }

@@ -32,12 +32,12 @@ class OrderGoodsPayment extends Model
         $orderGoodsPayments = app(\App\Models\OrderGoods::class)->with('payments')->where('pay_id', $payId)->get()->pluck('payments');
         $result = app(\App\Models\GoodsSetting::class)->calculateMulti($orderGoodsPayments);
         if (false === $result['status']) {
-            throw new Exception('1111'.$result['msg']);
+            throw new Exception($result['msg']);
         }
         foreach ($result['data'] as $goodsPayment) {
             $result = $this->where('id', $goodsPayment['id'])->update($goodsPayment->toArray());
             if (false === $result['status']) {
-                throw new Exception('2222'.$result['msg']);
+                throw new Exception($result['msg']);
             }
         }
 

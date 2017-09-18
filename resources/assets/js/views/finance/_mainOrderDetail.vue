@@ -577,7 +577,7 @@ export default {
     },
     getYingshouAmount() {
       return this.orderPayments.shifa - this.orderPayments.qiandan - this.orderPayments.ziti
-       - this.orderPayments.weicha - this.orderPayments.qita
+       - this.orderPayments.weicha - this.orderPayments.qita - this.orderPayments.promotion_amount
     },
     getShifaAmount() {
       return this.orderPayments.goods_amount - this.orderPayments.jushou - this.orderPayments.quehuo

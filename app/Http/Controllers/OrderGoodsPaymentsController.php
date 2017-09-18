@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MainOrderPayment;
 use App\Models\OrderGoodsPayment;
+use Carbon\Carbon;
 use function GuzzleHttp\Promise\all;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -22,7 +23,8 @@ class OrderGoodsPaymentsController extends Controller
 
     const FIELDS = [
         'order_goods_payments.*'
-        , 'main_order_payments.jk_at', 'main_order_payments.out_pay_sn', 'main_order_payments.add_time', 'main_order_payments.pay_sn', 'main_order_payments.jk_at'
+        , 'main_order_payments.jk_at', 'main_order_payments.out_pay_sn', 'main_order_payments.add_time'
+        , 'main_order_payments.pay_sn', 'main_order_payments.jk_at'
         , 'main_order_payments.jk_driver_id', 'main_order_payments.remark', 'main_order_payments.status'
         , 'main_order_payments.jzr'
     ];
@@ -38,7 +40,7 @@ class OrderGoodsPaymentsController extends Controller
 	{
         $where = [];
         if ($request->filled('add_time')&& 'null' != $request->add_time[0]) {
-            $this->orderGoodsPayment = $this->orderGoodsPayment->whereBetween('main_order_payments.add_time', $this->getRequestAddTime());
+            $this->orderGoodsPayment = $this->orderGoodsPayment->whereBetween('main_order_payments.add_time', $this->getRequestAddTime(true));
         }
 
         if ($request->filled('store_id')) {
@@ -115,7 +117,7 @@ class OrderGoodsPaymentsController extends Controller
             if (!empty($item['jzr'])) {
                 $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
             }
-
+            $item['add_time'] = Carbon::createFromTimestamp($item['add_time'])->toDateTimeString();
             $orderGoodsPayments['data'][$key] = $item;
         }
 

@@ -41,15 +41,15 @@ class GoodsSetting extends Model
         $shippingFee = $driverFee = 0;
         $unPackFee = $goodsSetting['unpack_fee'] * $goodsPayment['shifa_number'];
         if (self::PAY_TYPE_NUMBER == $goodsSetting['shipping_charging_type']) {
-            $shippingFee = $goodsPayment['shifa_number'] * $goodsSetting['shipping_rate'];
+            $shippingFee = round($goodsPayment['shifa_number'] * $goodsSetting['shipping_rate'], 2);
         } else if(self::PAY_TYPE_PERCENT == $goodsSetting['shipping_charging_type']){
-            $shippingFee = $goodsPayment['shifa_amount'] * $goodsSetting['shipping_rate'];
+            $shippingFee = round($goodsPayment['shifa_amount'] * $goodsSetting['shipping_rate'], 2);
         }
 
         if (self::PAY_TYPE_NUMBER == $goodsSetting['driver_charging_type']) {
-            $driverFee = $goodsPayment['shifa_number'] * $goodsSetting['driver_rate'];
+            $driverFee = round($goodsPayment['shifa_number'] * $goodsSetting['driver_rate']);
         } else if(self::PAY_TYPE_PERCENT == $goodsSetting['driver_charging_type']){
-            $driverFee = $goodsPayment['shifa_amount'] * $goodsSetting['driver_rate'];
+            $driverFee = round($goodsPayment['shifa_amount'] * $goodsSetting['driver_rate']);
         }
 
         $goodsPayment['delivery_fee'] = $unPackFee + $shippingFee;
