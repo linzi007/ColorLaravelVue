@@ -44,12 +44,6 @@ class MainOrderPaymentsController extends Controller
      */
     private $subOrderPayment;
 
-    const FIELDS = [
-        'main_order_payments.*'
-        , 'main_order.pay_id', 'main_order.pay_sn', 'main_order.add_time', 'main_order.pay_amount'
-        , 'main_order.promotion_amount', 'main_order.pd_amount', 'main_order.goods_amount', 'main_order.order_amount'
-        , 'main_order.union_promotion', 'main_order.site_promotion',
-    ];
     /**
      * @var GoodsSetting
      */
@@ -126,8 +120,11 @@ class MainOrderPaymentsController extends Controller
                 unset($item['main_order_payment']);
                 unset($payment['jz_admin']);
                 unset($payment['jk_driver']);
+
                 $mainOrders['data'][$key] = array_merge($item, $payment);
             }
+            //处理优惠券金额
+            $mainOrders['data'][$key]['promotion_amount'] = $item['union_promotion'] + $item['site_promotion'];
         }
         return response()->json($mainOrders);
     }
@@ -166,7 +163,7 @@ class MainOrderPaymentsController extends Controller
         try {
             $orderGoodsPayments = $this->calculateOrderGoods($data, $data['id']);
             $mainOrderPayments = $this->calculateMainOrder($data, $orderGoodsPayments);
-            $this->calculateSubOrder($mainOrderPayments);
+            $this->subOrderPayment->splitSubOrder($mainOrderPayments);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
@@ -319,38 +316,14 @@ class MainOrderPaymentsController extends Controller
         $payments['delivery_fee'] = $delivery_fee;
         $payments['driver_fee'] = $driver_fee;
         //应收,实收
-        $payments['yingshou'] = $this->getYingshouAmount($payments);
-        $payments['shishou'] = $this->getShishou($mainOrder);
+        $payments['yingshou'] = $this->mainOrder->getYingshouAmount($payments);
+        $payments['shishou'] = $this->mainOrder->getShishouAmount($mainOrder);
         $mainOrderPayment = $this->mainOrderPayment->updateOrCreate(['pay_id' => $payments['pay_id']], $payments);
         if (!$mainOrderPayment) {
             throw new Exception('更新主收款登记簿失败');
         }
 
         return $mainOrderPayment;
-    }
-
-    /**
-     * 应收=实发金额-签单-自提-其他-尾差
-     *
-     * @param $mainOrder
-     * @return mixed
-     */
-    private function getYingshouAmount($mainOrder)
-    {
-        return $mainOrder['shifa'] - $mainOrder['qiandan']
-            - $mainOrder['ziti'] - $mainOrder['qita'] - $mainOrder['weicha'];
-    }
-
-    /**
-     * 实收=预存款+POS+微信+支付宝+现金
-     *
-     * @param $mainOrder
-     * @return mixed
-     */
-    private function getShishou($mainOrder)
-    {
-        return $mainOrder['pd_amount'] + $mainOrder['pos'] + $mainOrder['weixin']
-            + $mainOrder['alipay'] + $mainOrder['yizhifu'] + $mainOrder['cash'];
     }
 
     private function calculateSubOrder(MainOrderPayment $mainOrderPayments)
@@ -414,9 +387,9 @@ class MainOrderPaymentsController extends Controller
         //金额根据百分比分摊
         $storeOrderMap = $this->getStoreOrderMap($mainOrderPayments['pay_id']);
         foreach ($orderPayments as $storeId => $subPayments) {
-            $percentage = $subPayments['percent'] / 100;
+            $percentage = $subPayments['percent'];
             foreach ($subOrderDefault as $key => $value) {
-                $subPayments[$key] = round($value * $percentage, 4);
+                $subPayments[$key] = ($value * $percentage) / 100;
             }
             $condition = [
                 'pay_id'   => $subPayments['pay_id'],
@@ -491,7 +464,6 @@ class MainOrderPaymentsController extends Controller
         return $this->fail('记账失败');
     }
 
-    // @TODO 反记账
     public function fanjizhang(Request $request)
     {
         $payIds = $request->get('pay_ids');

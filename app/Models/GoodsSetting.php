@@ -47,9 +47,9 @@ class GoodsSetting extends Model
         }
 
         if (self::PAY_TYPE_NUMBER == $goodsSetting['driver_charging_type']) {
-            $driverFee = round($goodsPayment['shifa_number'] * $goodsSetting['driver_rate']);
+            $driverFee = round($goodsPayment['shifa_number'] * $goodsSetting['driver_rate'], 2);
         } else if(self::PAY_TYPE_PERCENT == $goodsSetting['driver_charging_type']){
-            $driverFee = round($goodsPayment['shifa_amount'] * $goodsSetting['driver_rate']);
+            $driverFee = round($goodsPayment['shifa_amount'] * $goodsSetting['driver_rate'], 2);
         }
 
         $goodsPayment['delivery_fee'] = $unPackFee + $shippingFee;
@@ -60,7 +60,6 @@ class GoodsSetting extends Model
         $goodsPayment['shipping_rate'] = $goodsSetting['shipping_rate'];
         $goodsPayment['unpack_fee'] = $goodsSetting['unpack_fee'];
         $goodsPayment['driver_charging_type'] = $goodsSetting['driver_charging_type'];
-        $goodsPayment['driver_rate'] = $goodsSetting['driver_rate'];
         $goodsPayment['driver_rate'] = $goodsSetting['driver_rate'];
 
         return $goodsPayment;

@@ -118,6 +118,7 @@ class OrderGoodsPaymentsController extends Controller
                 $item['jzr_name'] = empty($admins[$item['jzr']]) ? $item['jzr'] : $admins[$item['jzr']];
             }
             $item['add_time'] = Carbon::createFromTimestamp($item['add_time'])->toDateTimeString();
+            $item['goods_amount'] = $item['goods_num'] * $item['goods_price'];
             $orderGoodsPayments['data'][$key] = $item;
         }
 

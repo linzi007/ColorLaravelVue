@@ -39,25 +39,23 @@ class SubOrderPaymentsController extends Controller
 
 	public function index(Request $request)
 	{
-        $where = $this->getWhere();
+        $where = [];
         if ($request->filled('add_time') && 'null' != $request->add_time[0]) {
             $this->order = $this->order->whereBetween('order.add_time', $this->getRequestAddTime());
         }
-        if ($paySn = $request->filled('pay_sn')) {
-            $where['order.pay_sn'] = $paySn;
+        if ($request->filled('pay_sn')) {
+            $where['order.pay_sn'] = $request->pay_sn;
         }
         if ($request->filled('store_id')) {
             $where['order.store_id'] = $request->store_id;
         }
-        if ($orderSn = $request->order_sn) {
-            $where['order.order_sn'] = $orderSn;
+        if ($request->filled('order_sn')) {
+            $where['order.order_sn'] = $request->order_sn;
         }
         if (isset($request->status) && in_array($request->status, [0, 1])) {
             $where['main_order_payments.status'] = $request->status;
         }
-        if (isset($request->status) && in_array($request->status, [0, 1])) {
-            $where['main_order_payments.status'] = $request->status;
-        }
+
         if ($request->filled('jk_driver_id')) {
             $where['main_order_payments.jk_driver_id'] = $request->jk_driver_id;
         }
@@ -110,6 +108,7 @@ class SubOrderPaymentsController extends Controller
                 $item = array_merge($item['sub_order_payment'], $item);
                 unset($item['sub_order_payment']);
             }
+            $item['promotion_amount'] = $item['union_promotion'] + $item['site_promotion'];
             $subOrderPayments['data'][$key] = $item;
         }
         return response($subOrderPayments);

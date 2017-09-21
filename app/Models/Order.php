@@ -55,6 +55,21 @@ class Order extends Model
         return Carbon::createFromTimestamp($value)->toDateTimeString();
     }
 
+    public function getYingshouAmount($mainOrder)
+    {
+        return $mainOrder['shifa'] - $mainOrder['qiandan']
+            - $mainOrder['ziti'] - $mainOrder['qita'] - $mainOrder['weicha'] - $mainOrder['promotion_amount'];
+    }
 
-
+    /**
+     * 实收=预存款+POS+微信+支付宝+现金
+     *
+     * @param $mainOrder
+     * @return mixed
+     */
+    public function getShishou($mainOrder)
+    {
+        return $mainOrder['pd_amount'] + $mainOrder['pos'] + $mainOrder['weixin']
+            + $mainOrder['alipay'] + $mainOrder['yizhifu'] + $mainOrder['cash'];
+    }
 }

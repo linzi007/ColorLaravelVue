@@ -97,4 +97,34 @@ class MainOrder extends Model
     {
         return strtotime($value);
     }
+
+    /**
+     * 应收=实发金额-签单-自提-其他-尾差-优惠金额(代金券)
+     *
+     * @param $mainOrderPayment
+     * @return mixed
+     */
+    public function getYingshouAmount($mainOrderPayment)
+    {
+        $promotionAmount = 0;
+        $mainOrder = $this->select('pay_id', 'union_promotion', 'site_promotion', 'order_amount')->where('pay_id', $mainOrderPayment['pay_id'])->first();
+
+        if ($mainOrder) {
+            $promotionAmount = $mainOrder['union_promotion'] + $mainOrder['site_promotion'];
+        }
+        return $mainOrderPayment['shifa'] - $mainOrderPayment['qiandan']
+            - $mainOrderPayment['ziti'] - $mainOrderPayment['qita'] - $mainOrderPayment['weicha'] - $promotionAmount;
+    }
+
+    /**
+     * 实收=预存款+POS+微信+支付宝+现金
+     *
+     * @param $mainOrder
+     * @return mixed
+     */
+    public function getShishouAmount($mainOrder)
+    {
+        return $mainOrder['pd_amount'] + $mainOrder['pos'] + $mainOrder['weixin']
+            + $mainOrder['alipay'] + $mainOrder['yizhifu'] + $mainOrder['cash'];
+    }
 }

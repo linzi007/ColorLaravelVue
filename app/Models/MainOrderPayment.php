@@ -49,6 +49,28 @@ class MainOrderPayment extends Model
     }
 
     /**
+     * 子订单
+     * subOrders
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subOrders()
+    {
+        return $this->hasMany(\App\Models\Order::class, 'pay_id', 'pay_id');
+    }
+
+    /**
+     * 订单货品
+     * orderGoods
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orderGoods()
+    {
+        return $this->hasMany(\App\Models\OrderGoods::class, 'pay_id', 'pay_id');
+    }
+
+    /**
      * 子支付信息
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
