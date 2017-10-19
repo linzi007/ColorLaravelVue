@@ -163,7 +163,7 @@ class MainOrderPaymentsController extends Controller
         try {
             $orderGoodsPayments = $this->calculateOrderGoods($data, $data['id']);
             $mainOrderPayments = $this->calculateMainOrder($data, $orderGoodsPayments);
-            $this->subOrderPayment->splitSubOrder($mainOrderPayments);
+            $this->subOrderPayment->splitOrder($mainOrderPayments);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

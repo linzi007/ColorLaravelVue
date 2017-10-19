@@ -8,7 +8,7 @@ use Exception;
 
 class SubOrderPayment extends Model
 {
-
+    const FLOAT_NUMBER = 6;
     protected $fillable = [
         'order_id', 'order_sn', 'store_id', 'pay_id', 'pay_sn', 'add_time', 'desc_remark', 'desc_remark', 'quehuo', 'jushou', 'shifa', 'percent', 'store_id', 'qiandan', 'ziti', 'qita', 'weicha'
         , 'yingshou', 'pos', 'weixin', 'alipay', 'yizhifu', 'cash', 'shishou', 'delivery_fee', 'driver_fee'
@@ -158,6 +158,125 @@ class SubOrderPayment extends Model
                     + $orderPayment['alipay'] + $orderPayment['yizhifu'] + $orderPayment['cash'];
                 $orderPayment['yingshou'] = $orderPayment['shifa'] - $orderPayment['qiandan']
                     - $orderPayment['ziti'] - $orderPayment['qita'] - $promotionAmount;
+            }
+
+            $condition = [
+                'pay_id'   => $order['pay_id'],
+                'store_id' => $order['store_id'],
+            ];
+            $orderPayment['store_id'] = $order['store_id'];
+            $orderPayment['order_id'] = $order['order_id'];
+            $orderPayment['order_sn'] = $order['order_sn'];
+            //数据写入或则更新
+            $result = $this->updateOrInsert($condition, $orderPayment);
+            if ($result === false) {
+                throw new Exception('子单收款登记表更新失败!');
+            }
+        }
+    }
+
+    /*
+     * $mainOrderRemain = [
+            'goods_amount' => '计算',
+            'quehuo_amount' => '计算',
+            'jushou_amount' => '计算',
+            '实发金额' => 'goods_amount - quehuo_amount - jushou_amount',
+            '实发比例' => '子单实发金额/主单实发金额',
+            '签单金额' => '总签单金额' * '实发比例',
+            '自提金额' => '自提金额' * '实发比例',
+            '其他金额' => '其他金额' * '实发比例',
+            '尾差金额' => '尾差金额' * '实发比例',
+            '代金券' => '子单优惠金额',
+            '应收金额' => '实发金额' - '签单金额' - '自提金额' - '其他金额' - '尾差金额' - '代金券',
+            '应收金额比例' => '应收金额/主单应收金额',
+            '预存款' => '预存款' * '应收金额比例',
+            'POS刷卡' => 'POS刷卡' * '应收金额比例',
+            '微信' => '微信' * '应收金额比例',
+            '支付宝' => '支付宝' * '应收金额比例',
+            '翼支付' => '翼支付' * '应收金额比例',
+            '现金' => '现金' * '应收金额比例',
+            '实收金额' => '主单实收金额' * '应收金额比例',
+        ];*/
+    public function splitOrder(MainOrderPayment $mainOrderPayments)
+    {
+        $mainOrderPayments->load(['subOrders.orderGoods.payments']);
+        if (empty($subOrders = $mainOrderPayments['subOrders'])) {
+            throw new Exception('子订单不存在!');
+        }
+        //取得更新的数据
+        $orderPayments = [];
+        //子单相同的值
+        $orderPaymentDefault = [
+            'pay_id'       => $mainOrderPayments['pay_id'],
+            'pay_sn'       => $mainOrderPayments['pay_sn'],
+            'add_time'     => strtotime($mainOrderPayments['add_time']),
+            'desc_remark'  => $mainOrderPayments['desc_remark'],
+            'quehuo' => 0,
+            'jushou' => 0,
+            'shifa' => 0
+        ];
+
+        //剩余扣减金额
+        $mainOrderRemain = [
+            'percent'      => 100,
+            'qiandan'      => $mainOrderPayments['qiandan'],
+            'ziti'         => $mainOrderPayments['ziti'],
+            'qita'         => $mainOrderPayments['qita'],
+            'weicha'       => $mainOrderPayments['weicha'],
+            'pos'          => $mainOrderPayments['pos'],
+            'weixin'       => $mainOrderPayments['weixin'],
+            'alipay'       => $mainOrderPayments['alipay'],
+            'yizhifu'      => $mainOrderPayments['yizhifu'],
+            'cash'         => $mainOrderPayments['cash'],
+            'delivery_fee' => $mainOrderPayments['delivery_fee'],
+            'driver_fee'   => $mainOrderPayments['driver_fee'],
+        ];
+
+        //缺货,拒收,实发,百分比 需要根据实际发货计算
+        $subOrderCount = count($subOrders);
+        foreach ($subOrders as $key => $order) {
+            $orderPayment = $orderPaymentDefault;
+            if ($subOrderCount == 1) {
+                $orderPayment = array_merge($orderPayments, $mainOrderRemain);
+                $orderPayment['quehuo'] = $mainOrderPayments['quehuo'];
+                $orderPayment['jushou'] = $mainOrderPayments['jushou'];
+                $orderPayment['shifa'] = $mainOrderPayments['shifa'];
+                $orderPayment['shishou'] = $mainOrderPayments['shishou'];
+                $orderPayment['yingshou'] = $mainOrderPayments['yingshou'];
+            } else {
+                if ($goodsList = $order['orderGoods']) {
+                    foreach ($goodsList as $goods) {
+                        $goodsPayment = $goods['payments'];
+                        $orderPayment['quehuo'] += $goods['goods_price'] * $goodsPayment['quehuo_number'];
+                        $orderPayment['jushou'] += $goods['goods_price'] * $goodsPayment['jushou_number'];
+                        $orderPayment['shifa'] += $goodsPayment['shifa_amount'];
+                    }
+                }
+                //实发百分比
+                $shifaPercent = round($orderPayment['shifa'] / $mainOrderPayments['shifa'], self::FLOAT_NUMBER);
+                $orderPayment['qiandan'] = round($mainOrderPayments['qiandan'] * $shifaPercent, self::FLOAT_NUMBER);
+                $orderPayment['ziti'] = round($mainOrderPayments['ziti'] * $shifaPercent, self::FLOAT_NUMBER);
+                $orderPayment['qita'] = round($mainOrderPayments['qita'] * $shifaPercent, self::FLOAT_NUMBER);
+                $orderPayment['weicha'] = round($mainOrderPayments['weicha'] * $shifaPercent, self::FLOAT_NUMBER);
+                //配送费
+                $orderPayment['delivery_fee'] = round($mainOrderPayments['delivery_fee'] * $shifaPercent, self::FLOAT_NUMBER);
+                $orderPayment['driver_fee'] = round($mainOrderPayments['driver_fee'] * $shifaPercent, self::FLOAT_NUMBER);
+                //代金券金额
+                $promotionAmount = $order['share_site_promotion'] + $order['share_union_promotion'];
+                $orderPayment['yingshou'] = $orderPayment['shifa'] - $orderPayment['qiandan'] - $orderPayment['ziti']
+                    - $orderPayment['qita'] - $orderPayment['weicha'] - $promotionAmount;
+                //应收百分比
+                $yingshouPercent = round($orderPayment['yingshou'] / $mainOrderPayments['yingshou'], self::FLOAT_NUMBER);
+                //预存款金额
+                //$orderPayment['pd_amount'] = round($mainOrderPayments['pd_amount'] * $yingshouPercent, self::FLOAT_NUMBER);
+                $orderPayment['pos'] = round($mainOrderPayments['pos'] * $yingshouPercent, self::FLOAT_NUMBER);
+                $orderPayment['weixin'] = round($mainOrderPayments['weixin'] * $yingshouPercent, self::FLOAT_NUMBER);
+                $orderPayment['alipay'] = round($mainOrderPayments['alipay'] * $yingshouPercent, self::FLOAT_NUMBER);
+                $orderPayment['yizhifu'] = round($mainOrderPayments['yizhifu'] * $yingshouPercent, self::FLOAT_NUMBER);
+                $orderPayment['cash'] = round($mainOrderPayments['cash'] * $yingshouPercent, self::FLOAT_NUMBER);
+                $orderPayment['shishou'] = round($mainOrderPayments['shishou'] * $yingshouPercent, self::FLOAT_NUMBER);
+
+                $orderPayment['percent'] = $shifaPercent;
             }
 
             $condition = [

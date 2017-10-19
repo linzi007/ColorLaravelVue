@@ -133,7 +133,7 @@ class MainOrderPaymentsExport
         foreach ($collection as $payment) {
             $exportData[] = [
                 '支付单号'   => $payment['pay_sn'],
-                '订单时间'   => date('Y-m-d H:i:s', $payment['add_time']),
+                '订单时间'   => $payment['add_time'],
                 '货品金额'   => $payment['goods_amount'],
                 '缺货金额'   => $payment['quehuo'],
                 '拒收金额'   => $payment['jushou'],
