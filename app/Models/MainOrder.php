@@ -99,7 +99,7 @@ class MainOrder extends Model
     }
 
     /**
-     * 应收=实发金额-签单-自提-其他-尾差-优惠金额(代金券)
+     * 应收=实发金额-签单-自提-其他-尾差-优惠金额(代金券) + 扣代金券金额（因退货等原因造成代金券无法抵扣全额）
      *
      * @param $mainOrderPayment
      * @return mixed
@@ -113,18 +113,18 @@ class MainOrder extends Model
             $promotionAmount = $mainOrder['union_promotion'] + $mainOrder['site_promotion'];
         }
         return $mainOrderPayment['shifa'] - $mainOrderPayment['qiandan']
-            - $mainOrderPayment['ziti'] - $mainOrderPayment['qita'] - $mainOrderPayment['weicha'] - $promotionAmount;
+            - $mainOrderPayment['ziti'] - $mainOrderPayment['qita'] - $mainOrderPayment['weicha'] - $promotionAmount + $mainOrderPayment['reduce_coupon'];
     }
 
     /**
-     * 实收=预存款+POS+微信+支付宝+现金
+     * 实收=预存款+POS+微信+支付宝+现金 + 收客户拒收运费 + 代扣预存款(协助使用预存款金额) + 收客户拒收运费
      *
      * @param $mainOrder
      * @return mixed
      */
     public function getShishouAmount($mainOrder)
     {
-        return $mainOrder['pd_amount'] + $mainOrder['pos'] + $mainOrder['weixin']
-            + $mainOrder['alipay'] + $mainOrder['yizhifu'] + $mainOrder['cash'];
+        return $mainOrder['pd_amount'] + $mainOrder['pos'] + $mainOrder['weixin'] + $mainOrder['alipay'] + $mainOrder['yizhifu']
+            + $mainOrder['cash'] + $mainOrder['help_pd_amount'] + $mainOrder['refuse_delivery_fee'];
     }
 }

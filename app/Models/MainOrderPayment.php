@@ -13,7 +13,8 @@ class MainOrderPayment extends Model
         'weicha', 'desc_remark', 'pos', 'weixin', 'alipay', 'jlr', 'jzr',
         'yizhifu', 'out_pay_sn', 'cash', 'delivery_fee',
         'driver_fee', 'second_driver_id', 'jk_driver_id', 'updater',
-        'shifa', 'yingshou', 'shishou', 'jk_at', 'ck_at', 'remark'
+        'shifa', 'yingshou', 'shishou', 'jk_at', 'ck_at', 'remark',
+        'reduce_coupon', 'help_pd_amount', 'refuse_delivery_fee'
     ];
 
     // 日期字段

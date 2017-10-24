@@ -136,6 +136,12 @@
             </span>
           </el-form-item>
         </el-col>
+        <el-col :span="8">
+          <el-form-item label="扣代金券：" prop="reduce_coupon">
+            <el-input placeholder="扣代金券" v-model.number="orderPayments.reduce_coupon">
+            </el-input>
+          </el-form-item>
+        </el-col>
     </el-row>
 
     <el-row>
@@ -178,6 +184,12 @@
       <el-col :span="8">
         <el-form-item label="现金：" prop="cash">
           <el-input placeholder="现金" v-model.number="orderPayments.cash">
+          </el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="代扣预存款：" prop="help_pd_amount">
+          <el-input placeholder="代扣预存款" v-model.number="orderPayments.help_pd_amount">
           </el-input>
         </el-form-item>
       </el-col>
@@ -225,6 +237,12 @@
         <el-form-item label="收款备注：" prop="remark">
           <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 4}"
             v-model="orderPayments.remark">
+          </el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="拒收运费：" prop="refuse_delivery_fee">
+          <el-input placeholder="收客户拒收运费" v-model.number="orderPayments.refuse_delivery_fee">
           </el-input>
         </el-form-item>
       </el-col>
@@ -522,6 +540,7 @@ export default {
       })
     },
     handleCancel() {
+      this.saveLoading = false;
       this.$emit('handleCancel');
     }, // 保存并关闭
     handleSaveAndCancel() {
@@ -570,13 +589,24 @@ export default {
       if (_.isNull(this.orderPayments.cash)) {
         this.orderPayments.cash = 0;
       }
+      if (_.isNull(this.orderPayments.cash)) {
+        this.orderPayments.refuse_delivery_fee = 0;
+      }
+      if (_.isNull(this.orderPayments.cash)) {
+        this.orderPayments.help_pd_amount = 0;
+      }
     },
     getShishouAmount() {
       this.handleNull();
-      return _.add(_.add(_.add(_.add(_.add(parseFloat(this.orderPayments.pd_amount), parseFloat(this.orderPayments.pos)), parseFloat(this.orderPayments.weixin)), parseFloat(this.orderPayments.alipay)), parseFloat(this.orderPayments.yizhifu)), parseFloat(this.orderPayments.cash))
+      return _.add(_.add(_.add(_.add(_.add(_.add(_.add(parseFloat(this.orderPayments.pd_amount), parseFloat(this.orderPayments.pos)),
+        parseFloat(this.orderPayments.weixin)), parseFloat(this.orderPayments.alipay)), parseFloat(this.orderPayments.yizhifu)),
+        parseFloat(this.orderPayments.cash)), parseFloat(this.orderPayments.help_pd_amount)), parseFloat(this.orderPayments.refuse_delivery_fee))
     },
     getYingshouAmount() {
-      return this.orderPayments.shifa - this.orderPayments.qiandan - this.orderPayments.ziti
+      if (_.isNull(this.orderPayments.reduce_coupon)) {
+        this.orderPayments.reduce_coupon = 0;
+      }
+      return _.add(parseFloat(this.orderPayments.reduce_coupon), parseFloat(this.orderPayments.shifa)) - this.orderPayments.qiandan - this.orderPayments.ziti
        - this.orderPayments.weicha - this.orderPayments.qita - this.orderPayments.promotion_amount
     },
     getShifaAmount() {

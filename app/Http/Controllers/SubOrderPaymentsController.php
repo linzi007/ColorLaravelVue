@@ -44,13 +44,13 @@ class SubOrderPaymentsController extends Controller
             $this->order = $this->order->whereBetween('order.add_time', $this->getRequestAddTime());
         }
         if ($request->filled('pay_sn')) {
-            $where['order.pay_sn'] = $request->pay_sn;
+            $where[] = ['order.pay_sn', 'like', '%'.$request->pay_sn];
         }
         if ($request->filled('store_id')) {
             $where['order.store_id'] = $request->store_id;
         }
         if ($request->filled('order_sn')) {
-            $where['order.order_sn'] = $request->order_sn;
+            $where[] = ['order.order_sn', 'like', '%'.$request->order_sn];
         }
         if (isset($request->status) && in_array($request->status, [0, 1])) {
             $where['main_order_payments.status'] = $request->status;

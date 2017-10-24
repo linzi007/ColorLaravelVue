@@ -116,9 +116,10 @@
           <span class="table-col-text">{{scope.row.desc_remark}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="promotion_amount" label="代金券" width="100"></el-table-column>
+      <el-table-column prop="reduce_coupon" label="扣代金券" width="100"></el-table-column>
       <el-table-column prop="yingshou" label="应收金额" width="100"></el-table-column>
       <el-table-column prop="pd_amount" label="预存款" width="100"></el-table-column>
+      <el-table-column prop="help_pd_amount" label="代扣预存款" width="100"></el-table-column>
       <el-table-column prop="pos" label="POS刷卡" width="100"></el-table-column>
       <el-table-column prop="weixin" label="微信" width="100"></el-table-column>
       <el-table-column prop="alipay" label="支付宝" width="100"></el-table-column>

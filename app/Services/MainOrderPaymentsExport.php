@@ -56,6 +56,9 @@ class MainOrderPaymentsExport
         'updater'                     => '变更人',
         'updated_at'                  => '变更时间',
         'status'                      => '录入状态',
+        'reduce_coupon'               => '扣代金券',
+        'help_pd_amount'              => '代扣预存款',
+        'refuse_delivery_fee'         => '收客户拒收运费',
     ];
 
     public function excel($params)
@@ -144,14 +147,17 @@ class MainOrderPaymentsExport
                 '尾差金额'   => $payment['weicha'],
                 '扣减备注'   => $payment['desc_remark'],
                 '代金券'    => $payment['promotion_amount'],
+                '扣代金券'    => $payment['reduce_coupon'],
                 '应收金额'   => $payment['yingshou'],
                 '预存款'    => $payment['pd_amount'],
+                '代扣预存款'    => $payment['help_pd_amount'],
                 'POS金额'  => $payment['pos'],
                 '刷卡单号'   => $payment['out_pay_sn'],
                 '微信金额'   => $payment['weixin'],
                 '支付宝金额'  => $payment['alipay'],
                 '现金金额'   => $payment['cash'],
                 '翼支付金额'  => $payment['yizhifu'],
+                '收客户拒收运费'  => $payment['refuse_delivery_fee'],
                 '实收金额'   => $payment['shishou'],
                 '交款人'    => empty($payment['jk_driver_id']) ? '' : $drivers[$payment['jk_driver_id']],
                 '收款时间'   => $payment['jk_at'],

@@ -105,13 +105,16 @@
           </template>
         </el-table-column>
         <el-table-column prop="promotion_amount" label="代金券" width="100"></el-table-column>
+        <el-table-column prop="reduce_coupon" label="扣代金券" width="100"></el-table-column>
         <el-table-column prop="yingshou" label="应收金额" width="100"></el-table-column>
         <el-table-column prop="pd_amount" label="预存款" width="100"></el-table-column>
+        <el-table-column prop="help_pd_amount" label="代扣预存款" width="100"></el-table-column>
         <el-table-column prop="pos" label="POS刷卡" width="100"></el-table-column>
         <el-table-column prop="weixin" label="微信" width="100"></el-table-column>
         <el-table-column prop="alipay" label="支付宝" width="100"></el-table-column>
         <el-table-column prop="yizhifu" label="翼支付" width="100"></el-table-column>
         <el-table-column prop="cash" label="现金" width="100"></el-table-column>
+        <el-table-column prop="refuse_delivery_fee" label="拒收运费" width="100"></el-table-column>
         <el-table-column prop="shishou" label="实收金额" width="100"></el-table-column>
         <el-table-column label="交款日期" width="180">
             <template scope="scope">

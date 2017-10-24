@@ -12,6 +12,7 @@ class SubOrderPayment extends Model
     protected $fillable = [
         'order_id', 'order_sn', 'store_id', 'pay_id', 'pay_sn', 'add_time', 'desc_remark', 'desc_remark', 'quehuo', 'jushou', 'shifa', 'percent', 'store_id', 'qiandan', 'ziti', 'qita', 'weicha'
         , 'yingshou', 'pos', 'weixin', 'alipay', 'yizhifu', 'cash', 'shishou', 'delivery_fee', 'driver_fee'
+        , 'reduce_coupon', 'help_pd_amount'
     ];
 
     protected $dates = [
@@ -187,21 +188,27 @@ class SubOrderPayment extends Model
             '其他金额' => '其他金额' * '实发比例',
             '尾差金额' => '尾差金额' * '实发比例',
             '代金券' => '子单优惠金额',
-            '应收金额' => '实发金额' - '签单金额' - '自提金额' - '其他金额' - '尾差金额' - '代金券',
+            '扣代金券' =>  '扣代金券' * '实发比例'
+            '应收金额' => '实发金额' - '签单金额' - '自提金额' - '其他金额' - '尾差金额' - '代金券' + ‘扣代金券’,
             '应收金额比例' => '应收金额/主单应收金额',
             '预存款' => '预存款' * '应收金额比例',
+            '代扣预存款' => '代扣预存款' * '应收金额比例',
             'POS刷卡' => 'POS刷卡' * '应收金额比例',
             '微信' => '微信' * '应收金额比例',
             '支付宝' => '支付宝' * '应收金额比例',
             '翼支付' => '翼支付' * '应收金额比例',
             '现金' => '现金' * '应收金额比例',
-            '实收金额' => '主单实收金额' * '应收金额比例',
+            '实收金额' => '主单实收金额'- ‘拒收运费’ * '应收金额比例',
         ];*/
     public function splitOrder(MainOrderPayment $mainOrderPayments)
     {
         $mainOrderPayments->load(['subOrders.orderGoods.payments']);
         if (empty($subOrders = $mainOrderPayments['subOrders'])) {
             throw new Exception('子订单不存在!');
+        }
+        // 子单的实收金额不计算 客户拒收运费
+        if ($mainOrderPayments['refuse_delivery_fee']) {
+            $mainOrderPayments['shishou'] -= $mainOrderPayments['refuse_delivery_fee'];
         }
         //取得更新的数据
         $orderPayments = [];
@@ -218,18 +225,20 @@ class SubOrderPayment extends Model
 
         //剩余扣减金额
         $mainOrderRemain = [
-            'percent'      => 100,
-            'qiandan'      => $mainOrderPayments['qiandan'],
-            'ziti'         => $mainOrderPayments['ziti'],
-            'qita'         => $mainOrderPayments['qita'],
-            'weicha'       => $mainOrderPayments['weicha'],
-            'pos'          => $mainOrderPayments['pos'],
-            'weixin'       => $mainOrderPayments['weixin'],
-            'alipay'       => $mainOrderPayments['alipay'],
-            'yizhifu'      => $mainOrderPayments['yizhifu'],
-            'cash'         => $mainOrderPayments['cash'],
-            'delivery_fee' => $mainOrderPayments['delivery_fee'],
-            'driver_fee'   => $mainOrderPayments['driver_fee'],
+            'percent'        => 100,
+            'qiandan'        => $mainOrderPayments['qiandan'],
+            'ziti'           => $mainOrderPayments['ziti'],
+            'qita'           => $mainOrderPayments['qita'],
+            'weicha'         => $mainOrderPayments['weicha'],
+            'reduce_coupon'  => $mainOrderPayments['reduce_coupon'],    // 扣减代金券
+            'help_pd_amount' => $mainOrderPayments['help_pd_amount'],   // 代扣代金券
+            'pos'            => $mainOrderPayments['pos'],
+            'weixin'         => $mainOrderPayments['weixin'],
+            'alipay'         => $mainOrderPayments['alipay'],
+            'yizhifu'        => $mainOrderPayments['yizhifu'],
+            'cash'           => $mainOrderPayments['cash'],
+            'delivery_fee'   => $mainOrderPayments['delivery_fee'],
+            'driver_fee'     => $mainOrderPayments['driver_fee'],
         ];
 
         //缺货,拒收,实发,百分比 需要根据实际发货计算

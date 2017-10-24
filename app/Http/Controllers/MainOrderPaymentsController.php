@@ -105,7 +105,7 @@ class MainOrderPaymentsController extends Controller
 
         $where = [];
         if ($paySn = $request->pay_sn) {
-            $where['pay_sn'] = $paySn;
+            $where[] = ['pay_sn', 'like', '%' . $paySn];
         }
         if ($request->add_time && 'null' != $request->add_time[0]) {
             $mainOrders = $mainOrders->whereBetween('main_order.add_time', $this->getRequestAddTime());
@@ -299,6 +299,9 @@ class MainOrderPaymentsController extends Controller
             'remark'           => $mainOrder['remark'],
             'jk_at'           => date('Y-m-d H:i:s', strtotime($mainOrder['jk_at'])),
             'ck_at'           => date('Y-m-d H:i:s', strtotime($mainOrder['ck_at'])),
+            'reduce_coupon'     => $mainOrder['reduce_coupon'],
+            'help_pd_amount'     => $mainOrder['help_pd_amount'],
+            'refuse_delivery_fee'     => $mainOrder['refuse_delivery_fee'],
         ];
         $quehuo = $jushou = $shifa = $delivery_fee = $driver_fee = 0;
         foreach ($orderGoodsPayments as $goods) {
