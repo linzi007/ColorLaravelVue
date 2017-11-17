@@ -51,57 +51,57 @@
       <el-table-column align="center" type="index" label="序号" width="65">
       </el-table-column>
       <el-table-column prop="store_name" label="档口" width="200" sortable>
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.store_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="goods_id" label="SKU" width="150" sortable>
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.goods_id}}</span>
         </template>
       </el-table-column>
       <el-table-column label="货品名称" width="300">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.goods_name}}</span>
         </template>
       </el-table-column>
       <el-table-column label="条码" width="150">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.goods_serial}}</span>
         </template>
       </el-table-column>
       <el-table-column label="货品金额" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.goods_price}}</span>
         </template>
       </el-table-column>
       <el-table-column label="单位" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.g_unit}}</span>
         </template>
       </el-table-column>
       <el-table-column label="计费方式" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.shipping_charging_type | chargingTypeName}}</span>
         </template>
       </el-table-column>
       <el-table-column label="单件费用&费率" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.shipping_rate}}</span>
         </template>
       </el-table-column>
       <el-table-column label="拆包费（元/件）" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.unpack_fee}}</span>
         </template>
       </el-table-column>
       <el-table-column label="司机计费方式" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.driver_charging_type | chargingTypeName}}</span>
         </template>
       </el-table-column>
       <el-table-column label="单件费用&费率" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.driver_rate}}</span>
         </template>
       </el-table-column>

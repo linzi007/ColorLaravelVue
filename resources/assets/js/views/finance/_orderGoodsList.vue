@@ -5,47 +5,47 @@
       max-height="250"
       style="width: 100%">
       <el-table-column width="100px" align="center" label="SKU">
-          <template scope="scope">
+          <template slot-scope="scope">
               <span>{{scope.row.goods_id}}</span>
           </template>
       </el-table-column>
       <el-table-column align="center" label="货品名称">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.goods_name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" label="条码">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.goods_serial}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" label="档口名称">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.store_id}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" label="单价">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.goods_price}}</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" label="数量">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.goods_num}}</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" label="缺货数量">
-        <template scope="scope">
+        <template slot-scope="scope">
           <el-input size="small" v-model.number="scope.row.payments.quehuo_number"></el-input>
         </template>
       </el-table-column>
       <el-table-column width="110px" fix="right" align="center" label="拒收数量">
-        <template scope="scope">
+        <template slot-scope="scope">
           <el-input size="small" v-model.number="scope.row.payments.jushou_number"></el-input>
         </template>
       </el-table-column>
       <el-table-column width="110px" fix="right" align="center" label="实发数量">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.payments.shifa_number}}</span>
         </template>
       </el-table-column>

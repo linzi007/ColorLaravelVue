@@ -89,28 +89,28 @@
         width="55">
       </el-table-column>
       <el-table-column label="支付单号" width="180">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.pay_sn}}</span>
         </template>
       </el-table-column>
       <el-table-column label="子订单号" width="180">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.order_sn}}</span>
         </template>
       </el-table-column>
       <el-table-column label="订单时间" width="180">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.add_time}}</span>
         </template>
       </el-table-column>
       <el-table-column label="档口" width="180">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.store_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="goods_name" label="货品名称" width="200"></el-table-column>
       <el-table-column label="条码" width="180">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.goods_serial}}</span>
         </template>
       </el-table-column>
@@ -122,40 +122,40 @@
       <el-table-column prop="shifa_number" label="实发数量" width="100"></el-table-column>
       <el-table-column prop="shifa_amount" label="实发金额" width="100"></el-table-column>
       <el-table-column label="配送计费方式" width="130">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.shipping_charging_type | chargingTypeName}}</span>
         </template>
       </el-table-column>
       <el-table-column label="费率" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.shipping_rate}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="unpack_fee" label="拆包费" width="100"></el-table-column>
       <el-table-column prop="delivery_fee" label="配送费" width="100"></el-table-column>
       <el-table-column label="交款人" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.jk_driver_name}}</span>
         </template>
       </el-table-column>
       <el-table-column label="司机计费方式" width="130">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.driver_charging_type | chargingTypeName}}</span>
         </template>
       </el-table-column>
       <el-table-column label="费率" width="100">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.driver_rate}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="driver_fee" label="司机配送费" width="120"></el-table-column>
       <el-table-column label="录入状态" width="100">
-          <template scope="scope">
+          <template slot-scope="scope">
               <span class="table-col-text">{{scope.row.status | orderPaymentsStatus}}</span>
           </template>
       </el-table-column>
       <el-table-column label="记账人" width="100">
-          <template scope="scope">
+          <template slot-scope="scope">
               <span class="table-col-text">{{scope.row.jzr_name}}</span>
           </template>
       </el-table-column>

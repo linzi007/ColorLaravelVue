@@ -82,12 +82,12 @@
           width="55">
         </el-table-column>
         <el-table-column prop="pay_sn" label="支付单号" width="200" fixed sortable>
-          <template scope="scope">
+          <template slot-scope="scope">
             <span class="link-type" @click="handleEdit(scope.row)">{{scope.row.pay_sn}}</span>
           </template>
         </el-table-column>
         <el-table-column label="订单时间" width="180">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span class="table-col-text">{{scope.row.add_time}}</span>
           </template>
         </el-table-column>
@@ -100,7 +100,7 @@
         <el-table-column prop="qita" label="其他金额" width="100"></el-table-column>
         <el-table-column prop="weicha" label="尾差金额" width="100"></el-table-column>
         <el-table-column label="扣减备注" width="100">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span class="table-col-text">{{scope.row.desc_remark}}</span>
           </template>
         </el-table-column>
@@ -117,33 +117,33 @@
         <el-table-column prop="refuse_delivery_fee" label="拒收运费" width="100"></el-table-column>
         <el-table-column prop="shishou" label="实收金额" width="100"></el-table-column>
         <el-table-column label="交款日期" width="180">
-            <template scope="scope">
+            <template slot-scope="scope">
                 <span class="table-col-text">{{scope.row.jk_at}}</span>
             </template>
         </el-table-column>
         <el-table-column label="刷卡单号" width="200">
-            <template scope="scope">
+            <template slot-scope="scope">
                 <span class="table-col-text">{{scope.row.out_pay_sn}}</span>
             </template>
         </el-table-column>
         <el-table-column label="交款人" width="100">
-            <template scope="scope">
+            <template slot-scope="scope">
                 <span class="table-col-text">{{scope.row.jk_driver_name}}</span>
             </template>
         </el-table-column>
         <el-table-column prop="delivery_fee" label="配送费" width="100"></el-table-column>
         <el-table-column label="收款备注" width="200">
-            <template scope="scope">
+            <template slot-scope="scope">
                 <span class="table-col-text">{{scope.row.remark}}</span>
             </template>
         </el-table-column>
         <el-table-column label="录入状态" width="100">
-            <template scope="scope">
+            <template slot-scope="scope">
                 <span class="table-col-text">{{scope.row.status | orderPaymentsStatus}}</span>
             </template>
         </el-table-column>
         <el-table-column label="记账人" width="100">
-            <template scope="scope">
+            <template slot-scope="scope">
                 <span class="table-col-text">{{scope.row.jzr_name}}</span>
             </template>
         </el-table-column>

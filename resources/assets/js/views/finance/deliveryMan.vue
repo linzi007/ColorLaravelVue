@@ -21,7 +21,7 @@
         @row-dblclick='handleUpdate'
         style="width: 100%">
       <el-table-column align="center" label="序号" width="65">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>

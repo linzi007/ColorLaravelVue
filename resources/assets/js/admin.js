@@ -13,7 +13,7 @@ import AdminApp from './AdminApp';
 import router from 'router';
 import store from 'store';
 import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-default/index.css';
+import 'element-ui/lib/theme-chalk/index.css';
 import 'assets/custom-theme/index.css';
 import 'assets/iconfont/iconfont';
 import NProgress from 'nprogress';
@@ -23,7 +23,7 @@ import errLog from 'store/errLog';
 import { getToken } from 'utils/auth'
 // register globally
 Vue.component('icon-svg', IconSvg);
-Vue.use(ElementUI);
+Vue.use(ElementUI, { size: 'small' });
 
 // register global utility filters.
 Object.keys(filters).forEach(key => {

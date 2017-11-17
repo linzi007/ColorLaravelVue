@@ -41,29 +41,29 @@
         width="55">
       </el-table-column>
       <el-table-column prop="created_at" label="登记时间" width="180">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.created_at}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="created_at" label="档口" width="250">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.store.store_name}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="amount" label="换盖金额" width="150">
       </el-table-column>
       <el-table-column label="经办司机" width="150">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.driver.name}}</span>
         </template>
       </el-table-column>
       <el-table-column label="关联单号" width="200">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.pay_sn}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作员" width="150">
-        <template scope="scope">
+        <template slot-scope="scope">
           <span class="table-col-text">{{scope.row.creator_name}}</span>
         </template>
       </el-table-column>
